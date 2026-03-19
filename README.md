@@ -57,6 +57,8 @@ Ensure you have [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) i
 2. Clone the repository and enter the directory:
    ```cmd
    git clone https://github.com/VixenCreations/Fish-Appraiser-Engine.git
+   ```
+   ```cmd
    cd Fish-Appraiser-Engine
    ```
 3. Start the local server:
@@ -74,6 +76,8 @@ Ensure you have [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) i
 2. Clone the repository and enter the directory:
    ```bash
    git clone https://github.com/VixenCreations/Fish-Appraiser-Engine.git
+   ```
+   ```bash
    cd Fish-Appraiser-Engine
    ```
 3. Start the local server:
