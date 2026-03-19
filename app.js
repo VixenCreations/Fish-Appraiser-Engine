@@ -57,6 +57,7 @@ function populateDropdowns(modData) {
 
 function populateFishSelector() {
     const select = document.getElementById('calcFishSelect');
+    // Sort alphabetically for easier selection
     fishDatabase.sort((a,b) => a.name.localeCompare(b.name)).forEach((fish, i) => {
         const opt = document.createElement('option');
         opt.value = i; 
@@ -84,7 +85,7 @@ function updateWeightBounds() {
         weightInput.disabled = true;
         boundsLabel.innerText = "Locked to 0.0kg (Tiny)";
     } else if (sizeState === 'huge') {
-        // UNLOCKED: dynamically expand visual bounds for Huge
+        // Huge range expands the visual upper limit for math calculations
         const estHugeMax = (max * 2.0).toFixed(1); 
         weightInput.disabled = false;
         if (!weightInput.value || weightInput.value < min) {
@@ -122,15 +123,14 @@ function runAppraiser() {
     if (sizeState === 'tiny') {
         baseValue = floor;
     } else {
-        // Dynamic Lerp Boundary
-        // If Huge is selected, the math boundary stretches to accommodate inflated weights
+        // Dynamic Lerp Boundary: Stretches if Huge is selected
         const activeMaxW = (sizeState === 'huge') ? (maxW * 1.85) : maxW;
         
         let weightPercent = 0;
         if (activeMaxW > minW) {
             weightPercent = (weightInput - minW) / (activeMaxW - minW);
         }
-        weightPercent = Math.max(0, Math.min(1, weightPercent)); // Clamp safely between 0% and 100%
+        weightPercent = Math.max(0, Math.min(1, weightPercent)); 
         
         baseValue = floor + ((ceil - floor) * weightPercent);
     }
@@ -212,7 +212,6 @@ function renderMatrix() {
         const baseXP = fish.baseXP || 0;
         const perfectXP = fish.perfectXP || 0;
 
-        // --- CSS RARITY BINDING ---
         let rarityClass = "rarity-trash";
         if (rarityKey.includes("abundant")) rarityClass = "rarity-abundant";
         else if (rarityKey.includes("common")) rarityClass = "rarity-common";
@@ -243,20 +242,34 @@ function renderMatrix() {
 
 // --- 4. EVENT BINDINGS ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Modal Interaction
+    const modal = document.getElementById('disclaimerModal');
+    const btn = document.getElementById('disclaimerBtn');
+    const close = document.getElementById('closeModal');
+
+    if (btn) btn.onclick = () => modal.style.display = "block";
+    if (close) close.onclick = () => modal.style.display = "none";
+    
+    window.onclick = (event) => {
+        if (event.target == modal) modal.style.display = "none";
+    };
+
+    // Calculation Update Bindings
     document.getElementById('calcFishSelect').addEventListener('change', updateWeightBounds);
     document.getElementById('calcSizeSelect').addEventListener('change', updateWeightBounds);
     document.getElementById('calcMutSelect').addEventListener('change', runAppraiser);
     document.getElementById('calcWeightInput').addEventListener('input', runAppraiser);
     document.getElementById('calcBuffInput').addEventListener('input', runAppraiser);
     
+    // Matrix Filter Bindings
     document.getElementById('matrixMutSelect').addEventListener('change', renderMatrix);
     document.getElementById('matrixSizeSelect').addEventListener('change', renderMatrix);
     document.getElementById('searchInput').addEventListener('input', renderMatrix);
     
+    // Header Sort Bindings
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => sortData(th.dataset.sort));
     });
 
-    // Start Engine
     initEngine();
 });

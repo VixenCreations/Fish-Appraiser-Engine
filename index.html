@@ -3,17 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Economy & Appraisal Engine</title>
+    <title>Fish Appraiser Engine | Vixenlicious</title>
     <link rel="stylesheet" href="style.css">
     <script src="app.js" defer></script>
 </head>
 <body>
 
-    <h1>Fish Appraiser</h1>
+		<header class="main-header">
+				<div class="header-left">
+						<h1>Fish Appraiser</h1>
+						<p class="maintainer">Developed & Written by <strong>Vixenlicous</strong></p>
+				</div>
+				<div class="header-right">
+						<button id="disclaimerBtn" class="secondary-btn">Community Disclaimer</button>
+						<a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" class="icon-link">
+								<img src="/assets/GitHub_Invertocat_White.png" alt="GitHub" width="32">
+						</a>
+						<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+						<script type='text/javascript'>
+								kofiwidget2.init('Support me on Ko-fi', '#58a6ff', 'S6S61WAIUV');
+								kofiwidget2.draw();
+						</script>
+				</div>
+		</header>
+	
     <div id="loader">Fetching Payload from /data/...</div>
 
     <div id="mainEngineContainer" style="display: none;">
-
         <div class="appraiser-panel">
             <div>
                 <h3 class="section-title">Catch Appraiser (Linear Weight Sync)</h3>
@@ -37,11 +53,10 @@
                     </div>
                     <div class="control-group">
                         <label>Player Global Buff (%)</label>
-                        <input type="number" id="calcBuffInput" value="0" step="1" style="width: 120px;" placeholder="e.g. 10">
+                        <input type="number" id="calcBuffInput" value="10" step="1" style="width: 120px;">
                     </div>
                 </div>
             </div>
-            
             <div class="calc-output">
                 <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold;">Appraisal Value</div>
                 <div class="output-price" id="outPrice">---</div>
@@ -79,8 +94,14 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-
     </div>
 
+    <div id="disclaimerModal" class="modal">
+        <div class="modal-content">
+            <h3>Community Disclaimer</h3>
+            <p>All data presented in this engine is collected and managed by the community of <strong>Fish!</strong> and may not be accurate unless confirmed by the Developers.</p>
+            <button id="closeModal" class="accent-btn">Understood</button>
+        </div>
+    </div>
 </body>
 </html>

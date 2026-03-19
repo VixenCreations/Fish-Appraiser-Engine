@@ -1,3 +1,4 @@
+/* --- GLOBAL VARIABLES --- */
 :root {
     --bg-base: #090c10;
     --bg-panel: #161b22;
@@ -12,6 +13,7 @@
     --panel-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
+/* --- BASE STYLES --- */
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-base);
@@ -20,16 +22,36 @@ body {
     padding: 20px;
 }
 
-h1 {
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
+/* --- HEADER & BRANDING --- */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
     border-bottom: 2px solid var(--border);
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
-/* --- APPRAISAL CALCULATOR --- */
+h1 { 
+    color: var(--accent); 
+    text-transform: uppercase; 
+    margin: 0; 
+    letter-spacing: 1.5px; 
+}
+
+.maintainer { 
+    color: var(--text-muted); 
+    font-size: 0.85em; 
+    margin-top: 5px; 
+}
+
+.header-right { 
+    display: flex; 
+    align-items: center; 
+    gap: 20px; 
+}
+
+/* --- APPRAISER PANEL --- */
 .appraiser-panel {
     background-color: #11151a;
     border: 2px solid var(--border);
@@ -43,10 +65,10 @@ h1 {
     gap: 20px;
 }
 
-.calc-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+.calc-grid { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
 }
 
 .calc-output {
@@ -61,11 +83,11 @@ h1 {
     text-align: center;
 }
 
-.output-price {
-    font-size: 2.5em;
-    color: var(--success);
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
+.output-price { 
+    font-size: 2.5em; 
+    color: var(--success); 
+    font-family: 'Courier New', Courier, monospace; 
+    font-weight: bold; 
     margin: 10px 0;
     text-shadow: 0 0 10px rgba(63, 185, 80, 0.2);
 }
@@ -127,7 +149,53 @@ input:disabled {
     border-color: #555;
 }
 
-select { cursor: pointer; }
+/* --- BUTTONS & INTERACTIVES --- */
+.secondary-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.secondary-btn:hover { 
+    border-color: var(--warning); 
+    color: var(--warning); 
+}
+
+/* --- MODAL --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--bg-panel);
+    margin: 15% auto;
+    padding: 30px;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+}
+
+.accent-btn {
+    background-color: var(--accent);
+    color: var(--bg-base);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+}
 
 /* --- DATATABLE --- */
 .table-container {
