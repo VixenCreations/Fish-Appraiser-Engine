@@ -1,0 +1,214 @@
+:root {
+    --bg-base: #090c10;
+    --bg-panel: #161b22;
+    --bg-hover: #21262d;
+    --text-main: #c9d1d9;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --border: #30363d;
+    --success: #3fb950;
+    --warning: #d29922;
+    --xp-color: #bc8cff;
+    --panel-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- APPRAISAL CALCULATOR --- */
+.appraiser-panel {
+    background-color: #11151a;
+    border: 2px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: var(--panel-shadow);
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.calc-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.calc-output {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.output-price {
+    font-size: 2.5em;
+    color: var(--success);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    margin: 10px 0;
+    text-shadow: 0 0 10px rgba(63, 185, 80, 0.2);
+}
+
+.output-xp {
+    font-size: 1.2em;
+    color: var(--xp-color);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+/* --- GENERAL CONTROLS --- */
+.dashboard {
+    background-color: var(--bg-panel);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: var(--panel-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.control-group label {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+input, select {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #555;
+}
+
+select { cursor: pointer; }
+
+/* --- DATATABLE --- */
+.table-container {
+    overflow-y: auto;
+    max-height: 50vh;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--panel-shadow);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    background-color: #1c2128;
+    color: var(--text-muted);
+    font-size: 0.85em;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 0 var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+th:hover { color: var(--accent); }
+th.sort-asc::after { content: " ▲"; color: var(--accent); }
+th.sort-desc::after { content: " ▼"; color: var(--accent); }
+
+tr:hover td { background-color: var(--bg-hover); }
+
+/* --- DATA TYPOGRAPHIES --- */
+.fish-name { font-weight: 600; font-size: 1.05em; }
+.money { color: var(--success); font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+.weight { color: var(--accent); font-family: 'Courier New', Courier, monospace; }
+.huge-tag { color: var(--warning); font-size: 0.75em; margin-left: 6px; font-weight: bold; text-transform: uppercase;}
+.xp-val { color: var(--xp-color); font-family: monospace; }
+
+#loader { text-align: center; padding: 40px; color: var(--accent); font-size: 1.2em; font-weight: bold; }
+.section-title { margin: 0 0 15px 0; font-size: 1.2em; color: var(--text-main); }
+
+/* --- RARITY COLOR MATRIX --- */
+.rarity-tag { 
+    font-size: 0.8em; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.rarity-trash { background-color: #4a4a4a; color: #a0a0a0; }
+.rarity-abundant { background-color: #6b7280; color: #f3f4f6; }
+.rarity-common { background-color: #3b82f6; color: #eff6ff; }
+.rarity-curious { background-color: #10b981; color: #ecfdf5; }
+.rarity-elusive { background-color: #8b5cf6; color: #f5f3ff; }
+.rarity-relic { background-color: #f59e0b; color: #fffbeb; }
+.rarity-fabled { background-color: #ef4444; color: #fef2f2; }
+.rarity-mythic { background-color: #ec4899; color: #fdf2f8; }
+.rarity-exotic { background-color: #14b8a6; color: #f0fdfa; }
+.rarity-secret { 
+    background: linear-gradient(45deg, #fbbf24, #f59e0b); 
+    color: #111827; 
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+.rarity-ultimate { 
+    background: linear-gradient(45deg, #ef4444, #8b5cf6, #3b82f6); 
+    color: white; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}

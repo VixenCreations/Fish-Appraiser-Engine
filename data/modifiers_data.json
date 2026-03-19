@@ -1,0 +1,20 @@
+{
+  "mutations": [
+    { "value": 1.0, "label": "None (1.0x)" },
+    { "value": 1.1, "label": "Cursed (1.1x)" },
+    { "value": 1.2, "label": "Sandy (1.2x)" },
+    { "value": 1.3, "label": "Stone, Zebra (1.3x)" },
+    { "value": 1.5, "label": "Negative, Albino, Ghastly, Glitched (1.5x)" },
+    { "value": 1.6, "label": "Tiger (1.6x)" },
+    { "value": 1.8, "label": "Camo (1.8x)" },
+    { "value": 2.0, "label": "Void, Shadow, Shiny, Frozen (2.0x)" },
+    { "value": 3.0, "label": "Blessed, Golden, Galaxy, Radioactive, Rainbow (3.0x)" },
+    { "value": 4.0, "label": "Burning, Electric (4.0x)" },
+    { "value": 5.0, "label": "Holographic, Static (5.0x)" }
+  ],
+  "sizes": [
+    { "id": "normal", "label": "Standard Generation", "multiplier": 1.0 },
+    { "id": "huge", "label": "Huge (1.5x Value, Uncoupled Weight)", "multiplier": 1.5 },
+    { "id": "tiny", "label": "Tiny (Locks Base Floor, 0.0kg)", "multiplier": 1.0 }
+  ]
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Economy & Appraisal Engine</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+
+    <h1>Fish Appraiser</h1>
+    <div id="loader">Fetching Payload from /data/...</div>
+
+    <div id="mainEngineContainer" style="display: none;">
+
+        <div class="appraiser-panel">
+            <div>
+                <h3 class="section-title">Catch Appraiser (Linear Weight Sync)</h3>
+                <div class="calc-grid">
+                    <div class="control-group">
+                        <label>Target Fish</label>
+                        <select id="calcFishSelect" style="width: 200px;"></select>
+                    </div>
+                    <div class="control-group">
+                        <label>Mutation</label>
+                        <select id="calcMutSelect"></select>
+                    </div>
+                    <div class="control-group">
+                        <label>Size Variant</label>
+                        <select id="calcSizeSelect"></select>
+                    </div>
+                    <div class="control-group">
+                        <label>Exact Weight (kg)</label>
+                        <input type="number" id="calcWeightInput" step="0.01" style="width: 120px;">
+                        <span id="weightBounds" style="font-size: 0.75em; color: var(--text-muted); margin-top: 4px;"></span>
+                    </div>
+                    <div class="control-group">
+                        <label>Player Global Buff (%)</label>
+                        <input type="number" id="calcBuffInput" value="0" step="1" style="width: 120px;" placeholder="e.g. 10">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calc-output">
+                <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold;">Appraisal Value</div>
+                <div class="output-price" id="outPrice">---</div>
+                <div class="output-xp" id="outXP">---</div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="control-group">
+                <label>Matrix Search Filter</label>
+                <input type="text" id="searchInput" placeholder="Search by fish name or rarity..." autocomplete="off" style="width: 250px;">
+            </div>
+            <div class="control-group">
+                <label>Matrix Mutation Preview</label>
+                <select id="matrixMutSelect"></select>
+            </div>
+            <div class="control-group">
+                <label>Matrix Size Preview</label>
+                <select id="matrixSizeSelect"></select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th data-sort="name">Fish Name</th>
+                        <th data-sort="rarity">Rarity</th>
+                        <th data-sort="weight">Weight Range</th>
+                        <th data-sort="price">Base Sell Range</th>
+                        <th data-sort="basexp">Catch XP</th>
+                        <th data-sort="perfectxp">Perfect XP</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
