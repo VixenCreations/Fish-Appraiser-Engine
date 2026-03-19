@@ -26,18 +26,23 @@ A high-performance, zero-dependency local web engine built to reverse-engineer a
 
 ## 📂 Architecture & Topology
 
-The application relies on a strict separation of concerns (Structure, Presentation, Logic, and Data):
+The application relies on a strict separation of concerns (Structure, Presentation, Logic, and Data) while maintaining a flat, easily navigable root directory:
 
 ```text
-/WikiFish-Engine
+/Fish-Appraiser-Engine
+ │-- .env                   # Local network configuration (Port/Host overrides)
  │-- server.js              # Native Node.js web server & routing
  │-- index.html             # UI Structure & Dashboard
  │-- style.css              # Dark mode UI & Rarity color matrix
  │-- app.js                 # Calculation engine & asynchronous data ingestion
+ │-- package.json           # Project metadata
  │
- └── /data                  # Decoupled Game State
-      │-- fish_data.json       # Master entity list (Base weights, Prices, XP)
-      │-- modifiers_data.json  # Fixed scalar arrays for Mutations & Sizes
+ ├── /assets                # Static branding assets
+ ├── /data                  # Decoupled Game State
+ │    │-- fish_data.json       # Master entity list (Base weights, Prices, XP)
+ │    └── modifiers_data.json  # Fixed scalar arrays for Mutations & Sizes
+ │
+ └── EnginePreview1 & 2     # Documentation images
 ```
 
 # 🛠️ Installation & Usage
