@@ -51,8 +51,8 @@ Ensure you have [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) i
 1. Open **Command Prompt** or **PowerShell**.
 2. Clone the repository and enter the directory:
    ```cmd
-   git clone [https://github.com/](https://github.com/)[Your-GitHub-Username]/[Your-Repo-Name].git
-   cd [Your-Repo-Name]
+   git clone [https://github.com/](https://github.com/)[VixenCreations]/[Fish-Appraiser-Engine].git
+   cd [Fish-Appraiser-Engine]
    ```
 3. Start the local server:
    ```cmd
@@ -68,8 +68,8 @@ Ensure you have [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) i
    ```
 2. Clone the repository and enter the directory:
    ```bash
-   git clone [https://github.com/](https://github.com/)[Your-GitHub-Username]/[Your-Repo-Name].git
-   cd [Your-Repo-Name]
+   git clone [https://github.com/](https://github.com/)[VixenCreations]/[Fish-Appraiser-Engine].git
+   cd [Fish-Appraiser-Engine]
    ```
 3. Start the local server:
    ```bash
