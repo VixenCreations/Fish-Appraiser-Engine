@@ -15,6 +15,7 @@
 						<p class="maintainer">Developed & Written by <strong>Vixenlicous</strong></p>
 				</div>
 				<div class="header-right">
+						<button id="creditsBtn" class="secondary-btn">Credits</button>
 						<button id="disclaimerBtn" class="secondary-btn">Community Disclaimer</button>
 						<a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" class="icon-link">
 								<img src="/assets/GitHub_Invertocat_White.png" alt="GitHub" width="32">
@@ -64,6 +65,54 @@
             </div>
         </div>
 
+				<div class="luck-panel appraiser-panel">
+						<div>
+								<h3 class="section-title">Luck & Drop Rate Analyzer</h3>
+								<div class="calc-grid">
+										<div class="control-group">
+												<label>Raw Luck</label>
+												<input type="number" id="luckRaw" value="10" step="1" style="width: 100px;">
+										</div>
+										<div class="control-group">
+												<label>Buffs (Multiplier)</label>
+												<input type="number" id="luckBuffs" value="1.0" step="0.1" style="width: 100px;">
+										</div>
+										<div class="control-group">
+												<label>External Factors</label>
+												<input type="number" id="luckExternal" value="1.0" step="0.1" style="width: 100px;">
+										</div>
+										<div class="control-group">
+												<label>Final Luck Multiplier</label>
+												<input type="text" id="luckOutMult" value="1.00x" disabled style="width: 100px; color: var(--accent); font-weight: bold; border-color: var(--accent);">
+										</div>
+								</div>
+								
+								<div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
+										<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Huge Catch Analyzer</div>
+										<div class="calc-grid">
+												<div class="control-group">
+														<label>Big Catch Points</label>
+														<input type="number" id="hugePoints" value="20" step="1" style="width: 140px;">
+												</div>
+												<div class="control-group">
+														<label>Base Chance (%)</label>
+														<input type="number" id="hugeBaseChance" value="1.5" step="0.1" style="width: 140px;">
+												</div>
+										</div>
+										<div style="margin-top: 12px; font-size: 1.1em;">
+												Dynamic Huge Chance: <strong id="hugeOutChance" style="color: var(--warning);">1.80%</strong>
+												<span id="hugeMultiplierOut" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(1.20x Multiplier)</span>
+										</div>
+								</div>
+						</div>
+
+						<div class="luck-readout">
+								<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Rarity Probabilities</div>
+								<div id="probabilityBars" class="prob-container">
+										</div>
+						</div>
+				</div>
+
         <div class="dashboard">
             <div class="control-group">
                 <label>Matrix Search Filter</label>
@@ -103,5 +152,42 @@
             <button id="closeModal" class="accent-btn">Understood</button>
         </div>
     </div>
+		
+		<div id="creditsModal" class="modal">
+				<div class="modal-content" style="text-align: left; width: 550px;">
+						<h3 style="text-align: center; color: var(--accent); margin-top: 0;">Credits & Acknowledgements</h3>
+						
+						<div style="margin-bottom: 15px;">
+								<strong style="color: var(--text-main);">Official Fish! Links</strong>
+								<ul>
+										<li><a href="https://vrchat.com/home/world/wrld_ae001ea3-ed05-42f0-adf2-3d47efd10a77/info" target="_blank">VRChat World</a></li>
+										<li><a href="https://discord.gg/TrickForge" target="_blank">TrickForge Discord</a></li>
+								</ul>
+						</div>
+
+						<div style="margin-bottom: 15px;">
+								<strong style="color: var(--text-main);">Developers of Fish!</strong>
+								<ul>
+										<li>Gamerexde - <a href="https://github.com/Gamerexde" target="_blank">GitHub</a></li>
+										<li>Godfall - <a href="https://godfall.club/" target="_blank">Club Website</a></li>
+										<li>KittehKun - <a href="https://github.com/KittehKun" target="_blank">GitHub</a></li>
+										<li>svenssko - <span class="rainbow-text">they do things</span></li>
+								</ul>
+						</div>
+
+						<div style="margin-bottom: 25px;">
+								<strong style="color: var(--text-main);">Data Sources & Community Effort</strong>
+								<ul>
+										<li>Primary Data By JP Fish Community: <a href="https://wikiwiki.jp/fish_jp/" target="_blank">Japanese Fish! Wiki</a></li>
+										<li>Additional Data by Snerx: <a href="https://docs.google.com/spreadsheets/d/1SAggImcqOJbcTP0owCrqv13Z71ZnXynYL64OB5I1CSY/edit?usp=sharing" target="_blank">Community Spreadsheet 1</a></li>
+										<li>Other Data by LucyferVC: <a href="https://docs.google.com/spreadsheets/d/1oHP4smYbhtgh7vA6_wz_p0XWaKn52kKJIs7IVPCdcog/edit?usp=sharing" target="_blank">Community Spreadsheet 2</a></li>
+								</ul>
+						</div>
+
+						<div style="text-align: center;">
+								<button id="closeCreditsModal" class="accent-btn">Close</button>
+						</div>
+				</div>
+		</div>
 </body>
 </html>

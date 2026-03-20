@@ -178,12 +178,34 @@ input:disabled {
 
 .modal-content {
     background-color: var(--bg-panel);
-    margin: 15% auto;
+    margin: 50px auto; /* Locks it near the top instead of pushing it down 15% */
     padding: 30px;
     border: 1px solid var(--accent);
     border-radius: 12px;
     width: 400px;
     text-align: center;
+    max-height: 85vh; /* Failsafe: Keeps it from bleeding off the screen */
+    overflow-y: auto; /* Failsafe: Adds a scrollbar inside if the screen is tiny */
+}
+
+/* --- MODAL TYPOGRAPHY & LINKS --- */
+.modal-content ul {
+    padding-left: 20px;
+    margin-top: 5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.modal-content a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.modal-content a:hover {
+    color: var(--warning);
+    text-decoration: underline;
 }
 
 .accent-btn {
@@ -279,4 +301,78 @@ tr:hover td { background-color: var(--bg-hover); }
     color: white; 
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* --- LUCK & DROP RATE UI --- */
+.luck-readout {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.prob-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.prob-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85em;
+}
+
+.prob-label {
+    width: 120px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.prob-bar-track {
+    flex-grow: 1;
+    height: 12px;
+    background-color: var(--bg-hover);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.prob-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.prob-percent {
+    width: 60px;
+    font-family: monospace;
+    color: var(--text-main);
+    text-align: left;
+}
+
+/* --- FUNNY RAINBOW ANIMATION --- */
+.rainbow-text {
+    background: linear-gradient(
+        90deg, 
+        #ff595e, #ffca3a, #8ac926, #1982c4, #6a4c93, #ff595e
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: rainbowScroll 2.5s linear infinite;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+@keyframes rainbowScroll {
+    0% { background-position: 0% center; }
+    100% { background-position: -200% center; }
 }

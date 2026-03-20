@@ -242,16 +242,25 @@ function renderMatrix() {
 
 // --- 4. EVENT BINDINGS ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Modal Interaction
-    const modal = document.getElementById('disclaimerModal');
-    const btn = document.getElementById('disclaimerBtn');
-    const close = document.getElementById('closeModal');
+		// Modal Interaction (Disclaimer & Credits)
+    const disclaimerModal = document.getElementById('disclaimerModal');
+    const creditsModal = document.getElementById('creditsModal');
+    
+    const discBtn = document.getElementById('disclaimerBtn');
+    const credBtn = document.getElementById('creditsBtn');
+    
+    const discClose = document.getElementById('closeModal');
+    const credClose = document.getElementById('closeCreditsModal');
 
-    if (btn) btn.onclick = () => modal.style.display = "block";
-    if (close) close.onclick = () => modal.style.display = "none";
+    if (discBtn) discBtn.onclick = () => disclaimerModal.style.display = "block";
+    if (discClose) discClose.onclick = () => disclaimerModal.style.display = "none";
+    
+    if (credBtn) credBtn.onclick = () => creditsModal.style.display = "block";
+    if (credClose) credClose.onclick = () => creditsModal.style.display = "none";
     
     window.onclick = (event) => {
-        if (event.target == modal) modal.style.display = "none";
+        if (event.target == disclaimerModal) disclaimerModal.style.display = "none";
+        if (event.target == creditsModal) creditsModal.style.display = "none";
     };
 
     // Calculation Update Bindings
@@ -271,5 +280,103 @@ document.addEventListener('DOMContentLoaded', () => {
         th.addEventListener('click', () => sortData(th.dataset.sort));
     });
 
+    // Luck Calculator Bindings
+    ['luckRaw', 'luckBuffs', 'luckExternal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', calculateLuck);
+    });
+
+    // Huge Catch Bindings
+    ['hugePoints', 'hugeBaseChance'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', calculateHugeChance);
+    });
+
     initEngine();
+    calculateLuck(); 
+    calculateHugeChance();
 });
+
+// --- 5. LUCK & RARITY CALCULATOR ---
+
+// PLUG IN YOUR EXACT DECOMPILED WEIGHTS HERE
+// The 'scaleFactor' simulates how the graph curves. 
+// A negative scale drops the weight as luck increases. A positive scale raises it.
+const rarityWeightPool = [
+    { id: "trash", label: "Trash", baseWeight: 550, scaleFactor: -1.5, color: "#4a4a4a" },
+    { id: "abundant", label: "Abundant", baseWeight: 1000, scaleFactor: -0.8, color: "#6b7280" },
+    { id: "common", label: "Common", baseWeight: 300, scaleFactor: 0.2, color: "#3b82f6" },
+    { id: "curious", label: "Curious", baseWeight: 100, scaleFactor: 0.8, color: "#10b981" },
+    { id: "elusive", label: "Elusive", baseWeight: 40, scaleFactor: 1.2, color: "#8b5cf6" },
+    { id: "relic", label: "Relic", baseWeight: 5, scaleFactor: 2.0, color: "#f59e0b" }, // Mirrors Mythic Math
+    { id: "fabled", label: "Fabled", baseWeight: 15, scaleFactor: 1.5, color: "#ef4444" },
+    { id: "mythic", label: "Mythic", baseWeight: 5, scaleFactor: 2.0, color: "#ec4899" },
+    { id: "exotic", label: "Exotic", baseWeight: 1, scaleFactor: 2.5, color: "#14b8a6" },
+    { id: "secret", label: "Secret", baseWeight: 0.5, scaleFactor: 3.0, color: "#fbbf24" },
+    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.1, scaleFactor: 3.5, color: "#8b5cf6" }
+];
+
+function calculateLuck() {
+    const rawLuck = parseFloat(document.getElementById('luckRaw').value) || 0;
+    const buffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
+    const external = parseFloat(document.getElementById('luckExternal').value) || 1.0;
+
+    // Mathematical Formula from __0_SelectRarityTier
+    const luckMultiplier = 1 + ((rawLuck * buffs * external) / 100);
+    const luckOut = document.getElementById('luckOutMult');
+    if (luckOut) luckOut.value = luckMultiplier.toFixed(2) + "x";
+
+    renderProbabilities(luckMultiplier);
+}
+
+function calculateHugeChance() {
+    // 100 points = +1.0x extra multiplier
+    const points = parseFloat(document.getElementById('hugePoints').value) || 0;
+    const base = parseFloat(document.getElementById('hugeBaseChance').value) || 0;
+
+    const hugeMultiplier = 1 + (points / 100);
+    const finalChance = (base * hugeMultiplier).toFixed(2);
+
+    const outChanceEl = document.getElementById('hugeOutChance');
+    if (outChanceEl) outChanceEl.innerText = `${finalChance}%`;
+    
+    const multDisplay = document.getElementById('hugeMultiplierOut');
+    if (multDisplay) multDisplay.innerText = `(${hugeMultiplier.toFixed(2)}x Multiplier)`;
+}
+
+function renderProbabilities(luckMult) {
+    const container = document.getElementById('probabilityBars');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let totalPoolWeight = 0;
+    const calculatedWeights = [];
+
+    // 1. Calculate the modified weight for each rarity tier
+    rarityWeightPool.forEach(tier => {
+        // Dynamic Weighting Math
+        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        
+        // Failsafe clamp to prevent negative weights breaking the pool
+        dynamicWeight = Math.max(0, dynamicWeight); 
+
+        calculatedWeights.push({ ...tier, currentWeight: dynamicWeight });
+        totalPoolWeight += dynamicWeight;
+    });
+
+    // 2. Normalize to percentages and render DOM
+    calculatedWeights.forEach(tier => {
+        const percent = totalPoolWeight > 0 ? (tier.currentWeight / totalPoolWeight) * 100 : 0;
+        
+        const row = document.createElement('div');
+        row.className = 'prob-row';
+        row.innerHTML = `
+            <div class="prob-label rarity-${tier.id}" style="background:none; color: ${tier.color};">${tier.label}</div>
+            <div class="prob-bar-track">
+                <div class="prob-bar-fill" style="width: ${percent}%; background-color: ${tier.color};"></div>
+            </div>
+            <div class="prob-percent">${percent.toFixed(2)}%</div>
+        `;
+        container.appendChild(row);
+    });
+}
