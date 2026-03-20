@@ -67,7 +67,9 @@ Ensure you have [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) i
    ```cmd
    node server.js
    ```
-
+   
+4. If you are updating from an older version simply delete the old version or run the update.bat
+   
 ### 🐧 Linux Setup (Ubuntu/Debian)
 
 1. Open your terminal. If you don't have Git and Node.js installed, grab them first:
@@ -86,6 +88,8 @@ Ensure you have [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) i
    ```bash
    node server.js
    ```
+
+4. If you are updating from an older version simply delete the old version or run the update.sh
 
 ### 🌐 Accessing the App
 
