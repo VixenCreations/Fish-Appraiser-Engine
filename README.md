@@ -11,8 +11,10 @@ A high-performance, zero-dependency local web engine built to reverse-engineer a
 ## 📸 Engine Preview
 
 <p align="center">
-  <img src="EnginePreview1.png" width="48%" alt="Engine Preview 1">
-  <img src="EnginePreview2.png" width="48%" alt="Engine Preview 2">
+  <img src="gitpreviews/EnginePreview1.png" width="48%" alt="Engine Preview 1">
+  <img src="gitpreviews/EnginePreview2.png" width="48%" alt="Engine Preview 2">
+  <img src="gitpreviews/EnginePreview3.png" width="48%" alt="Engine Preview 2">
+  <img src="gitpreviews/EnginePreview4.png" width="48%" alt="Engine Preview 2">
 </p>
 
 ## 🚀 Features
