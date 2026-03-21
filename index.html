@@ -54,7 +54,7 @@
                     </div>
                     <div class="control-group">
                         <label>Player Global Buff (%)</label>
-                        <input type="number" id="calcBuffInput" value="10" step="1" style="width: 120px;">
+                        <input type="number" id="calcBuffInput" value="0" step="1" style="width: 120px;">
                     </div>
                 </div>
             </div>
@@ -87,23 +87,36 @@
 										</div>
 								</div>
 								
-								<div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
-										<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Huge Catch Analyzer</div>
-										<div class="calc-grid">
-												<div class="control-group">
-														<label>Big Catch Points</label>
-														<input type="number" id="hugePoints" value="20" step="1" style="width: 140px;">
-												</div>
-												<div class="control-group">
-														<label>Base Chance (%)</label>
-														<input type="number" id="hugeBaseChance" value="1.5" step="0.1" style="width: 140px;">
-												</div>
-										</div>
-										<div style="margin-top: 12px; font-size: 1.1em;">
-												Dynamic Huge Chance: <strong id="hugeOutChance" style="color: var(--warning);">1.80%</strong>
-												<span id="hugeMultiplierOut" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(1.20x Multiplier)</span>
-										</div>
-								</div>
+							<div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
+									<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Big Catch (Weight Distro) Analyzer</div>
+									
+									<div class="calc-grid">
+											<div class="control-group">
+													<label>Target Fish</label>
+													<select id="bigCatchFishSelect" style="width: 180px;"></select>
+											</div>
+											<div class="control-group">
+													<label>Big Catch Points (Max 100)</label>
+													<input type="number" id="bigCatchPoints" value="100" max="100" min="0" step="1" style="width: 180px;">
+											</div>
+											<div class="control-group">
+													<label>Test RNG Roll (0.0 - 1.0)</label>
+													<input type="number" id="bigCatchRoll" value="0.1" min="0" max="1" step="0.05" style="width: 180px;">
+											</div>
+									</div>
+									
+									<div style="margin-top: 15px; font-size: 1.1em; line-height: 1.6;">
+											Resulting Percentile: <strong id="bigCatchOutPercent" style="color: var(--warning);">63.00%</strong>
+											<span id="bigCatchOutDesc" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(Sine Curve Shifted by +0.333)</span><br>
+											Specific Roll Weight: <strong id="bigCatchOutWeight" style="color: var(--accent);">0.00kg</strong>
+											
+											<div style="margin-top: 12px; font-size: 0.9em; padding: 12px; background-color: var(--bg-hover); border-radius: 6px; border: 1px solid var(--border);">
+													<strong>How Big Catch works for this fish:</strong><br>
+													With <span id="explainBcPoints" style="color: var(--warning);">100</span> points, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong id="bcMinPercentile" style="color: var(--success);">50.00%</strong> percentile.<br>
+													This guarantees every catch will weigh somewhere between <strong id="bcMinWeight" style="color: var(--accent);">0.00kg</strong> and <strong id="bcMaxWeight" style="color: var(--accent);">0.00kg</strong>.
+											</div>
+									</div>
+							</div>
 						</div>
 
 						<div class="luck-readout">

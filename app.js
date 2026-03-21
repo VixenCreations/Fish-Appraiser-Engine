@@ -56,18 +56,28 @@ function populateDropdowns(modData) {
 }
 
 function populateFishSelector() {
-    const select = document.getElementById('calcFishSelect');
+    const calcSelect = document.getElementById('calcFishSelect');
+    const bcSelect = document.getElementById('bigCatchFishSelect'); // The new selector
+    
+    if (calcSelect) calcSelect.innerHTML = '';
+    if (bcSelect) bcSelect.innerHTML = '';
+
     // Sort alphabetically for easier selection
     fishDatabase.sort((a,b) => a.name.localeCompare(b.name)).forEach((fish, i) => {
-        const opt = document.createElement('option');
-        opt.value = i; 
-        opt.textContent = fish.name;
-        select.appendChild(opt);
+        const opt1 = document.createElement('option');
+        opt1.value = i; 
+        opt1.textContent = fish.name;
+        calcSelect.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = i; 
+        opt2.textContent = fish.name;
+        if (bcSelect) bcSelect.appendChild(opt2);
     });
     updateWeightBounds();
 }
 
-// --- 2. THE APPRAISAL ENGINE (LINEAR LERP MATH) ---
+// --- 2. THE APPRAISAL ENGINE (CLAMPED LINEAR LERP) ---
 function updateWeightBounds() {
     const fishIndex = document.getElementById('calcFishSelect').value;
     const fish = fishDatabase[fishIndex];
@@ -84,20 +94,13 @@ function updateWeightBounds() {
         weightInput.value = 0;
         weightInput.disabled = true;
         boundsLabel.innerText = "Locked to 0.0kg (Tiny)";
-    } else if (sizeState === 'huge') {
-        // Huge range expands the visual upper limit for math calculations
-        const estHugeMax = (max * 2.0).toFixed(1); 
-        weightInput.disabled = false;
-        if (!weightInput.value || weightInput.value < min) {
-            weightInput.value = ((min + parseFloat(estHugeMax)) / 2).toFixed(2); 
-        }
-        boundsLabel.innerText = `Huge Range: ~${min}kg - ${estHugeMax}kg+`;
     } else {
         weightInput.disabled = false;
-        if (!weightInput.value || weightInput.value < min || weightInput.value > max) {
+        if (!weightInput.value || weightInput.value < min) {
             weightInput.value = ((min + max) / 2).toFixed(2); 
         }
-        boundsLabel.innerText = `Standard Range: ${min}kg - ${max}kg`;
+        // UI updated to correctly state the price is capped
+        boundsLabel.innerText = `Base Range: ${min}kg - ${max}kg (Price Clamped at Max)`;
     }
     runAppraiser();
 }
@@ -123,14 +126,14 @@ function runAppraiser() {
     if (sizeState === 'tiny') {
         baseValue = floor;
     } else {
-        // Dynamic Lerp Boundary: Stretches if Huge is selected
-        const activeMaxW = (sizeState === 'huge') ? (maxW * 1.85) : maxW;
-        
         let weightPercent = 0;
-        if (activeMaxW > minW) {
-            weightPercent = (weightInput - minW) / (activeMaxW - minW);
+        if (maxW > minW) {
+            weightPercent = (weightInput - minW) / (maxW - minW);
         }
-        weightPercent = Math.max(0, Math.min(1, weightPercent)); 
+        
+        // THE FIX: Hard-clamp the Lerp to 1.0. 
+        // Visual weight can go to infinity, but the price stops at the ceiling.
+        weightPercent = Math.max(0, Math.min(1.0, weightPercent)); 
         
         baseValue = floor + ((ceil - floor) * weightPercent);
     }
@@ -286,15 +289,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) el.addEventListener('input', calculateLuck);
     });
 
-    // Huge Catch Bindings
-    ['hugePoints', 'hugeBaseChance'].forEach(id => {
+		// Big Catch Bindings
+    ['bigCatchPoints', 'bigCatchRoll', 'bigCatchFishSelect'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calculateHugeChance);
+        if (el) el.addEventListener('input', calculateBigCatch);
     });
 
     initEngine();
-    calculateLuck(); 
-    calculateHugeChance();
+    calculateLuck();
+    calculateBigCatch();
 });
 
 // --- 5. LUCK & RARITY CALCULATOR ---
@@ -329,19 +332,51 @@ function calculateLuck() {
     renderProbabilities(luckMultiplier);
 }
 
-function calculateHugeChance() {
-    // 100 points = +1.0x extra multiplier
-    const points = parseFloat(document.getElementById('hugePoints').value) || 0;
-    const base = parseFloat(document.getElementById('hugeBaseChance').value) || 0;
-
-    const hugeMultiplier = 1 + (points / 100);
-    const finalChance = (base * hugeMultiplier).toFixed(2);
-
-    const outChanceEl = document.getElementById('hugeOutChance');
-    if (outChanceEl) outChanceEl.innerText = `${finalChance}%`;
+function calculateBigCatch() {
+    // 1. Gather Inputs
+    const points = Math.min(100, Math.max(0, parseFloat(document.getElementById('bigCatchPoints').value) || 0));
+    const roll = Math.min(1.0, Math.max(0, parseFloat(document.getElementById('bigCatchRoll').value) || 0));
     
-    const multDisplay = document.getElementById('hugeMultiplierOut');
-    if (multDisplay) multDisplay.innerText = `(${hugeMultiplier.toFixed(2)}x Multiplier)`;
+    const fishIndex = document.getElementById('bigCatchFishSelect').value;
+    const fish = fishDatabase[fishIndex];
+
+    // 2. The Dev-Confirmed Math Core
+    const shift = points / 300;
+    
+    // User's Test Roll
+    const effectiveRoll = Math.min(1.0, roll + shift);
+    const weightPercentile = Math.sin(effectiveRoll * (Math.PI / 2));
+    const finalPercent = (weightPercentile * 100).toFixed(2);
+
+    // Absolute Minimum Roll (0.0) mapping
+    const minEffectiveRoll = Math.min(1.0, 0.0 + shift);
+    const minWeightPercentile = Math.sin(minEffectiveRoll * (Math.PI / 2));
+    const minFinalPercent = (minWeightPercentile * 100).toFixed(2);
+
+    // 3. Update the Percentile UI
+    const outPercentEl = document.getElementById('bigCatchOutPercent');
+    if (outPercentEl) outPercentEl.innerText = `${finalPercent}%`;
+    
+    const descDisplay = document.getElementById('bigCatchOutDesc');
+    if (descDisplay) descDisplay.innerText = `(Sine Curve Shifted by +${shift.toFixed(3)})`;
+
+    // 4. Translate Percentiles to Real Kilograms if a fish is loaded
+    if (fish) {
+        const minW = parseFloat(fish.baseMinW);
+        const maxW = parseFloat(fish.baseMaxW);
+
+        // Calculate Specific Roll Weight
+        const calculatedWeight = minW + ((maxW - minW) * weightPercentile);
+        document.getElementById('bigCatchOutWeight').innerText = `${calculatedWeight.toFixed(2)}kg`;
+
+        // Calculate Explanation Box Range
+        const absoluteMinWeight = minW + ((maxW - minW) * minWeightPercentile);
+        
+        document.getElementById('explainBcPoints').innerText = points;
+        document.getElementById('bcMinPercentile').innerText = `${minFinalPercent}%`;
+        document.getElementById('bcMinWeight').innerText = `${absoluteMinWeight.toFixed(2)}kg`;
+        document.getElementById('bcMaxWeight').innerText = `${maxW.toFixed(2)}kg`;
+    }
 }
 
 function renderProbabilities(luckMult) {

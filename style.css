@@ -305,56 +305,64 @@ tr:hover td { background-color: var(--bg-hover); }
 
 /* --- LUCK & DROP RATE UI --- */
 .luck-readout {
-    background-color: var(--bg-base);
+    background-color: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    height: 100%; /* Forces the box to stretch and match the left column */
+    box-sizing: border-box;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.15); 
 }
 
 .prob-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    max-height: 250px;
-    overflow-y: auto;
-    padding-right: 5px;
+    flex-grow: 1; /* Tells the container to fill the remaining vertical space */
+    justify-content: space-evenly; /* Dynamically spreads the bars out to fill the box */
 }
 
 .prob-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.85em;
+    gap: 15px;
+    font-size: 0.9em;
 }
 
 .prob-label {
     width: 120px;
     text-align: right;
-    font-weight: bold;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    /* Forces the table-tag shadows to turn off for the chart text */
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background: transparent !important; 
 }
 
 .prob-bar-track {
     flex-grow: 1;
-    height: 12px;
-    background-color: var(--bg-hover);
-    border-radius: 6px;
+    height: 10px; /* Slimmer, sleeker bar */
+    background-color: var(--bg-base);
+    border-radius: 5px;
     overflow: hidden;
+    border: 1px solid var(--border); /* Gives the empty track a clean edge */
 }
 
 .prob-bar-fill {
     height: 100%;
-    border-radius: 6px;
-    transition: width 0.3s ease;
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .prob-percent {
-    width: 60px;
-    font-family: monospace;
+    width: 65px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
     color: var(--text-main);
-    text-align: left;
+    text-align: right; /* Aligns all the percentages perfectly flush right */
 }
 
 /* --- FUNNY RAINBOW ANIMATION --- */
@@ -375,4 +383,32 @@ tr:hover td { background-color: var(--bg-hover); }
 @keyframes rainbowScroll {
     0% { background-position: 0% center; }
     100% { background-position: -200% center; }
+}
+
+/* --- SLEEK GLASS TEXT UI --- */
+/* Upgrades all input labels to an etched-glass aesthetic */
+label, 
+.control-group label {
+    color: rgba(255, 255, 255, 0.55) !important;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    /* The Glass Effect: A sharp dark drop shadow for depth + a faint white glow for the frosted edge */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);
+}
+
+/* Upgrades the section headers (Rarity Probabilities, Big Catch Analyzer) */
+div[style*="color: var(--text-muted)"] {
+    color: rgba(255, 255, 255, 0.55) !important;
+    letter-spacing: 1.5px !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Softens the helper text (Base Range, Sine Curve Shift) for a clean, muted frosted look */
+#weightBounds, 
+#bigCatchOutDesc {
+    color: rgba(255, 255, 255, 0.40) !important;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.9);
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }

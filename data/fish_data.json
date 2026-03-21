@@ -117,6 +117,6 @@
   {"name": "Decimated Fih", "baseMinW": "4.0", "baseMaxW": "4.0", "baseFloor": 17431, "baseCeil": 17431, "rarity": "Secret", "baseXP": 60, "perfectXP": 90},
   {"name": "Luxian Camelshark", "baseMinW": "0.1", "baseMaxW": "8.8", "baseFloor": 15000, "baseCeil": 20000, "rarity": "Secret", "baseXP": 60, "perfectXP": 90},
   {"name": "Catfish Emperor", "baseMinW": "694.7", "baseMaxW": "2061.9", "baseFloor": 48284, "baseCeil": 74250, "rarity": "Ultimate Secret", "baseXP": 70, "perfectXP": 105},
-  {"name": "Crab of Duality", "baseMinW": "308.8", "baseMaxW": "346.6", "baseFloor": 38611, "baseCeil": 60519, "rarity": "Ultimate Secret", "baseXP": 70, "perfectXP": 105},
+  {"name": "Crab of Duality", "baseMinW": "150", "baseMaxW": "350", "baseFloor": 31500, "baseCeil": 40500, "rarity": "Ultimate Secret", "baseXP": 70, "perfectXP": 105},
   {"name": "Shamrock Shark", "baseMinW": "100", "baseMaxW": "900", "baseFloor": 3000, "baseCeil": 8000, "rarity": "Event", "baseXP": 100, "perfectXP": 150}
 ]
