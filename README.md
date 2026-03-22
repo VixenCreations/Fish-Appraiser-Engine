@@ -19,12 +19,15 @@ A high-performance, zero-dependency local web engine built to reverse-engineer a
 
 ## 🚀 Features
 
-* **Real-Time Catch Appraiser:** Uses linear interpolation (Lerp) to map the exact visual weight of your catch to its precise decimal coin value within the game's hidden floor/ceiling thresholds.
-* **Dynamic 'Huge' Scaling:** Automatically detects and uncouples weight boundaries for "Huge" modifier catches, mathematically accommodating the game's inflated randomizer.
-* **Global Buff Injection:** Input your active account modifiers (e.g., keep increasing by 1 until it matches the shop after base calculations are done. Currently I have a 10% buff somewhere and asked the devs to check where, and will update this later as to where it came from) to perfectly sync the engine's output with your in-game shop UI.
+* **Developer-Verified Catch Appraiser:** Uses linear interpolation (Lerp) to map the exact physical weight of your catch to its precise decimal coin value. The math is hardcoded to perfectly mirror the game's hidden economy failsafes, actively clamping the base price at `1.0` (the price ceiling) before applying post-calculation multipliers.
+* **XP Efficiency & Farm Forecaster:** End-to-end predictive analytics. Cross-references your live RNG rarity drop-tables against piecewise linear interpolated catch-cycle times to output your exact, dynamic average XP/Hour and XP/Minute.
+* **Big Catch (Weight Distro) Analyzer:** Unlocks the game's hidden ease-out sine curve generation `sin(Roll * π/2)`. Accurately calculates the exact +0.333 RNG floor shift provided by maxed Big Catch points, instantly translating abstract math percentiles into guaranteed physical kilogram ranges for any target fish.
+* **Infinite 'Huge' Visual Scaling:** Automatically detects and uncouples visual weight boundaries for "Huge" catches—allowing weights to roll infinitely into the hundreds of thousands of kilograms for the flex—while gracefully enforcing the backend economy caps to prevent mathematical overflow.
+* **Global Buff Injection:** Input your active account modifiers to perfectly sync the engine's output with your in-game shop UI. *(Note: Keep increasing this by 1% until it matches the shop after base calculations are done. I currently have an unexplained 10% buff active, awaiting dev clarification!)*
 * **Decoupled Data Architecture:** Game state data is isolated in JSON payloads (`fish_data.json` & `modifiers_data.json`). When the game receives a balance patch, simply update the JSON files without ever touching the frontend code.
-* **Zero-Dependency Backend:** Runs on a native Node.js HTTP server. No `package.json`, no `npm install`, no `node_modules` black hole.
-* **Zero-File Favicon:** Uses a programmatic, server-side SVG interception to serve a scalable tab icon without cluttering the repository with binary `.ico` files.
+* **Zero-Dependency Backend:** Runs on a native Node.js HTTP server. No `package.json`, no `npm install`, no `node_modules` black hole. Simply execute `node server.js` and you are live.
+* **Zero-File Favicon:** Uses programmatic, server-side SVG interception to serve a scalable, high-resolution tab icon without cluttering the repository with binary `.ico` files.
+* **"Glassmorphism" UI:** A sleek, dark-mode dashboard featuring etched-glass typography, volumetric CSS text-shadows, and dynamic flexbox probability charts.
 
 ## 📂 Architecture & Topology
 
