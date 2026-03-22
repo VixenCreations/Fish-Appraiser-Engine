@@ -432,18 +432,20 @@ function renderProbabilities(luckMult) {
 }
 
 // --- 6. XP EFFICIENCY FORECASTER ---
+
+// Updated to include Developer-Confirmed Mini-Game Times
 const rarityXpMap = {
-    "trash": { base: 10, perf: 10 },
-    "abundant": { base: 15, perf: 23 },
-    "common": { base: 15, perf: 23 },
-    "curious": { base: 20, perf: 30 },
-    "elusive": { base: 20, perf: 30 },
-    "relic": { base: 25, perf: 38 },
-    "fabled": { base: 35, perf: 53 },
-    "mythic": { base: 45, perf: 68 },
-    "exotic": { base: 50, perf: 75 },
-    "secret": { base: 60, perf: 90 },
-    "ultimate": { base: 70, perf: 105 }
+    "trash": { base: 10, perf: 10, reel: 5.5 },
+    "abundant": { base: 15, perf: 23, reel: 6.0 },
+    "common": { base: 15, perf: 23, reel: 6.5 },
+    "curious": { base: 20, perf: 30, reel: 7.0 },
+    "elusive": { base: 20, perf: 30, reel: 8.0 },
+    "relic": { base: 25, perf: 38, reel: 5.5 },
+    "fabled": { base: 35, perf: 53, reel: 9.0 },
+    "mythic": { base: 45, perf: 68, reel: 10.5 },
+    "exotic": { base: 50, perf: 75, reel: 12.0 },
+    "secret": { base: 60, perf: 90, reel: 9.0 },
+    "ultimate": { base: 70, perf: 105, reel: 8.0 }
 };
 
 function calculateXP() {
@@ -452,7 +454,7 @@ function calculateXP() {
     const attractionRate = Math.max(0, Math.min(100, parseFloat(document.getElementById('xpAttraction').value) || 0));
     const perfRate = Math.max(0, Math.min(100, parseFloat(document.getElementById('xpPerfect').value) || 0)) / 100;
     
-    // We grab the hidden luck multiplier calculated by the RNG module to scale the XP properly
+    // Grab the hidden luck multiplier
     const rawLuck = parseFloat(document.getElementById('luckRaw').value) || 0;
     const luckBuffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const luckExt = parseFloat(document.getElementById('luckExternal').value) || 1.0;
@@ -460,11 +462,11 @@ function calculateXP() {
     luckMult = luckMult * luckBuffs * luckExt;
 
     // 2. Piecewise Linear Interpolation (Lerp) for Attraction Time
-    let attractionTime = 14.5; // Base estimate for 0%
+    let attractionTime = 14.0; // Mathematically proven base for 0%
     const attrCurve = [
-        { r: 0, t: 14.5 }, { r: 10, t: 13 }, { r: 20, t: 12 },
-        { r: 30, t: 11 }, { r: 40, t: 9 }, { r: 65, t: 5.5 },
-        { r: 70, t: 4 }, { r: 90, t: 2 }, { r: 100, t: 0 }
+        { r: 0, t: 14.0 }, { r: 10, t: 12.6 }, { r: 20, t: 11.2 },
+        { r: 30, t: 9.8 }, { r: 40, t: 8.4 }, { r: 65, t: 4.9 },
+        { r: 70, t: 4.2 }, { r: 80, t: 2.8 }, { r: 90, t: 1.4 }, { r: 100, t: 0.0 }
     ];
 
     for (let i = 0; i < attrCurve.length - 1; i++) {
@@ -475,38 +477,62 @@ function calculateXP() {
         }
     }
 
-    // Cycle Time = Attraction + 6s Bar Catch Speed
-    const cycleTime = attractionTime + 6.0;
-    const catchesPerHour = 3600 / cycleTime;
-    const catchesPerMin = 60 / cycleTime;
-
-    // 3. 4D Chess: Calculate Dynamic Average XP per Catch
+    // 3. 4D Chess: Calculate Dynamic Average XP & Dynamic Reel Time
     let totalWeight = 0;
     let expectedXP = 0;
+    let expectedReelTime = 0;
 
     rarityWeightPool.forEach(tier => {
         // Rebuild the live drop weight using the engine's exact scaling exponents
         const dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
         totalWeight += dynamicWeight;
 
-        // Calculate this specific tier's XP based on user's Perfect Rate
+        // Calculate XP mapping
         const baseXP = rarityXpMap[tier.id].base;
         const perfXP = rarityXpMap[tier.id].perf;
         const tierAvgXP = (baseXP * (1 - perfRate)) + (perfXP * perfRate);
 
-        // Add the weighted XP to the pool
+        // Fetch the specific reel time for this tier
+        const tierReelTime = rarityXpMap[tier.id].reel;
+
+        // Add the weighted values to the pool
         expectedXP += dynamicWeight * tierAvgXP;
+        expectedReelTime += dynamicWeight * tierReelTime;
     });
 
+    // Finalize the weighted averages
     const avgXpPerCatch = expectedXP / totalWeight;
+    const avgReelTime = expectedReelTime / totalWeight;
+
+    // Cycle Time now perfectly maps: Wait + Reel + Human/Animation Delay
+    const castDelay = 1.5; 
+    const cycleTime = attractionTime + avgReelTime + castDelay;
+    
+    const catchesPerHour = 3600 / cycleTime;
+    const catchesPerMin = 60 / cycleTime;
 
     // 4. Final Math & UI Update
     const xpMultiplier = 1.0 + (enchantBonus / 100);
     const finalXpPerMin = catchesPerMin * avgXpPerCatch * xpMultiplier;
     const finalXpHour = catchesPerHour * avgXpPerCatch * xpMultiplier;
 
+    // --- Update the 3-Stage Visual Timeline Bar ---
+    const waitPct = (attractionTime / cycleTime) * 100;
+    const reelPct = (avgReelTime / cycleTime) * 100;
+    const castPct = (castDelay / cycleTime) * 100;
+    
+    document.getElementById('barWait').style.width = `${waitPct}%`;
+    document.getElementById('barReel').style.width = `${reelPct}%`;
+    document.getElementById('barCast').style.width = `${castPct}%`; // New delay bar
+
+    // --- Push Data to the DOM ---
     document.getElementById('outCycleTime').innerText = cycleTime.toFixed(1);
+    document.getElementById('outAttrTime').innerText = attractionTime.toFixed(1) + "s";
+    document.getElementById('outReelTime').innerText = avgReelTime.toFixed(1) + "s";
+    document.getElementById('outCastTime').innerText = castDelay.toFixed(1) + "s"; // Static lock
     document.getElementById('outAvgXp').innerText = avgXpPerCatch.toFixed(2);
+    document.getElementById('outCatchesHour').innerText = Math.floor(catchesPerHour).toLocaleString();
+    
     document.getElementById('outXpMin').innerText = finalXpPerMin.toLocaleString(undefined, { maximumFractionDigits: 0 });
     document.getElementById('outXpHour').innerText = finalXpHour.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }

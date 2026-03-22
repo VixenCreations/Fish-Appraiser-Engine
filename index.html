@@ -163,13 +163,31 @@
 												</div>
 												<div id="outXpMin" style="font-size: 1.5em; color: var(--accent); font-weight: bold; text-shadow: 0px 2px 4px rgba(0,0,0,0.8);">0</div>
 										</div>
-										<div style="text-align: right;">
-												<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);">
-														Cycle Info
+										<div style="flex-grow: 1; max-width: 320px; padding: 15px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--border); box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);">
+												<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+														<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 1px 3px rgba(0,0,0,0.8);">
+																Cycle Visualizer (Average)
+														</div>
+														<div style="font-size: 0.85em; font-weight: bold; color: var(--text-main);">
+																<span id="outCycleTime" style="color: var(--warning); font-size: 1.2em;">0.0</span>s Total
+														</div>
 												</div>
-												<div style="font-size: 1.1em; color: var(--text-main);"><strong id="outCycleTime" style="color: var(--warning);">0.0s</strong> / Catch</div>
-												<div style="font-size: 0.85em; color: rgba(255, 255, 255, 0.40); text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.9); margin-top: 2px;">
-														Dynamic Avg XP: <strong id="outAvgXp">0.0</strong>
+
+												<div style="display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--bg-base); border: 1px solid rgba(255,255,255,0.1);">
+														<div id="barWait" style="width: 33%; background: var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+														<div id="barReel" style="width: 33%; background: var(--success); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+														<div id="barCast" style="width: 34%; background: #888888; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+												</div>
+
+												<div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.70em; color: rgba(255,255,255,0.6); text-shadow: 0px 1px 2px rgba(0,0,0,0.9);">
+														<div>Wait: <strong id="outAttrTime" style="color: var(--accent);">0.0s</strong></div>
+														<div>Reel: <strong id="outReelTime" style="color: var(--success);">6.0s</strong></div>
+														<div>Cast: <strong id="outCastTime" style="color: #aaaaaa;">1.5s</strong></div>
+												</div>
+
+												<div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 0.85em;">
+														<div style="color: rgba(255,255,255,0.6);">Avg Yield: <strong id="outAvgXp" style="color: var(--text-main);">0.0</strong> XP</div>
+														<div style="color: rgba(255,255,255,0.6);">Volume: <strong id="outCatchesHour" style="color: var(--text-main);">0</strong> / hr</div>
 												</div>
 										</div>
 								</div>
