@@ -91,15 +91,23 @@ function updateWeightBounds() {
     const max = parseFloat(fish.baseMaxW);
 
     if (sizeState === 'tiny') {
-        weightInput.value = 0;
+        // BUG 1 FIX: Lock the weight to the fish's exact baseMinW
+        weightInput.value = min;
         weightInput.disabled = true;
-        boundsLabel.innerText = "Locked to 0.0kg (Tiny)";
+        boundsLabel.innerText = `Locked to ${min}kg (Tiny)`;
+        
+        // Mark the input as locked so we know to clear it later
+        weightInput.dataset.wasLocked = "true"; 
     } else {
         weightInput.disabled = false;
-        if (!weightInput.value || weightInput.value < min) {
-            weightInput.value = ((min + max) / 2).toFixed(2); 
+        
+        // BUG 2 FIX: Remove the median auto-fill. Let the user start from 0.
+        // If they just switched off "Tiny" or the box is empty, reset cleanly to 0.
+        if (weightInput.dataset.wasLocked === "true" || !weightInput.value) {
+            weightInput.value = 0;
+            weightInput.dataset.wasLocked = "false";
         }
-        // UI updated to correctly state the price is capped
+        
         boundsLabel.innerText = `Base Range: ${min}kg - ${max}kg (Price Clamped at Max)`;
     }
     runAppraiser();
@@ -294,6 +302,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calculateBigCatch);
     });
+		
+		// XP Forecaster Bindings
+    ['xpEnchant', 'xpAttraction', 'xpPerfect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', calculateXP);
+    });
 
     initEngine();
     calculateLuck();
@@ -330,6 +344,7 @@ function calculateLuck() {
     if (luckOut) luckOut.value = luckMultiplier.toFixed(2) + "x";
 
     renderProbabilities(luckMultiplier);
+		calculateXP()
 }
 
 function calculateBigCatch() {
@@ -414,4 +429,84 @@ function renderProbabilities(luckMult) {
         `;
         container.appendChild(row);
     });
+}
+
+// --- 6. XP EFFICIENCY FORECASTER ---
+const rarityXpMap = {
+    "trash": { base: 10, perf: 10 },
+    "abundant": { base: 15, perf: 23 },
+    "common": { base: 15, perf: 23 },
+    "curious": { base: 20, perf: 30 },
+    "elusive": { base: 20, perf: 30 },
+    "relic": { base: 25, perf: 38 },
+    "fabled": { base: 35, perf: 53 },
+    "mythic": { base: 45, perf: 68 },
+    "exotic": { base: 50, perf: 75 },
+    "secret": { base: 60, perf: 90 },
+    "ultimate": { base: 70, perf: 105 }
+};
+
+function calculateXP() {
+    // 1. Gather Inputs
+    const enchantBonus = parseFloat(document.getElementById('xpEnchant').value) || 0;
+    const attractionRate = Math.max(0, Math.min(100, parseFloat(document.getElementById('xpAttraction').value) || 0));
+    const perfRate = Math.max(0, Math.min(100, parseFloat(document.getElementById('xpPerfect').value) || 0)) / 100;
+    
+    // We grab the hidden luck multiplier calculated by the RNG module to scale the XP properly
+    const rawLuck = parseFloat(document.getElementById('luckRaw').value) || 0;
+    const luckBuffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
+    const luckExt = parseFloat(document.getElementById('luckExternal').value) || 1.0;
+    let luckMult = 1.0 + (rawLuck / 100);
+    luckMult = luckMult * luckBuffs * luckExt;
+
+    // 2. Piecewise Linear Interpolation (Lerp) for Attraction Time
+    let attractionTime = 14.5; // Base estimate for 0%
+    const attrCurve = [
+        { r: 0, t: 14.5 }, { r: 10, t: 13 }, { r: 20, t: 12 },
+        { r: 30, t: 11 }, { r: 40, t: 9 }, { r: 65, t: 5.5 },
+        { r: 70, t: 4 }, { r: 90, t: 2 }, { r: 100, t: 0 }
+    ];
+
+    for (let i = 0; i < attrCurve.length - 1; i++) {
+        if (attractionRate >= attrCurve[i].r && attractionRate <= attrCurve[i+1].r) {
+            const progress = (attractionRate - attrCurve[i].r) / (attrCurve[i+1].r - attrCurve[i].r);
+            attractionTime = attrCurve[i].t + (attrCurve[i+1].t - attrCurve[i].t) * progress;
+            break;
+        }
+    }
+
+    // Cycle Time = Attraction + 6s Bar Catch Speed
+    const cycleTime = attractionTime + 6.0;
+    const catchesPerHour = 3600 / cycleTime;
+    const catchesPerMin = 60 / cycleTime;
+
+    // 3. 4D Chess: Calculate Dynamic Average XP per Catch
+    let totalWeight = 0;
+    let expectedXP = 0;
+
+    rarityWeightPool.forEach(tier => {
+        // Rebuild the live drop weight using the engine's exact scaling exponents
+        const dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        totalWeight += dynamicWeight;
+
+        // Calculate this specific tier's XP based on user's Perfect Rate
+        const baseXP = rarityXpMap[tier.id].base;
+        const perfXP = rarityXpMap[tier.id].perf;
+        const tierAvgXP = (baseXP * (1 - perfRate)) + (perfXP * perfRate);
+
+        // Add the weighted XP to the pool
+        expectedXP += dynamicWeight * tierAvgXP;
+    });
+
+    const avgXpPerCatch = expectedXP / totalWeight;
+
+    // 4. Final Math & UI Update
+    const xpMultiplier = 1.0 + (enchantBonus / 100);
+    const finalXpPerMin = catchesPerMin * avgXpPerCatch * xpMultiplier;
+    const finalXpHour = catchesPerHour * avgXpPerCatch * xpMultiplier;
+
+    document.getElementById('outCycleTime').innerText = cycleTime.toFixed(1);
+    document.getElementById('outAvgXp').innerText = avgXpPerCatch.toFixed(2);
+    document.getElementById('outXpMin').innerText = finalXpPerMin.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    document.getElementById('outXpHour').innerText = finalXpHour.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }

@@ -49,7 +49,7 @@
                     </div>
                     <div class="control-group">
                         <label>Exact Weight (kg)</label>
-                        <input type="number" id="calcWeightInput" step="0.01" style="width: 120px;">
+                        <input type="number" id="calcWeightInput" value="0" step="0.01" style="width: 120px;">
                         <span id="weightBounds" style="font-size: 0.75em; color: var(--text-muted); margin-top: 4px;"></span>
                     </div>
                     <div class="control-group">
@@ -87,42 +87,92 @@
 										</div>
 								</div>
 								
-							<div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
-									<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Big Catch (Weight Distro) Analyzer</div>
-									
-									<div class="calc-grid">
-											<div class="control-group">
-													<label>Target Fish</label>
-													<select id="bigCatchFishSelect" style="width: 180px;"></select>
-											</div>
-											<div class="control-group">
-													<label>Big Catch Points (Max 100)</label>
-													<input type="number" id="bigCatchPoints" value="0" max="100" min="0" step="1" style="width: 180px;">
-											</div>
-											<div class="control-group">
-													<label>Test RNG Roll (0.0 - 1.0)</label>
-													<input type="number" id="bigCatchRoll" value="0.1" min="0" max="1" step="0.05" style="width: 180px;">
-											</div>
-									</div>
-									
-									<div style="margin-top: 15px; font-size: 1.1em; line-height: 1.6;">
-											Resulting Percentile: <strong id="bigCatchOutPercent" style="color: var(--warning);">63.00%</strong>
-											<span id="bigCatchOutDesc" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(Sine Curve Shifted by +0.333)</span><br>
-											Specific Roll Weight: <strong id="bigCatchOutWeight" style="color: var(--accent);">0.00kg</strong>
-											
-											<div style="margin-top: 12px; font-size: 0.9em; padding: 12px; background-color: var(--bg-hover); border-radius: 6px; border: 1px solid var(--border);">
-													<strong>How Big Catch works for this fish:</strong><br>
-													With <span id="explainBcPoints" style="color: var(--warning);">100</span> points, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong id="bcMinPercentile" style="color: var(--success);">50.00%</strong> percentile.<br>
-													This guarantees every catch will weigh somewhere between <strong id="bcMinWeight" style="color: var(--accent);">0.00kg</strong> and <strong id="bcMaxWeight" style="color: var(--accent);">0.00kg</strong>.
-											</div>
-									</div>
-							</div>
+								<div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
+										<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Big Catch (Weight Distro) Analyzer</div>
+										
+										<div class="calc-grid">
+												<div class="control-group">
+														<label>Target Fish</label>
+														<select id="bigCatchFishSelect" style="width: 180px;"></select>
+												</div>
+												<div class="control-group">
+														<label>Big Catch Points (Max 100)</label>
+														<input type="number" id="bigCatchPoints" value="0" max="100" min="0" step="1" style="width: 180px;">
+												</div>
+												<div class="control-group">
+														<label>Test RNG Roll (0.0 - 1.0)</label>
+														<input type="number" id="bigCatchRoll" value="0.1" min="0" max="1" step="0.05" style="width: 180px;">
+												</div>
+										</div>
+										
+										<div style="margin-top: 15px; font-size: 1.1em; line-height: 1.6;">
+												Resulting Percentile: <strong id="bigCatchOutPercent" style="color: var(--warning);">63.00%</strong>
+												<span id="bigCatchOutDesc" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(Sine Curve Shifted by +0.333)</span><br>
+												Specific Roll Weight: <strong id="bigCatchOutWeight" style="color: var(--accent);">0.00kg</strong>
+												
+												<div style="margin-top: 12px; font-size: 0.9em; padding: 12px; background-color: var(--bg-hover); border-radius: 6px; border: 1px solid var(--border);">
+														<strong>How Big Catch works for this fish:</strong><br>
+														With <span id="explainBcPoints" style="color: var(--warning);">100</span> points, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong id="bcMinPercentile" style="color: var(--success);">50.00%</strong> percentile.<br>
+														This guarantees every catch will weigh somewhere between <strong id="bcMinWeight" style="color: var(--accent);">0.00kg</strong> and <strong id="bcMaxWeight" style="color: var(--accent);">0.00kg</strong>.
+												</div>
+										</div>
+								</div>
 						</div>
 
 						<div class="luck-readout">
-								<div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 10px;">Rarity Probabilities</div>
+								<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.85em; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08); margin-bottom: 10px;">Rarity Probabilities</div>
 								<div id="probabilityBars" class="prob-container">
+								</div>
+						</div>
+
+						<div class="luck-readout" style="grid-column: 1 / -1; width: 100%; margin-top: 20px;">
+								<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.85em; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08); margin-bottom: 15px;">
+										XP Efficiency & Farm Forecaster
+								</div>
+								
+								<div class="calc-grid" style="gap: 30px;">
+										<div class="control-group">
+												<label>XP Enchantment</label>
+												<select id="xpEnchant" style="width: 200px;">
+														<option value="0">None (+0%)</option>
+														<option value="5">Curious (+5%)</option>
+														<option value="12">Student (+12%)</option>
+														<option value="35">Enlightened (+35%)</option>
+												</select>
 										</div>
+										<div class="control-group">
+												<label>Attraction Rate (%)</label>
+												<input type="number" id="xpAttraction" value="0" min="0" max="100" step="1" style="width: 200px;">
+										</div>
+										<div class="control-group">
+												<label>Perfect Catch Rate (%)</label>
+												<input type="number" id="xpPerfect" value="0" min="0" max="100" step="1" style="width: 200px;">
+										</div>
+								</div>
+
+								<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+										<div>
+												<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);">
+														XP / Hour
+												</div>
+												<div id="outXpHour" style="font-size: 2.2em; color: var(--success); font-weight: bold; text-shadow: 0px 2px 4px rgba(0,0,0,0.8), 0px 0px 10px rgba(16, 185, 129, 0.2);">0</div>
+										</div>
+										<div>
+												<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);">
+														XP / Minute
+												</div>
+												<div id="outXpMin" style="font-size: 1.5em; color: var(--accent); font-weight: bold; text-shadow: 0px 2px 4px rgba(0,0,0,0.8);">0</div>
+										</div>
+										<div style="text-align: right;">
+												<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);">
+														Cycle Info
+												</div>
+												<div style="font-size: 1.1em; color: var(--text-main);"><strong id="outCycleTime" style="color: var(--warning);">0.0s</strong> / Catch</div>
+												<div style="font-size: 0.85em; color: rgba(255, 255, 255, 0.40); text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.9); margin-top: 2px;">
+														Dynamic Avg XP: <strong id="outAvgXp">0.0</strong>
+												</div>
+										</div>
+								</div>
 						</div>
 				</div>
 
