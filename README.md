@@ -11,13 +11,13 @@ A high-performance, zero-dependency local web engine built to reverse-engineer a
 ---
 
 ## 📑 Table of Contents
-1. [Installation & Setup](#-installation--setup)
-2. [Usage & Navigation](#-usage--navigation)
-3. [Server Configuration (Local & Production SSL)](#-server-configuration)
-4. [Engine Previews](#-engine-previews)
-5. [Core Features & Technical Capabilities](#-core-features--technical-capabilities)
-6. [Architecture & Topology](#-architecture--topology)
-7. [The Nerd Stuff: Reverse-Engineered Mechanics](#-the-nerd-stuff-reverse-engineered-mechanics)
+1. [Installation & Setup](https://github.com/VixenCreations/Fish-Appraiser-Engine#%EF%B8%8F-installation--setup)
+2. [Usage & Navigation](https://github.com/VixenCreations/Fish-Appraiser-Engine#-usage--navigation)
+3. [Server Configuration (Local & Production SSL)](https://github.com/VixenCreations/Fish-Appraiser-Engine#%EF%B8%8F-server-configuration)
+4. [Engine Previews](https://github.com/VixenCreations/Fish-Appraiser-Engine#-engine-previews)
+5. [Core Features & Technical Capabilities](https://github.com/VixenCreations/Fish-Appraiser-Engine#-core-features--technical-capabilities)
+6. [Architecture & Topology](https://github.com/VixenCreations/Fish-Appraiser-Engine#-architecture--topology)
+7. [The Nerd Stuff: Reverse-Engineered Mechanics](https://github.com/VixenCreations/Fish-Appraiser-Engine#-the-nerd-stuff-reverse-engineered-mechanics)
 
 ---
 
