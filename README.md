@@ -55,6 +55,8 @@ node server.js
 ```
 *(Note: If updating from an older version, simply run `./update.sh`)*
 
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
+
 ---
 
 ## 🌐 Usage & Navigation
@@ -65,6 +67,8 @@ Once your terminal confirms the server is online, open your web browser and navi
   * Calculate catch values, forecast XP efficiency, and analyze rarity drop rates based on your active in-game buffs.
 * **The Data Miner Terminal:** `http://localhost:8080/tools`
   * A dedicated reverse-engineering sandbox. Input raw screen data from mutated catches to automatically strip multipliers, reverse the Sine curve, and validate true source-code integers against the community JSON database.
+
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
 
 ---
 
@@ -84,6 +88,8 @@ SSL_KEY=./certs/privkey.pem
 SSL_CERT=./certs/fullchain.pem
 ```
 
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
+
 ---
 
 ## 📸 Engine Previews
@@ -95,6 +101,8 @@ SSL_CERT=./certs/fullchain.pem
   <img src="gitpreviews/EnginePreview4.png" width="48%" alt="Engine Preview 4">
 </p>
 
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
+
 ---
 
 ## 🚀 Core Features & Technical Capabilities
@@ -104,6 +112,8 @@ SSL_CERT=./certs/fullchain.pem
 * **XP Efficiency & Farm Forecaster:** End-to-end predictive analytics. Cross-references your live RNG rarity drop-tables against piecewise linear interpolated catch-cycle times to output your exact, dynamic average XP/Hour and XP/Minute.
 * **Decoupled Data Architecture:** Game state data is isolated in JSON payloads. When the game receives a balance patch, simply update the JSON files in the `/data/` folder without ever touching the frontend code.
 * **Zero-File Favicon:** Uses programmatic, server-side SVG interception to serve a scalable, high-resolution tab icon without cluttering the repository with binary `.ico` files.
+
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
 
 ---
 
@@ -134,6 +144,8 @@ The application relies on a strict separation of concerns (Structure, Logic, and
  │
  └── /gitpreviews           # Documentation images
 ```
+
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
 
 ---
 
@@ -203,3 +215,5 @@ Mutations fundamentally alter the math engine. They do not use separate base sta
 * **Tiny:** Forces the physical weight variable to exactly `0.0kg`. The price engine then extrapolates backward normally using the established Scaling Rate.
 * **Huge (Infinite Scaling):** A Huge fish applies a `4x` multiplier to its physical base weight boundaries. However, the internal economy engine **hard-clamps** the pricing matrix at the species' standard `baseMaxW`. 
 * **The Exploit Prevention:** If a fish's maximum base weight is `0.5kg`, and you catch a Huge variant weighing `1.3kg`, the engine calculates the coin value using exactly `0.5kg` before applying the flat `1.5x` Huge coin multiplier. This allows players to catch physically massive "flex" fish without mathematically breaking the backend economy integer limits.
+
+<p align="right"><a href="[https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)">⬆ Back to Top</a></p>
