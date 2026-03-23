@@ -574,11 +574,14 @@ tr:hover td { background-color: var(--bg-hover); }
     color: #c9d1d9;
 }
 
-/* Refined Color-Coded Left Borders (No massive neon glow) */
-.nerd-section.core    { border-left: 3px solid #00e6ff; }
-.nerd-section.ceiling { border-left: 3px solid #ff595e; }
-.nerd-section.floor   { border-left: 3px solid #00ffaa; }
-.nerd-section.algebra { border-left: 3px solid #a855f7; margin-bottom: 25px; }
+/* --- THE CLEANED COLOR-CODED BORDERS --- */
+.nerd-section.core     { border-left: 3px solid #00e6ff; }
+.nerd-section.ceiling  { border-left: 3px solid #ff595e; }
+.nerd-section.floor    { border-left: 3px solid #00ffaa; }
+.nerd-section.algebra  { border-left: 3px solid #a855f7; }
+.nerd-section.economy  { border-left: 3px solid #ffaa00; }
+.nerd-section.hardware { border-left: 3px solid #ff3366; } 
+.nerd-section.mutation { border-left: 3px solid #00ff41; margin-bottom: 25px; } /* Bottom margin only on the last item! */
 
 /* Section Headers */
 .nerd-section strong {
@@ -625,6 +628,20 @@ tr:hover td { background-color: var(--bg-hover); }
 }
 .nerd-modal-content::-webkit-scrollbar-thumb:hover {
     background: #00e6ff;
+}
+
+/* =========================================================
+   DATA MINER TOOLS BUTTON (PURPLE ACCENT)
+   ========================================================= */
+.secondary-btn.tools-btn {
+    border-color: #a855f7;
+    color: #a855f7;
+}
+
+.secondary-btn.tools-btn:hover {
+    background-color: rgba(168, 85, 247, 0.1); /* Subtle purple background fill */
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); /* Neon purple glow */
+    color: #a855f7;
 }
 
 /* =========================================================

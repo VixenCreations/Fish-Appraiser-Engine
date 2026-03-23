@@ -253,6 +253,14 @@ function renderMatrix() {
 
 // --- 4. EVENT BINDINGS ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Navigation Bindings
+    const dataMinerBtn = document.getElementById('dataMinerBtn');
+    if (dataMinerBtn) {
+        dataMinerBtn.addEventListener('click', () => {
+            window.location.href = '/tools';
+        });
+    }
+
     // Modal Interaction (Disclaimer, Credits, & Stats for Nerds)
     const disclaimerModal = document.getElementById('disclaimerModal');
     const creditsModal = document.getElementById('creditsModal');

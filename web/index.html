@@ -15,16 +15,14 @@
 						<p class="maintainer">Developed & Written by <strong class="dev-rainbow">Vixenlicous</strong></p>
 				</div>
 				<div class="header-right">
+						<button id="dataMinerBtn" class="secondary-btn tools-btn" title="Open the Data Miner Reverse-Engineering Tools">Data Miner Tools</button>
+						
 						<button id="nerdStatsBtn" class="secondary-btn" title="View the underlying math and engine algorithms">Stats for Nerds</button>
 						<button id="creditsBtn" class="secondary-btn" title="View engine contributors and special thanks">Credits</button>
 						<button id="disclaimerBtn" class="secondary-btn" title="Read the math and community disclaimer">Community Disclaimer</button>
 						
 						<a href="https://wikifish.net/" target="_blank" class="icon-link" title="Official Fish! Wiki">
 								<img src="/assets/FishLogo.png" alt="Fish! Wiki" width="32">
-						</a>
-						
-						<a href="https://x.com/VixenVRC" target="_blank" class="icon-link" title="Check out my Twitter if interested">
-								<img src="/assets/X-logo-white.png" alt="X (Twitter)" width="32">
 						</a>
 						
 						<a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" class="icon-link" title="GitHub">
@@ -288,6 +286,44 @@
 												<strong style="color: #00ffaa;">> (0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg (True Min)</strong>
 										</div>
 								</div>
+						</div>
+
+						<div class="nerd-section economy">
+								<strong>5. The Economy Engine (Solving True Prices)</strong>
+								<p>The developer confirmed price scales linearly between <code>baseFloor</code> (at Min Weight) and <code>baseCeil</code> (at Max Weight). By catching a "Tiny" mutation (which forces weight to 0.0kg), we force the price equation to extrapolate backward, revealing the exact coin-value per kilogram.</p>
+								
+								<div style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 15px; border-radius: 5px; line-height: 1.5; margin-top: 10px; overflow-x: auto; white-space: nowrap;">
+										<div style="margin-bottom: 15px;">
+												<span style="color: #8b949e;">// SCENARIO: Caught a 0.0kg Tiny ($29 value) and a 0.1kg Normal ($31 value)</span><br>
+												<span style="color: #8b949e;">// The fish has a known Base Max Weight of 0.5kg</span><br>
+												1. Weight Difference = 0.1kg - 0.0kg = 0.1kg<br>
+												2. Price Difference = $31 - $29 = $2<br>
+												3. Scaling Rate = $2 / 0.1kg = <strong style="color: #ffca3a;">$20 per 1.0kg</strong>
+										</div>
+										<div>
+												<span style="color: #8b949e;">// Solving True Base Floor (Price at known Min Weight: 0.1kg)</span><br>
+												<strong style="color: #00ffaa;">> BaseFloor = $31</strong><br><br>
+												<span style="color: #8b949e;">// Solving True Base Ceil (Price at known Max Weight: 0.5kg)</span><br>
+												4. Remaining Weight to Max = 0.5kg - 0.1kg = 0.4kg<br>
+												5. Max Weight Value = 0.4kg * $20 = $8<br>
+												<strong style="color: #00ffaa;">> True Base Ceil = $31 (Floor) + $8 = $39</strong>
+										</div>
+								</div>
+						</div>
+
+						<div class="nerd-section hardware">
+								<strong>6. The Hardware Cap (Rod Weight Limits)</strong>
+								<p>Every fishing rod in the game has a built-in <code>Max Weight</code> stat (e.g., the Stick and String caps at 5kg). This acts as a hard ceiling on what you can catch.</p>
+								<p style="color: #ff595e;"><em>DATA WARNING:</em> If a fish's natural calculated weight exceeds your rod's capacity, your data will be artificially flatlined. <strong>Always ensure your rod's Max Weight is significantly higher than the fish you are testing</strong>, or your reverse-algebra equations will be solving for the rod, not the fish!</p>
+						</div>
+
+						<div class="nerd-section mutation">
+								<strong>7. Mutation Mechanics (Tiny & Huge)</strong>
+								<p>Mutations fundamentally alter the math engine. They do not use separate base stats.</p>
+								<ul class="nerd-code-list" style="margin-bottom: 10px;">
+										<li><strong>Tiny:</strong> Forces the physical weight variable to exactly <code>0.0kg</code>. The price engine then extrapolates backward normally using the established Scaling Rate.</li>
+										<li><strong>Huge:</strong> Multiplies the fish's <code>baseMinW</code> and <code>baseMaxW</code> by <strong>4x</strong>, and multiplies the <code>baseFloor</code> and <code>baseCeil</code> by <strong>2x</strong>. The Sine curve roll is then applied to these expanded brackets.</li>
+								</ul>
 						</div>
 
 						<div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">

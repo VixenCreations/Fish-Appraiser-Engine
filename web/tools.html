@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish! Appraiser // Data Miner Tools</title>
+    <link rel="stylesheet" href="/tools.css">
+</head>
+<body>
+
+    <div class="terminal-container">
+        <a href="/" class="nav-link">< RETURN_TO_APPRAISER</a>
+        
+        <h2 class="nerd-header">> REVERSE_ENGINEERING // Toolset</h2>
+        <p class="nerd-subtitle">Input two separate catches to decode the source Economy integers.</p>
+
+        <div class="nerd-section selector">
+            <strong>1. Target & Hardware</strong>
+            <p class="section-desc">Select species to load DB baselines and input your rod's Big Catch stat.</p>
+            <div class="input-row">
+                <div class="input-group species-select">
+                    <label class="input-label">Species (Loads DB Baseline)</label>
+                    <select id="fishSelector" class="matrix-select">
+                        <option value="">[ LOADING DATABASE... ]</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Rod Big Catch</label>
+                    <input type="number" id="rodBC" class="matrix-input" value="0">
+                </div>
+            </div>
+            <div id="activeFishStats">
+                > Target Locked: <span id="lblMinW" class="math-highlight"></span>kg (Min) to <span id="lblMaxW" class="math-highlight"></span>kg (Max)
+            </div>
+        </div>
+
+        <div class="nerd-section inputs">
+            <strong>2. Input Raw Catch Data</strong>
+            <p class="section-desc">Enter the exact weight and coin value. Select mutations/sizes to strip multipliers.</p>
+            
+            <div class="catch-block">
+                <strong class="catch-header-a">// CATCH A</strong>
+                <div class="input-row-multi">
+                    <div class="input-group">
+                        <label class="input-label">Weight</label>
+                        <input type="number" id="wA" class="matrix-input" placeholder="0.00" step="any">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Coins</label>
+                        <input type="number" id="pA" class="matrix-input" placeholder="0" step="any">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Mutation</label>
+                        <select id="mutA" class="matrix-select"></select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Variant</label>
+                        <select id="sizeA" class="matrix-select"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="catch-block no-border">
+                <strong class="catch-header-b">// CATCH B</strong>
+                <div class="input-row-multi">
+                    <div class="input-group">
+                        <label class="input-label">Weight</label>
+                        <input type="number" id="wB" class="matrix-input" placeholder="0.00" step="any">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Coins</label>
+                        <input type="number" id="pB" class="matrix-input" placeholder="0" step="any">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Mutation</label>
+                        <select id="mutB" class="matrix-select"></select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Variant</label>
+                        <select id="sizeB" class="matrix-select"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nerd-section output">
+            <strong>3. Source Engine Compilation</strong>
+            <div id="dmOutput" class="output-console">
+                <span class="math-step">> Awaiting valid target and data variables...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/tools.js"></script>
+</body>
+</html>
