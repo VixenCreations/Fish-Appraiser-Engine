@@ -6,7 +6,7 @@
 
 A high-performance, zero-dependency local web engine built to reverse-engineer and calculate the exact dynamic economy of the VRChat world **Fish!**. 
 
-> *I was bored and wanted something to do during my down time at work, so I built an engine that runs in NodeJS because I wanted a mathematically perfect companion app that didn't rely on bloated spreadsheets.* — **Vixenlicious**
+> *I was bored and wanted something to do during my down time at work, so I went a little too far for a fishing game lol.* — **Vixenlicious**
 
 ---
 
