@@ -234,17 +234,17 @@
     </div>
 
 		<div id="nerdStatsModal" class="modal">
-				<div class="modal-content" style="text-align: left; width: 700px; max-height: 85vh; overflow-y: auto;">
-						<h3 style="text-align: center; color: var(--accent); margin-top: 0; font-family: monospace;">> STATS_FOR_NERDS // Math Engine</h3>
+				<div class="modal-content nerd-modal-content">
+						<h3 class="nerd-header">> STATS_FOR_NERDS // Math Engine</h3>
 						
-						<p style="color: var(--text-dim); text-align: center; font-style: italic; margin-bottom: 25px;">
+						<p class="nerd-subtitle">
 								For Spreadsheet Maintainers and Data Miners. How the Fish! engine calculates weight.
 						</p>
 
-						<div style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
-								<strong style="color: var(--text-main); font-size: 1.1em;">1. The Core Equation (Sine Curve)</strong>
-								<p style="margin-top: 8px;">The game does not use flat random numbers for weight. It rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a Sine wave.</p>
-								<ul style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 10px 10px 10px 30px; border-radius: 5px;">
+						<div class="nerd-section core">
+								<strong>1. The Core Equation (Sine Curve)</strong>
+								<p>The game does not use flat random numbers for weight. It rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a Sine wave.</p>
+								<ul class="nerd-code-list">
 										<li>Shift = Big Catch Points / 300</li>
 										<li>EffectiveRoll = clamp(Roll + Shift, 0.0, 1.0)</li>
 										<li>Percentile = Math.sin(EffectiveRoll * (π / 2))</li>
@@ -252,25 +252,42 @@
 								</ul>
 						</div>
 
-						<div style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #ff595e;">
-								<strong style="color: var(--text-main); font-size: 1.1em;">2. The "Ceiling Effect" (-90 Penalty)</strong>
-								<p style="margin-top: 8px;">Because the effective roll hard-caps at <code>1.0</code>, negative points make it mathematically impossible to reach the top of the curve.</p>
+						<div class="nerd-section ceiling">
+								<strong>2. The "Ceiling Effect" (Negative Penalties)</strong>
+								<p>Because the effective roll hard-caps at <code>1.0</code>, negative points make it mathematically impossible to reach the top of the curve.</p>
 								<p>If you have <strong>-90 Big Catch</strong>, your maximum possible effective roll is <code>0.7</code> (1.0 - 0.3). <br>
 								<code>Math.sin(0.7 * (π / 2)) = 0.8910</code>.</p>
 								<p style="color: #ffca3a;"><em>Conclusion: At -90 Big Catch, you can never catch a fish larger than <strong>89.10%</strong> of its true maximum size.</em></p>
 						</div>
 
-						<div style="margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 3px solid #00ffaa;">
-								<strong style="color: var(--text-main); font-size: 1.1em;">3. Reverse-Algebra (Solving for True Max)</strong>
-								<p style="margin-top: 8px;">You do not need to remove penalties to find a fish's true Max Weight. If you log the Base Min and the absolute largest weight seen while penalized, we can reverse the math.</p>
-								<pre style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 10px; border-radius: 5px; overflow-x: auto;">
-		// Example: Caught a 1.00kg max fish at -90 Penalty (Min is 0.1kg)
-		1. Max Percentile for -90 = 0.8910
-		2. 1.00kg - 0.1kg = 0.9kg
-		3. 0.9kg / 0.8910 = 1.01kg
-		4. 1.01kg + 0.1kg = 1.11kg
+						<div class="nerd-section floor">
+								<strong>3. The "Floor Effect" (Positive Buffs)</strong>
+								<p>Because the effective roll floor-caps at <code>0.0</code>, positive points make it mathematically impossible to reach the bottom of the curve.</p>
+								<p>If you have <strong>+90 Big Catch</strong>, your minimum possible effective roll is <code>0.3</code> (0.0 + 0.3). <br>
+								<code>Math.sin(0.3 * (π / 2)) = 0.4539</code>.</p>
+								<p style="color: #ffca3a;"><em>Conclusion: At +90 Big Catch, you can never catch a fish smaller than <strong>45.39%</strong> of its potential size range.</em></p>
+						</div>
 
-		> True Base Max Weight at 0 points is 1.11kg.</pre>
+						<div class="nerd-section algebra">
+								<strong>4. Reverse-Algebra (Solving for True Stats)</strong>
+								<p>You do not need to remove stats to find a fish's true values. By logging your extreme highs and lows, we can reverse the math for both the Ceiling and the Floor.</p>
+								
+								<div style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 15px; border-radius: 5px; line-height: 1.5; margin-top: 10px; overflow-x: auto; white-space: nowrap;">
+										<div style="margin-bottom: 15px;">
+												<span style="color: #8b949e;">// SCENARIO A: Solving Max Weight (Using a Negative Penalty)</span><br>
+												<span style="color: #8b949e;">// Ex: Caught a 1.00kg max fish at -90 Penalty (Min is known 0.1kg)</span><br>
+												1. MaxPercentile (-90) = 0.8910<br>
+												2. TrueBaseMax = ((ObservedMax - BaseMin) / MaxPercentile) + BaseMin<br>
+												<strong style="color: #00ffaa;">> ((1.00 - 0.1) / 0.8910) + 0.1 = 1.11kg (True Max)</strong>
+										</div>
+										<div>
+												<span style="color: #8b949e;">// SCENARIO B: Solving Min Weight (Using a Positive Buff)</span><br>
+												<span style="color: #8b949e;">// Ex: Caught a 0.56kg min fish at +90 Buff (Max is known 1.11kg)</span><br>
+												1. MinPercentile (+90) = 0.4539<br>
+												2. TrueBaseMin = (ObservedMin - (BaseMax * MinPercentile)) / (1 - MinPercentile)<br>
+												<strong style="color: #00ffaa;">> (0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg (True Min)</strong>
+										</div>
+								</div>
 						</div>
 
 						<div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">

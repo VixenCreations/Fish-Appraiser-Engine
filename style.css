@@ -530,6 +530,104 @@ tr:hover td { background-color: var(--bg-hover); }
 .txt-cast { color: #aaaaaa; }
 
 /* =========================================================
+   STATS FOR NERDS MODAL (MIDNIGHT TERMINAL THEME)
+   ========================================================= */
+
+/* The Main Terminal Window */
+.nerd-modal-content {
+    text-align: left;
+    width: 750px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #0a0f18; /* Deep midnight blue, matches site vibe */
+    border: 1px solid rgba(0, 230, 255, 0.2); /* Subtle cyan border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    border-radius: 8px; /* Restored soft corners */
+    font-family: 'Courier New', Courier, monospace; /* Kept the tech font */
+}
+
+/* Clean Cyan Header */
+.nerd-header {
+    text-align: center;
+    color: #00e6ff; /* Crisp cyan accent */
+    margin-top: 0;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Dimmed system output text */
+.nerd-subtitle {
+    color: #8b949e;
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 1px dashed #1e2633;
+    padding-bottom: 15px;
+}
+
+/* Dark Data Modules */
+.nerd-section {
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border: 1px solid #1e2633;
+    border-radius: 6px;
+    color: #c9d1d9;
+}
+
+/* Refined Color-Coded Left Borders (No massive neon glow) */
+.nerd-section.core    { border-left: 3px solid #00e6ff; }
+.nerd-section.ceiling { border-left: 3px solid #ff595e; }
+.nerd-section.floor   { border-left: 3px solid #00ffaa; }
+.nerd-section.algebra { border-left: 3px solid #a855f7; margin-bottom: 25px; }
+
+/* Section Headers */
+.nerd-section strong {
+    color: #ffffff;
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
+}
+
+.nerd-section p {
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+/* Inline code fragments */
+.nerd-section code {
+    background: #010409;
+    color: #00e6ff;
+    padding: 2px 5px;
+    border-radius: 4px;
+    border: 1px solid #1e2633;
+}
+
+/* Syntax/List Blocks */
+.nerd-code-list {
+    color: #a5d6ff;
+    background: #010409;
+    padding: 15px 15px 15px 35px;
+    border: 1px solid #1e2633;
+    border-radius: 4px;
+}
+
+/* Custom Scrollbar for the Modal */
+.nerd-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+.nerd-modal-content::-webkit-scrollbar-track {
+    background: #0a0f18;
+    border-left: 1px solid #1e2633;
+    border-radius: 0 8px 8px 0;
+}
+.nerd-modal-content::-webkit-scrollbar-thumb {
+    background: #1e2633;
+    border-radius: 4px;
+}
+.nerd-modal-content::-webkit-scrollbar-thumb:hover {
+    background: #00e6ff;
+}
+
+/* =========================================================
    TEXT ANIMATIONS & CREDITS
    ========================================================= */
 
