@@ -19,7 +19,6 @@
 						
 						<button id="nerdStatsBtn" class="secondary-btn" title="View the underlying math and engine algorithms">Stats for Nerds</button>
 						<button id="creditsBtn" class="secondary-btn" title="View engine contributors and special thanks">Credits</button>
-						<button id="disclaimerBtn" class="secondary-btn" title="Read the math and community disclaimer">Community Disclaimer</button>
 						
 						<a href="https://wikifish.net/" target="_blank" class="icon-link" title="Official Fish! Wiki">
 								<img src="/assets/FishLogo.png" alt="Fish! Wiki" width="32">
@@ -332,18 +331,16 @@
 				</div>
 		</div>
 
-		<div id="disclaimerModal" class="modal">
-				<div class="modal-content">
-						<h3>Community Disclaimer</h3>
-						<p>All data presented in this engine is collected and managed by the community of <strong>Fish!</strong> and may not be accurate unless confirmed by the Developers.</p>
-						<button id="closeModal" class="accent-btn">Understood</button>
-				</div>
-		</div>
-
 		<div id="creditsModal" class="modal">
-				<div class="modal-content" style="text-align: left; width: 550px;">
-						<h3 style="text-align: center; color: var(--accent); margin-top: 0;">Credits & Acknowledgements</h3>
+				<div class="modal-content" style="text-align: left; width: 550px; max-width: 90vw;">
+						<h3 style="text-align: center; color: var(--accent); margin-top: 0;">Credits & Disclaimer</h3>
 						
+						<div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid var(--warning); padding: 12px 15px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+								<p style="margin: 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5;">
+										<strong style="color: var(--warning);">Community Disclaimer:</strong> All data presented in this engine is collected, reverse-engineered, and managed by the community of <strong>Fish!</strong> and may not be perfectly accurate unless confirmed by the TrickForge Developers.
+								</p>
+						</div>
+
 						<div style="margin-bottom: 15px;">
 								<strong style="color: var(--text-main);">Official Fish! Links</strong>
 								<ul>
@@ -376,7 +373,7 @@
 						</div>
 
 						<div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">
-								<button id="closeCreditsModal" class="accent-btn">Close Credits</button>
+								<button id="closeCreditsModal" class="accent-btn">Close Window</button>
 						</div>
 				</div>
 		</div>
