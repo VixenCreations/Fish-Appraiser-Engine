@@ -12,14 +12,24 @@
 		<header class="main-header">
 				<div class="header-left">
 						<h1>Fish Appraiser</h1>
-						<p class="maintainer">Developed & Written by <strong>Vixenlicous</strong></p>
+						<p class="maintainer">Developed & Written by <strong class="dev-rainbow">Vixenlicous</strong></p>
 				</div>
 				<div class="header-right">
-						<button id="creditsBtn" class="secondary-btn">Credits</button>
-						<button id="disclaimerBtn" class="secondary-btn">Community Disclaimer</button>
-						<a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" class="icon-link">
+						<button id="creditsBtn" class="secondary-btn" title="View engine contributors and special thanks">Credits</button>
+						<button id="disclaimerBtn" class="secondary-btn" title="Read the math and community disclaimer">Community Disclaimer</button>
+						
+						<a href="https://wikifish.net/" target="_blank" class="icon-link" title="Official Fish! Wiki">
+								<img src="/assets/FishLogo.png" alt="Fish! Wiki" width="32">
+						</a>
+						
+						<a href="https://x.com/VixenVRC" target="_blank" class="icon-link" title="Check out my Twitter if interested">
+								<img src="/assets/X-logo-white.png" alt="X (Twitter)" width="32">
+						</a>
+						
+						<a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" class="icon-link" title="GitHub">
 								<img src="/assets/GitHub_Invertocat_White.png" alt="GitHub" width="32">
 						</a>
+						
 						<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
 						<script type='text/javascript'>
 								kofiwidget2.init('Support me on Ko-fi', '#58a6ff', 'S6S61WAIUV');
@@ -125,15 +135,14 @@
 								</div>
 						</div>
 
-						<div class="luck-readout" style="grid-column: 1 / -1; width: 100%; margin-top: 20px;">
-								<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.85em; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08); margin-bottom: 15px;">
-										XP Efficiency & Farm Forecaster
-								</div>
+						<div class="luck-readout xp-forecaster-panel">
 								
-								<div class="calc-grid" style="gap: 30px;">
+								<div class="glass-heading md">XP Efficiency & Farm Forecaster</div>
+								
+								<div class="calc-grid xp-grid">
 										<div class="control-group">
 												<label>XP Enchantment</label>
-												<select id="xpEnchant" style="width: 200px;">
+												<select id="xpEnchant">
 														<option value="0">None (+0%)</option>
 														<option value="5">Curious (+5%)</option>
 														<option value="12">Student (+12%)</option>
@@ -142,52 +151,49 @@
 										</div>
 										<div class="control-group">
 												<label>Attraction Rate (%)</label>
-												<input type="number" id="xpAttraction" value="0" min="0" max="100" step="1" style="width: 200px;">
+												<input type="number" id="xpAttraction" value="0" min="0" max="100" step="1">
 										</div>
 										<div class="control-group">
 												<label>Perfect Catch Rate (%)</label>
-												<input type="number" id="xpPerfect" value="0" min="0" max="100" step="1" style="width: 200px;">
+												<input type="number" id="xpPerfect" value="0" min="0" max="100" step="1">
 										</div>
 								</div>
 
-								<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-										<div>
-												<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);">
-														XP / Hour
-												</div>
-												<div id="outXpHour" style="font-size: 2.2em; color: var(--success); font-weight: bold; text-shadow: 0px 2px 4px rgba(0,0,0,0.8), 0px 0px 10px rgba(16, 185, 129, 0.2);">0</div>
+								<div class="xp-results-row">
+										
+										<div class="xp-stat-block">
+												<div class="glass-heading sm">XP / Hour</div>
+												<div id="outXpHour" class="xp-val-hr">0</div>
 										</div>
-										<div>
-												<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);">
-														XP / Minute
-												</div>
-												<div id="outXpMin" style="font-size: 1.5em; color: var(--accent); font-weight: bold; text-shadow: 0px 2px 4px rgba(0,0,0,0.8);">0</div>
+										
+										<div class="xp-stat-block">
+												<div class="glass-heading sm">XP / Minute</div>
+												<div id="outXpMin" class="xp-val-min">0</div>
 										</div>
-										<div style="flex-grow: 1; max-width: 320px; padding: 15px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--border); box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);">
-												<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-														<div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.75em; font-weight: bold; letter-spacing: 1.2px; text-shadow: 0px 1px 3px rgba(0,0,0,0.8);">
-																Cycle Visualizer (Average)
-														</div>
-														<div style="font-size: 0.85em; font-weight: bold; color: var(--text-main);">
-																<span id="outCycleTime" style="color: var(--warning); font-size: 1.2em;">0.0</span>s Total
+										
+										<div class="cycle-widget">
+												<div class="cycle-header">
+														<div class="glass-heading sm" style="margin-bottom: 0;">Cycle Visualizer (Average)</div>
+														<div class="cycle-total-text">
+																<span id="outCycleTime" class="cycle-total-time">0.0</span>s Total
 														</div>
 												</div>
 
-												<div style="display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--bg-base); border: 1px solid rgba(255,255,255,0.1);">
-														<div id="barWait" style="width: 33%; background: var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-														<div id="barReel" style="width: 33%; background: var(--success); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-														<div id="barCast" style="width: 34%; background: #888888; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+												<div class="cycle-track">
+														<div id="barWait" class="cycle-bar wait" style="width: 33%;"></div>
+														<div id="barReel" class="cycle-bar reel" style="width: 33%;"></div>
+														<div id="barCast" class="cycle-bar cast" style="width: 34%;"></div>
 												</div>
 
-												<div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.70em; color: rgba(255,255,255,0.6); text-shadow: 0px 1px 2px rgba(0,0,0,0.9);">
-														<div>Wait: <strong id="outAttrTime" style="color: var(--accent);">0.0s</strong></div>
-														<div>Reel: <strong id="outReelTime" style="color: var(--success);">6.0s</strong></div>
-														<div>Cast: <strong id="outCastTime" style="color: #aaaaaa;">1.5s</strong></div>
+												<div class="cycle-labels">
+														<div>Wait: <strong id="outAttrTime" class="txt-accent">0.0s</strong></div>
+														<div>Reel: <strong id="outReelTime" class="txt-success">6.0s</strong></div>
+														<div>Cast: <strong id="outCastTime" class="txt-cast">1.5s</strong></div>
 												</div>
 
-												<div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 0.85em;">
-														<div style="color: rgba(255,255,255,0.6);">Avg Yield: <strong id="outAvgXp" style="color: var(--text-main);">0.0</strong> XP</div>
-														<div style="color: rgba(255,255,255,0.6);">Volume: <strong id="outCatchesHour" style="color: var(--text-main);">0</strong> / hr</div>
+												<div class="cycle-footer">
+														<div>Avg Yield: <strong id="outAvgXp">0.0</strong> XP</div>
+														<div>Volume: <strong id="outCatchesHour">0</strong> / hr</div>
 												</div>
 										</div>
 								</div>
@@ -226,14 +232,14 @@
         </div>
     </div>
 
-    <div id="disclaimerModal" class="modal">
-        <div class="modal-content">
-            <h3>Community Disclaimer</h3>
-            <p>All data presented in this engine is collected and managed by the community of <strong>Fish!</strong> and may not be accurate unless confirmed by the Developers.</p>
-            <button id="closeModal" class="accent-btn">Understood</button>
-        </div>
-    </div>
-		
+		<div id="disclaimerModal" class="modal">
+				<div class="modal-content">
+						<h3>Community Disclaimer</h3>
+						<p>All data presented in this engine is collected and managed by the community of <strong>Fish!</strong> and may not be accurate unless confirmed by the Developers.</p>
+						<button id="closeModal" class="accent-btn">Understood</button>
+				</div>
+		</div>
+
 		<div id="creditsModal" class="modal">
 				<div class="modal-content" style="text-align: left; width: 550px;">
 						<h3 style="text-align: center; color: var(--accent); margin-top: 0;">Credits & Acknowledgements</h3>
@@ -243,6 +249,7 @@
 								<ul>
 										<li><a href="https://vrchat.com/home/world/wrld_ae001ea3-ed05-42f0-adf2-3d47efd10a77/info" target="_blank">VRChat World</a></li>
 										<li><a href="https://discord.gg/TrickForge" target="_blank">TrickForge Discord</a></li>
+										<li><a href="https://wikifish.net/" target="_blank">WikiFish!</a></li>
 								</ul>
 						</div>
 
@@ -252,23 +259,24 @@
 										<li>Gamerexde - <a href="https://github.com/Gamerexde" target="_blank">GitHub</a></li>
 										<li>Godfall - <a href="https://godfall.club/" target="_blank">Club Website</a></li>
 										<li>KittehKun - <a href="https://github.com/KittehKun" target="_blank">GitHub</a></li>
-										<li>svenssko - <span class="rainbow-text">they do things</span></li>
+										<li>svenssko - <span class="thanks-rainbow">they do things</span></li>
 								</ul>
 						</div>
 
 						<div style="margin-bottom: 25px;">
 								<strong style="color: var(--text-main);">Data Sources & Community Effort</strong>
 								<ul>
-										<li>Giant Datasets for luck engine: <span class="rainbow-text">Basutei, Mic Xiao, Queen_Cactoos</span></li>
-										<li>Time Tables for XP Calculator and Verified: <span class="rainbow-text">m.max, Snerx</span></li>
+										<li>Giant Datasets for luck engine: <span class="data-miner">Basutei, Mic Xiao, Queen_Cactoos</span></li>
+										<li>Time Tables for XP Calculator: <span class="data-miner">m.max, Snerx</span></li>
+										<li>Bug Finders: <span class="bug-hunter">plebicide</span></li>
 										<li>Primary Data By JP Fish Community: <a href="https://wikiwiki.jp/fish_jp/" target="_blank">Japanese Fish! Wiki</a></li>
 										<li>Additional Data by Snerx: <a href="https://docs.google.com/spreadsheets/d/1SAggImcqOJbcTP0owCrqv13Z71ZnXynYL64OB5I1CSY/edit?usp=sharing" target="_blank">Community Spreadsheet 1</a></li>
 										<li>Other Data by LucyferVC: <a href="https://docs.google.com/spreadsheets/d/1oHP4smYbhtgh7vA6_wz_p0XWaKn52kKJIs7IVPCdcog/edit?usp=sharing" target="_blank">Community Spreadsheet 2</a></li>
 								</ul>
 						</div>
 
-						<div style="text-align: center;">
-								<button id="closeCreditsModal" class="accent-btn">Close</button>
+						<div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">
+								<button id="closeCreditsModal" class="accent-btn">Close Credits</button>
 						</div>
 				</div>
 		</div>

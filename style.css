@@ -1,25 +1,73 @@
-/* --- GLOBAL VARIABLES --- */
+/* --- GLOBAL VARIABLES (Midnight Ocean Theme) --- */
 :root {
-    --bg-base: #090c10;
-    --bg-panel: #161b22;
-    --bg-hover: #21262d;
-    --text-main: #c9d1d9;
-    --text-muted: #8b949e;
-    --accent: #58a6ff;
-    --border: #30363d;
-    --success: #3fb950;
-    --warning: #d29922;
-    --xp-color: #bc8cff;
-    --panel-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --bg-base: #050b14;     /* Deepest abyssal blue, almost black */
+    --bg-panel: #0d1726;    /* Rich, cool-toned navy for the panels */
+    --bg-hover: #17263d;    /* Noticeable bright pop on hover */
+    
+    --text-main: #f1f5f9;   /* Crisp, icy white for maximum readability */
+    --text-muted: #cbd5e1;  /* Upgraded to a brighter icy slate for better contrast */
+    
+    --accent: #00e6ff;      /* Electric neon cyan for borders and active states */
+    --border: #1e2b3c;      /* Soft, cool-toned border to separate panels */
+    
+    --success: #10b981;     /* Vibrant emerald green */
+    --warning: #fbbf24;     /* Bright glowing amber */
+    --xp-color: #a855f7;    /* Electric purple for XP elements */
+    
+    /* Upgraded Shadow: A deep drop shadow paired with a faint white "rim light" for a 3D glass edge */
+    --panel-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
 /* --- BASE STYLES --- */
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-base);
     color: var(--text-main);
     margin: 0;
     padding: 20px;
+    min-height: 100vh;
+    
+    /* The Midnight Ocean Spotlight */
+    background: radial-gradient(circle at 50% 0%, #0d1b2a 0%, var(--bg-base) 80%);
+    background-attachment: fixed;
+    
+    /* Premium Font Rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Text Selection (Matches the Neon Theme) */
+::selection {
+    background-color: var(--accent);
+    color: #000000;
+}
+
+/* --- SLEEK GLASS TEXT UI --- */
+/* Upgrades all input labels to an etched-glass aesthetic using global variables */
+label, 
+.control-group label {
+    color: var(--text-muted) !important; /* Fixed: Now respects your global root theme! */
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    /* The Glass Effect: A sharp dark drop shadow for depth + a faint white glow for the frosted edge */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);
+}
+
+/* Upgrades the inline-styled section headers (Rarity Probabilities, Big Catch Analyzer) */
+div[style*="color: var(--text-muted)"] {
+    color: var(--text-muted) !important; /* Fixed */
+    letter-spacing: 1.5px !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Softens the helper text (Base Range, Sine Curve Shift) for a clean, muted frosted look */
+#weightBounds, 
+#bigCatchOutDesc {
+    color: var(--text-muted) !important; /* Fixed */
+    opacity: 0.8; /* Uses opacity to soften the global variable instead of hardcoding RGBA */
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.9);
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 /* --- HEADER & BRANDING --- */
@@ -282,25 +330,37 @@ tr:hover td { background-color: var(--bg-hover); }
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.rarity-trash { background-color: #4a4a4a; color: #a0a0a0; }
-.rarity-abundant { background-color: #6b7280; color: #f3f4f6; }
-.rarity-common { background-color: #3b82f6; color: #eff6ff; }
-.rarity-curious { background-color: #10b981; color: #ecfdf5; }
-.rarity-elusive { background-color: #8b5cf6; color: #f5f3ff; }
-.rarity-relic { background-color: #f59e0b; color: #fffbeb; }
-.rarity-fabled { background-color: #ef4444; color: #fef2f2; }
-.rarity-mythic { background-color: #ec4899; color: #fdf2f8; }
-.rarity-exotic { background-color: #14b8a6; color: #f0fdfa; }
+/* --- FISH RARITY COLORS (V2 - Fixed Matrix Table Text) --- */
+.rarity-trash    { --rarity-hex: #888888; background-color: var(--rarity-hex); color: #ffffff; }
+.rarity-abundant { --rarity-hex: #b4b4cc; background-color: var(--rarity-hex); color: #111827; } 
+.rarity-common   { --rarity-hex: #32cd32; background-color: var(--rarity-hex); color: #111827; } 
+.rarity-curious  { --rarity-hex: #1e90ff; background-color: var(--rarity-hex); color: #ffffff; } 
+.rarity-elusive  { --rarity-hex: #a200ff; background-color: var(--rarity-hex); color: #ffffff; } 
+.rarity-relic    { --rarity-hex: #ff8c00; background-color: var(--rarity-hex); color: #111827; } 
+.rarity-fabled   { --rarity-hex: #ffd700; background-color: var(--rarity-hex); color: #111827; } 
+.rarity-mythic   { --rarity-hex: #ff2400; background-color: var(--rarity-hex); color: #ffffff; } 
+.rarity-exotic   { --rarity-hex: #ff1493; background-color: var(--rarity-hex); color: #ffffff; } 
+
+/* --- SPECIAL RARITY GRADIENTS --- */
 .rarity-secret { 
-    background: linear-gradient(45deg, #fbbf24, #f59e0b); 
-    color: #111827; 
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+    --rarity-hex: #ffaa00;
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff); 
+    color: #ffffff; /* High contrast text */
+    text-shadow: 0px 1px 4px rgba(0,0,0,0.9); /* Heavy drop shadow to read over the rainbow */
+    box-shadow: 0 0 8px rgba(255, 170, 0, 0.4);
 }
+
 .rarity-ultimate { 
-    background: linear-gradient(45deg, #ef4444, #8b5cf6, #3b82f6); 
-    color: white; 
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+    --rarity-hex: #ff6a88;
+    background: linear-gradient(90deg, #ff5e7e, #ff9966); 
+    color: #111827; /* Dark text reads perfectly over the bright peach gradient */
+    text-shadow: none;
+    box-shadow: 0 0 10px rgba(255, 106, 136, 0.4);
+}
+
+/* --- THE FIX FOR THE PROBABILITY CHART LABELS --- */
+.prob-label {
+    color: var(--rarity-hex) !important;
 }
 
 /* --- LUCK & DROP RATE UI --- */
@@ -319,8 +379,10 @@ tr:hover td { background-color: var(--bg-hover); }
 .prob-container {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Tells the container to fill the remaining vertical space */
-    justify-content: space-evenly; /* Dynamically spreads the bars out to fill the box */
+    flex-grow: 1;
+    justify-content: flex-start; /* Pushes everything to the top */
+    gap: 16px; /* Explicitly sets a tight, perfect gap between each bar */
+    padding-top: 10px; /* Gives a little breathing room under the header */
 }
 
 .prob-row {
@@ -365,50 +427,226 @@ tr:hover td { background-color: var(--bg-hover); }
     text-align: right; /* Aligns all the percentages perfectly flush right */
 }
 
-/* --- FUNNY RAINBOW ANIMATION --- */
-.rainbow-text {
+/* --- XP FORECASTER PANEL (Layout & Scaling) --- */
+.xp-forecaster-panel {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 20px;
+    display: block !important;
+    align-self: start;
+    height: max-content;
+}
+
+/* Tighter gap for the XP inputs */
+.xp-grid { gap: 20px; }
+.xp-grid .control-group input, 
+.xp-grid .control-group select { width: 200px; }
+
+/* The horizontal flex row for the outputs */
+.xp-results-row {
+    margin-top: 15px; 
+    padding-top: 15px; 
+    border-top: 1px solid var(--border); 
+    display: flex; 
+    justify-content: flex-start; 
+    align-items: center; 
+    gap: 50px; 
+    flex-wrap: wrap;
+}
+
+/* --- REUSABLE GLASS TYPOGRAPHY --- */
+.glass-heading {
+    color: var(--text-muted); /* Synced to Midnight Ocean theme */
+    text-transform: uppercase;
+    font-weight: bold;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);
+}
+.glass-heading.md { font-size: 0.85em; letter-spacing: 1.5px; margin-bottom: 15px; }
+.glass-heading.sm { font-size: 0.75em; letter-spacing: 1.2px; }
+
+/* --- XP STAT READOUTS --- */
+.xp-stat-block { min-width: 130px; }
+
+.xp-val-hr {
+    font-size: 2.2em; 
+    color: var(--success); 
+    font-weight: bold; 
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.8), 0px 0px 10px rgba(16, 185, 129, 0.2);
+}
+
+.xp-val-min {
+    font-size: 1.5em; 
+    color: var(--accent); 
+    font-weight: bold; 
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* --- CYCLE VISUALIZER WIDGET --- */
+.cycle-widget {
+    width: 320px; 
+    padding: 15px; 
+    background: rgba(0,0,0,0.15); 
+    border-radius: 8px; 
+    border: 1px solid var(--border); 
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cycle-header {
+    display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;
+}
+
+.cycle-total-text { font-size: 0.85em; font-weight: bold; color: var(--text-main); }
+.cycle-total-time { color: var(--warning); font-size: 1.2em; }
+
+.cycle-track {
+    display: flex; height: 10px; border-radius: 5px; overflow: hidden; 
+    background: var(--bg-base); border: 1px solid var(--border); /* Synced to global border */
+}
+
+/* The animated CSS physics for the progress bars */
+.cycle-bar { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.cycle-bar.wait { background: var(--accent); }
+.cycle-bar.reel { background: var(--success); }
+.cycle-bar.cast { background: #888888; }
+
+.cycle-labels {
+    display: flex; justify-content: space-between; margin-top: 6px; 
+    font-size: 0.70em; 
+    color: var(--text-muted); /* Synced to Midnight Ocean theme */
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.9);
+}
+
+.cycle-footer {
+    margin-top: 12px; padding-top: 10px; 
+    border-top: 1px dashed var(--border); /* Synced to global border */
+    display: flex; justify-content: space-between; font-size: 0.85em; 
+    color: var(--text-muted); /* Synced to Midnight Ocean theme */
+}
+.cycle-footer strong { color: var(--text-main); }
+
+/* Utility Text Colors */
+.txt-accent { color: var(--accent); }
+.txt-success { color: var(--success); }
+.txt-cast { color: #aaaaaa; }
+
+/* =========================================================
+   TEXT ANIMATIONS & CREDITS
+   ========================================================= */
+
+/* --- THE DEV SPOT: Hyper-Neon Pulse --- */
+.dev-rainbow {
+    /* Pure, max-saturation neon spectrum */
     background: linear-gradient(
         90deg, 
-        #ff595e, #ffca3a, #8ac926, #1982c4, #6a4c93, #ff595e
+        #ff0055, #ffaa00, #00ffaa, #00aaff, #aa00ff, #ff0055
     );
     background-size: 200% auto;
     color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
-    animation: rainbowScroll 2.5s linear infinite;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+    
+    /* 1.2s is over TWICE as fast. Added a secondary pulse animation for the "Pop" */
+    animation: devRainbowScroll 1.2s linear infinite, devPulse 2s ease-in-out infinite;
+    
+    font-weight: 900;
+    letter-spacing: 1px;
+    display: inline-block; /* Required for the transform/scale pulse to work */
 }
 
-@keyframes rainbowScroll {
+/* --- THE SPECIAL THANKS SPOT: Aurora Flow --- */
+.thanks-rainbow {
+    /* Premium Cyberpunk/Aurora color palette */
+    background: linear-gradient(
+        90deg, 
+        #00e6ff, #a855f7, #ff5e7e, #fbbf24, #00e6ff
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    
+    /* Fast 1.8s scroll, but no scale-pulsing so it stays clean and readable */
+    animation: devRainbowScroll 1.8s linear infinite;
+    
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    
+    /* A sharp, dark drop shadow to pull it off the Midnight Ocean background */
+    filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.9));
+}
+
+/* --- KEYFRAMES --- */
+/* The background scrolling physics */
+@keyframes devRainbowScroll {
     0% { background-position: 0% center; }
     100% { background-position: -200% center; }
 }
 
-/* --- SLEEK GLASS TEXT UI --- */
-/* Upgrades all input labels to an etched-glass aesthetic */
-label, 
-.control-group label {
-    color: rgba(255, 255, 255, 0.55) !important;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    font-weight: 700;
-    /* The Glass Effect: A sharp dark drop shadow for depth + a faint white glow for the frosted edge */
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08);
+/* The "Pop and Bang" glowing heartbeat for the Dev Spot */
+@keyframes devPulse {
+    0%, 100% { 
+        transform: scale(1); 
+        filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.2)); 
+    }
+    50% { 
+        transform: scale(1.08); /* Physical pop/expansion */
+        filter: drop-shadow(0px 0px 12px rgba(255, 255, 255, 0.6)); /* Radioactive glow surge */
+    }
 }
 
-/* Upgrades the section headers (Rarity Probabilities, Big Catch Analyzer) */
-div[style*="color: var(--text-muted)"] {
-    color: rgba(255, 255, 255, 0.55) !important;
-    letter-spacing: 1.5px !important;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08) !important;
+/* --- THE BUG HUNTER SPOT: Digital Glitch & Matrix Flow --- */
+.bug-hunter {
+    /* High-contrast Digital/Toxic palette */
+    background: linear-gradient(
+        90deg, 
+        #00ff00, #adff2f, #00ced1, #228b22, #00ff00
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    
+    /* Fast scroll + a specialized "glitch" jitter */
+    animation: devRainbowScroll 1.5s linear infinite, bugGlitch 0.3s steps(2, start) infinite;
+    
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    display: inline-block;
+    filter: drop-shadow(0px 0px 5px rgba(0, 255, 0, 0.3));
 }
 
-/* Softens the helper text (Base Range, Sine Curve Shift) for a clean, muted frosted look */
-#weightBounds, 
-#bigCatchOutDesc {
-    color: rgba(255, 255, 255, 0.40) !important;
-    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.9);
-    letter-spacing: 0.5px;
-    font-weight: 500;
+/* --- GLITCH KEYFRAMES --- */
+@keyframes bugGlitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(-1px, -1px); }
+    60% { transform: translate(1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+}
+
+/* --- THE DATA MINER SPOT: Starlight Shimmer --- */
+.data-miner {
+    /* Cosmic / High-Value Data palette */
+    background: linear-gradient(
+        90deg, 
+        #ffffff, #00e6ff, #0044ff, #00e6ff, #ffffff
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    
+    /* Fast 1.4s scroll + a sharp white glint sweep */
+    animation: devRainbowScroll 1.4s linear infinite, dataShimmer 2.5s ease-in-out infinite;
+    
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    display: inline-block;
+    filter: drop-shadow(0px 0px 6px rgba(0, 230, 255, 0.4));
+}
+
+/* --- SHIMMER KEYFRAMES --- */
+@keyframes dataShimmer {
+    0%, 100% { opacity: 1; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.8) drop-shadow(0px 0px 15px rgba(255, 255, 255, 0.8)); }
 }

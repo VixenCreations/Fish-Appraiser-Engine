@@ -338,13 +338,20 @@ function calculateLuck() {
     const buffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const external = parseFloat(document.getElementById('luckExternal').value) || 1.0;
 
-    // Mathematical Formula from __0_SelectRarityTier
-    const luckMultiplier = 1 + ((rawLuck * buffs * external) / 100);
+    // Mathematical Formula
+    let luckMultiplier = 1 + (rawLuck / 100);
+    luckMultiplier = luckMultiplier * buffs * external;
+    
+    // THE ENGINE FIX: Hard Floor to prevent NaN math crashes on stupidly negative luck.
+    // Locks the absolute worst-case multiplier to 0.01x (1%).
+    // This allows negative luck to heavily boost Trash/Abundant without breaking Math.pow()
+    luckMultiplier = Math.max(0.01, luckMultiplier);
+
     const luckOut = document.getElementById('luckOutMult');
     if (luckOut) luckOut.value = luckMultiplier.toFixed(2) + "x";
 
     renderProbabilities(luckMultiplier);
-		calculateXP()
+    calculateXP(); // Syncs the crashed drop rates with the XP Forecaster
 }
 
 function calculateBigCatch() {
@@ -404,8 +411,16 @@ function renderProbabilities(luckMult) {
 
     // 1. Calculate the modified weight for each rarity tier
     rarityWeightPool.forEach(tier => {
-        // Dynamic Weighting Math
-        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        let dynamicWeight;
+
+        // --- THE TRASH WRANGLER FIX ---
+        // If luck is negative (multiplier < 1.0), Trash probability physically inverts and skyrockets.
+        if (luckMult < 1.0 && tier.id === 'trash') {
+            dynamicWeight = tier.baseWeight * Math.pow(1 / luckMult, 1.0 + tier.scaleFactor);
+        } else {
+            // Standard engine math for positive luck or non-trash tiers
+            dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        }
         
         // Failsafe clamp to prevent negative weights breaking the pool
         dynamicWeight = Math.max(0, dynamicWeight); 
@@ -458,8 +473,12 @@ function calculateXP() {
     const rawLuck = parseFloat(document.getElementById('luckRaw').value) || 0;
     const luckBuffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const luckExt = parseFloat(document.getElementById('luckExternal').value) || 1.0;
+    
     let luckMult = 1.0 + (rawLuck / 100);
     luckMult = luckMult * luckBuffs * luckExt;
+    
+    // THE ENGINE FIX: Apply the 0.01x hard floor
+    luckMult = Math.max(0.01, luckMult);
 
     // 2. Piecewise Linear Interpolation (Lerp) for Attraction Time
     let attractionTime = 14.0; // Mathematically proven base for 0%
@@ -483,8 +502,20 @@ function calculateXP() {
     let expectedReelTime = 0;
 
     rarityWeightPool.forEach(tier => {
-        // Rebuild the live drop weight using the engine's exact scaling exponents
-        const dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        let dynamicWeight;
+
+        // --- THE TRASH WRANGLER FIX ---
+        // If luck is negative (multiplier < 1.0), Trash probability physically inverts and skyrockets.
+        if (luckMult < 1.0 && tier.id === 'trash') {
+            dynamicWeight = tier.baseWeight * Math.pow(1 / luckMult, 1.0 + tier.scaleFactor);
+        } else {
+            // Standard engine math for positive luck or non-trash tiers
+            dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        }
+        
+        // Failsafe clamp to prevent negative weights breaking the pool
+        dynamicWeight = Math.max(0, dynamicWeight); 
+
         totalWeight += dynamicWeight;
 
         // Calculate XP mapping
