@@ -354,7 +354,8 @@ function calculateLuck() {
 
 function calculateBigCatch() {
     // 1. Gather Inputs
-    const points = Math.min(100, Math.max(0, parseFloat(document.getElementById('bigCatchPoints').value) || 0));
+    // THE FIX: Removed the Math.max(0) floor to allow negative Big Catch points!
+    const points = Math.min(100, parseFloat(document.getElementById('bigCatchPoints').value) || 0);
     const roll = Math.min(1.0, Math.max(0, parseFloat(document.getElementById('bigCatchRoll').value) || 0));
     
     const fishIndex = document.getElementById('bigCatchFishSelect').value;
@@ -364,12 +365,13 @@ function calculateBigCatch() {
     const shift = points / 300;
     
     // User's Test Roll
-    const effectiveRoll = Math.min(1.0, roll + shift);
+    // We also need to clamp the effective roll from dropping below 0, or the Sine wave will dip negative!
+    const effectiveRoll = Math.min(1.0, Math.max(0.0, roll + shift));
     const weightPercentile = Math.sin(effectiveRoll * (Math.PI / 2));
     const finalPercent = (weightPercentile * 100).toFixed(2);
 
     // Absolute Minimum Roll (0.0) mapping
-    const minEffectiveRoll = Math.min(1.0, 0.0 + shift);
+    const minEffectiveRoll = Math.min(1.0, Math.max(0.0, 0.0 + shift));
     const minWeightPercentile = Math.sin(minEffectiveRoll * (Math.PI / 2));
     const minFinalPercent = (minWeightPercentile * 100).toFixed(2);
 
@@ -377,8 +379,12 @@ function calculateBigCatch() {
     const outPercentEl = document.getElementById('bigCatchOutPercent');
     if (outPercentEl) outPercentEl.innerText = `${finalPercent}%`;
     
+    // THE FIX: Dynamically show +/- so negative shifts look clean in the UI
     const descDisplay = document.getElementById('bigCatchOutDesc');
-    if (descDisplay) descDisplay.innerText = `(Sine Curve Shifted by +${shift.toFixed(3)})`;
+    if (descDisplay) {
+        const sign = shift >= 0 ? "+" : "";
+        descDisplay.innerText = `(Sine Curve Shifted by ${sign}${shift.toFixed(3)})`;
+    }
 
     // 4. Translate Percentiles to Real Kilograms if a fish is loaded
     if (fish) {
