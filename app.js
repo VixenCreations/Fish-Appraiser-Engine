@@ -253,25 +253,35 @@ function renderMatrix() {
 
 // --- 4. EVENT BINDINGS ---
 document.addEventListener('DOMContentLoaded', () => {
-		// Modal Interaction (Disclaimer & Credits)
+    // Modal Interaction (Disclaimer, Credits, & Stats for Nerds)
     const disclaimerModal = document.getElementById('disclaimerModal');
     const creditsModal = document.getElementById('creditsModal');
+    const nerdStatsModal = document.getElementById('nerdStatsModal');
     
     const discBtn = document.getElementById('disclaimerBtn');
     const credBtn = document.getElementById('creditsBtn');
+    const nerdBtn = document.getElementById('nerdStatsBtn');
     
     const discClose = document.getElementById('closeModal');
     const credClose = document.getElementById('closeCreditsModal');
+    const nerdClose = document.getElementById('closeNerdStatsModal');
 
+    // Open Modals
     if (discBtn) discBtn.onclick = () => disclaimerModal.style.display = "block";
-    if (discClose) discClose.onclick = () => disclaimerModal.style.display = "none";
-    
     if (credBtn) credBtn.onclick = () => creditsModal.style.display = "block";
+    // Note: Using 'flex' for the Nerd modal keeps the terminal text perfectly centered!
+    if (nerdBtn) nerdBtn.onclick = () => nerdStatsModal.style.display = "flex"; 
+
+    // Close Modals (Buttons)
+    if (discClose) discClose.onclick = () => disclaimerModal.style.display = "none";
     if (credClose) credClose.onclick = () => creditsModal.style.display = "none";
+    if (nerdClose) nerdClose.onclick = () => nerdStatsModal.style.display = "none";
     
+    // Close Modals (Clicking outside)
     window.onclick = (event) => {
         if (event.target == disclaimerModal) disclaimerModal.style.display = "none";
         if (event.target == creditsModal) creditsModal.style.display = "none";
+        if (event.target == nerdStatsModal) nerdStatsModal.style.display = "none";
     };
 
     // Calculation Update Bindings
@@ -297,13 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) el.addEventListener('input', calculateLuck);
     });
 
-		// Big Catch Bindings
+    // Big Catch Bindings
     ['bigCatchPoints', 'bigCatchRoll', 'bigCatchFishSelect'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calculateBigCatch);
     });
-		
-		// XP Forecaster Bindings
+    
+    // XP Forecaster Bindings
     ['xpEnchant', 'xpAttraction', 'xpPerfect'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calculateXP);
