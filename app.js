@@ -317,20 +317,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 5. LUCK & RARITY CALCULATOR ---
 
 // --- OMNI-CALIBRATED RARITY WEIGHTS ---
-// Mathematically solved using a 4-point logarithmic regression against 
-// empirical datasets at 160, 280, 352, and 704 Luck.
+// Mathematically solved exponents, now perfectly anchored to the 
+// official 100.00% base rarity dataset (Total Base Weight = 10,000)
 const rarityWeightPool = [
-    { id: "trash", label: "Trash", baseWeight: 165, scaleFactor: 0.25, color: "#4a4a4a" },
-    { id: "abundant", label: "Abundant", baseWeight: 1200, scaleFactor: -0.25, color: "#6b7280" },
-    { id: "common", label: "Common", baseWeight: 780, scaleFactor: 0.75, color: "#3b82f6" },
-    { id: "curious", label: "Curious", baseWeight: 730, scaleFactor: 1.0, color: "#10b981" },
-    { id: "elusive", label: "Elusive", baseWeight: 350, scaleFactor: 1.4, color: "#8b5cf6" },
-    { id: "relic", label: "Relic", baseWeight: 75, scaleFactor: 0.8, color: "#f59e0b" },
-    { id: "fabled", label: "Fabled", baseWeight: 200, scaleFactor: 1.15, color: "#ef4444" },
-    { id: "mythic", label: "Mythic", baseWeight: 105, scaleFactor: 1.05, color: "#ec4899" },
-    { id: "exotic", label: "Exotic", baseWeight: 35, scaleFactor: 1.25, color: "#14b8a6" },
-    { id: "secret", label: "Secret", baseWeight: 0.25, scaleFactor: 3.0, color: "#fbbf24" },
-    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.05, scaleFactor: 3.2, color: "#8b5cf6" }
+    { id: "trash", label: "Trash", baseWeight: 900, scaleFactor: 0.25, color: "#4a4a4a" },         // 9.00%
+    { id: "abundant", label: "Abundant", baseWeight: 2700, scaleFactor: -0.25, color: "#6b7280" }, // 27.00%
+    { id: "common", label: "Common", baseWeight: 2500, scaleFactor: 0.75, color: "#3b82f6" },      // 25.00%
+    { id: "curious", label: "Curious", baseWeight: 1800, scaleFactor: 1.0, color: "#10b981" },     // 18.00%
+    { id: "elusive", label: "Elusive", baseWeight: 1100, scaleFactor: 1.4, color: "#8b5cf6" },     // 11.00%
+    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.8, color: "#f59e0b" },          // 3.00%
+    { id: "fabled", label: "Fabled", baseWeight: 440, scaleFactor: 1.15, color: "#ef4444" },       // 4.40%
+    { id: "mythic", label: "Mythic", baseWeight: 250, scaleFactor: 1.05, color: "#ec4899" },       // 2.50%
+    { id: "exotic", label: "Exotic", baseWeight: 8.5, scaleFactor: 1.25, color: "#14b8a6" },       // 0.085%
+    { id: "secret", label: "Secret", baseWeight: 1.0, scaleFactor: 3.0, color: "#fbbf24" },        // 0.01%
+    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.5, scaleFactor: 3.2, color: "#8b5cf6" } // 0.005%
 ];
 
 function calculateLuck() {
@@ -338,20 +338,18 @@ function calculateLuck() {
     const buffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const external = parseFloat(document.getElementById('luckExternal').value) || 1.0;
 
-    // Mathematical Formula
-    let luckMultiplier = 1 + (rawLuck / 100);
-    luckMultiplier = luckMultiplier * buffs * external;
+    // THE FIX: Restored the mathematically accurate order of operations!
+    let luckMultiplier = 1 + ((rawLuck * buffs * external) / 100);
     
-    // THE ENGINE FIX: Hard Floor to prevent NaN math crashes on stupidly negative luck.
-    // Locks the absolute worst-case multiplier to 0.01x (1%).
-    // This allows negative luck to heavily boost Trash/Abundant without breaking Math.pow()
+    // Engine Floor to prevent NaN crashes on stupidly negative luck.
+    // This allows negative luck to naturally boost Abundant without breaking Math.pow()
     luckMultiplier = Math.max(0.01, luckMultiplier);
 
     const luckOut = document.getElementById('luckOutMult');
     if (luckOut) luckOut.value = luckMultiplier.toFixed(2) + "x";
 
     renderProbabilities(luckMultiplier);
-    calculateXP(); // Syncs the crashed drop rates with the XP Forecaster
+    calculateXP(); 
 }
 
 function calculateBigCatch() {
@@ -411,16 +409,8 @@ function renderProbabilities(luckMult) {
 
     // 1. Calculate the modified weight for each rarity tier
     rarityWeightPool.forEach(tier => {
-        let dynamicWeight;
-
-        // --- THE TRASH WRANGLER FIX ---
-        // If luck is negative (multiplier < 1.0), Trash probability physically inverts and skyrockets.
-        if (luckMult < 1.0 && tier.id === 'trash') {
-            dynamicWeight = tier.baseWeight * Math.pow(1 / luckMult, 1.0 + tier.scaleFactor);
-        } else {
-            // Standard engine math for positive luck or non-trash tiers
-            dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
-        }
+        // THE FIX: Stripped out the weird Trash hack and restored pure dataset math
+        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
         
         // Failsafe clamp to prevent negative weights breaking the pool
         dynamicWeight = Math.max(0, dynamicWeight); 
@@ -474,10 +464,10 @@ function calculateXP() {
     const luckBuffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const luckExt = parseFloat(document.getElementById('luckExternal').value) || 1.0;
     
-    let luckMult = 1.0 + (rawLuck / 100);
-    luckMult = luckMult * luckBuffs * luckExt;
+    // THE FIX: Restored mathematically accurate order of operations!
+    let luckMult = 1 + ((rawLuck * luckBuffs * luckExt) / 100);
     
-    // THE ENGINE FIX: Apply the 0.01x hard floor
+    // THE ENGINE FIX: Apply the 0.01x hard floor to prevent NaN crashes
     luckMult = Math.max(0.01, luckMult);
 
     // 2. Piecewise Linear Interpolation (Lerp) for Attraction Time
@@ -502,16 +492,8 @@ function calculateXP() {
     let expectedReelTime = 0;
 
     rarityWeightPool.forEach(tier => {
-        let dynamicWeight;
-
-        // --- THE TRASH WRANGLER FIX ---
-        // If luck is negative (multiplier < 1.0), Trash probability physically inverts and skyrockets.
-        if (luckMult < 1.0 && tier.id === 'trash') {
-            dynamicWeight = tier.baseWeight * Math.pow(1 / luckMult, 1.0 + tier.scaleFactor);
-        } else {
-            // Standard engine math for positive luck or non-trash tiers
-            dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
-        }
+        // THE FIX: Stripped out the bad Trash hack and restored pure dataset math
+        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
         
         // Failsafe clamp to prevent negative weights breaking the pool
         dynamicWeight = Math.max(0, dynamicWeight); 
