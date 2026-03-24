@@ -50,7 +50,7 @@ function populateSelectors(fData) {
         modifierData.sizes.forEach(s => {
             let opt = document.createElement('option');
             opt.value = s.multiplier; opt.textContent = s.label;
-            opt.dataset.id = s.id; // Critical for identifying 'huge'/'tiny'
+            opt.dataset.id = s.id; 
             sSel.appendChild(opt);
         });
     });
@@ -59,20 +59,31 @@ function populateSelectors(fData) {
 // --- 2. THE REVERSE-ALGEBRA ENGINE ---
 function runMathEngine() {
     const out = document.getElementById('dmOutput');
+    const sBox = document.getElementById('activeFishStats');
     if (!activeKey || !fishDatabase[activeKey]) return;
 
     const db = fishDatabase[activeKey];
     
-    // THE FIX: Explicitly parse the JSON strings into Numbers!
-    const dbMinW = parseFloat(db.baseMinW);
-    const dbMaxW = parseFloat(db.baseMaxW);
+    const dbMinW = parseFloat(db.baseMinW) || 0;
+    const dbMaxW = parseFloat(db.baseMaxW) || 0;
+    const dbFloor = parseFloat(db.baseFloor) || 0;
+    const dbCeil = parseFloat(db.baseCeil) || 0;
     const rodBC = parseFloat(document.getElementById('rodBC').value) || 0;
     
+    // SMART DETECTION: Are we Validating known data, or Discovering unknown data?
+    const isDiscoveryMode = (dbMinW === 0 && dbMaxW === 0) || (dbFloor === 0 && dbCeil === 0);
+
+    // Update Header Status
+    if (isDiscoveryMode) {
+        sBox.innerHTML = `> <span style="color:#a855f7; font-weight:bold;">[DISCOVERY MODE INITIATED]</span> Database variables missing. Triangulating source code...`;
+    } else {
+        sBox.innerHTML = `> <span style="color:#00e6ff; font-weight:bold;">[TARGET LOCKED]</span> ${dbMinW}kg (Min) to ${dbMaxW}kg (Max)`;
+    }
+
     // EXTRACTOR
     const getCatch = (t) => {
         const sEl = document.getElementById(`size${t}`);
         const sOpt = sEl.selectedOptions[0];
-        const tinyCb = document.getElementById(`tiny${t}`); 
         
         return {
             w: parseFloat(document.getElementById(`w${t}`).value),
@@ -80,7 +91,7 @@ function runMathEngine() {
             mMult: parseFloat(document.getElementById(`mut${t}`).value),
             sMult: parseFloat(document.getElementById(`size${t}`).value),
             isHuge: sOpt && sOpt.dataset.id === 'huge',
-            isTiny: (tinyCb && tinyCb.checked) || (sOpt && sOpt.dataset.id === 'tiny')
+            isTiny: sOpt && sOpt.dataset.id === 'tiny'
         };
     };
 
@@ -89,61 +100,109 @@ function runMathEngine() {
 
     if (isNaN(cA.w) || isNaN(cA.p) || isNaN(cB.w) || isNaN(cB.p)) return;
 
-    // 1. STRIP COIN MULTIPLIERS
-    const nPA = cA.p / (cA.mMult * cA.sMult);
-    const nPB = cB.p / (cB.mMult * cB.sMult);
-
-    // 2. ECONOMY WEIGHT CLAMPING
-    // The economy clamps at baseMaxW. Anything heavier is flatlined at the ceiling!
-    const eWA = cA.isTiny ? dbMinW : Math.max(dbMinW, Math.min(dbMaxW, cA.w));
-    const eWB = cB.isTiny ? dbMinW : Math.max(dbMinW, Math.min(dbMaxW, cB.w));
-
-    if (eWA === eWB) {
-        out.innerHTML = '<span style="color:#ff3366">> ERROR: Effective economy weights are identical (e.g., both are clamped to the ceiling, or both are Tiny). A variance is mathematically required.</span>';
+    if (cA.w === cB.w) {
+        out.innerHTML = '<span style="color:#ff3366">> ERROR: A weight variance is mathematically required to triangulate economy scaling.</span>';
         return;
     }
 
-    // 3. THE ALGEBRA
-    const rate = (nPB - nPA) / (eWB - eWA);
-    const pZero = nPA - (rate * eWA);
+    // STRIP COIN MULTIPLIERS & AUTO-SORT
+    cA.nP = cA.p / (cA.mMult * cA.sMult);
+    cB.nP = cB.p / (cB.mMult * cB.sMult);
+
+    // The Global Idiot-Proofing: Automatically sorts the heavy and light fish, regardless of which box the user used
+    const isAGreater = cA.w > cB.w;
+    const heavy = isAGreater ? cA : cB;
+    const light = isAGreater ? cB : cA;
+
+		// ==========================================
+    // FORK A: DISCOVERY MODE (Triangulating Unknowns)
+    // ==========================================
+    if (isDiscoveryMode) {
+        // 1. Economy Scaling
+        const rate = (heavy.nP - light.nP) / (heavy.w - light.w);
+        const pZero = heavy.nP - (rate * heavy.w);
+
+        // 2. Weight Distribution Curves 
+        const bcShift = rodBC / 300;
+        
+        // Calculate the physical percentiles based on the rod shift
+        const minEff = Math.max(0, Math.min(1, 0.0 + bcShift));
+        const maxEff = Math.max(0, Math.min(1, 1.0 + bcShift));
+        const minPct = Math.sin(minEff * (Math.PI / 2));
+        const maxPct = Math.sin(maxEff * (Math.PI / 2));
+
+        if (maxPct === minPct) {
+            out.innerHTML = '<span style="color:#ff3366">> ERROR: Sine curve collapsed. Cannot solve with these Rod stats.</span>';
+            return;
+        }
+
+        // 3. Solve True Weights algebraically
+        const weightRange = (heavy.w - light.w) / (maxPct - minPct);
+        const trueMinW = light.w - (weightRange * minPct);
+        const trueMaxW = trueMinW + weightRange;
+
+        // 4. Solve True Base Prices
+        const trueFloor = Math.round(pZero + (rate * trueMinW));
+        const trueCeil = Math.round(pZero + (rate * trueMaxW));
+
+        // Dynamic hardware text to prove the engine is processing negative stats properly
+        let hardwareStatus = "";
+        if (rodBC > 0) hardwareStatus = `Floor Shifted to ${(minPct*100).toFixed(1)}%`;
+        else if (rodBC < 0) hardwareStatus = `Ceiling Penalized to ${(maxPct*100).toFixed(1)}%`;
+        else hardwareStatus = "True 0% to 100% Range";
+
+        out.innerHTML = `
+            <div class="output-block" style="border-left: 3px solid #a855f7; padding-left: 15px;">
+                <span class="math-step">// 1. Reverse-Engineered Weight Limits</span><br>
+                <span class="math-step" style="color:#00e6ff">> Hardware Status: ${hardwareStatus}</span><br>
+                > TRUE MIN WEIGHT: <span class="math-highlight">${trueMinW.toFixed(2)}kg</span> (Derived from ${light.w}kg)<br>
+                > TRUE MAX WEIGHT: <span class="math-highlight">${trueMaxW.toFixed(2)}kg</span> (Derived from ${heavy.w}kg)
+            </div>
+            <div class="output-block" style="border-left: 3px solid #ffaa00; padding-left: 15px; margin-top: 15px;">
+                <span class="math-step">// 2. Economy Engine Discovered</span><br>
+                > BASE FLOOR PRICE: <span class="rate-highlight">${trueFloor} coins</span><br>
+                > BASE CEIL PRICE: <span class="rate-highlight">${trueCeil} coins</span><br>
+                <span class="math-step">Scaling Rate: ${rate.toFixed(2)} coins per 1.0kg (Zero-Weight: ${Math.round(pZero)} coins)</span>
+            </div>
+            <div style="margin-top: 15px; color: #00ffaa;">> Ready for JSON Injection. Update database with these values.</div>
+        `;
+        return;
+    }
+
+    // ==========================================
+    // FORK B: VALIDATOR MODE (Diff-checking knowns)
+    // ==========================================
+    
+    // ECONOMY WEIGHT CLAMPING (Only applies if we know the DB limits)
+    const eHeavyW = heavy.isTiny ? dbMinW : Math.max(dbMinW, Math.min(dbMaxW, heavy.w));
+    const eLightW = light.isTiny ? dbMinW : Math.max(dbMinW, Math.min(dbMaxW, light.w));
+
+    if (eHeavyW === eLightW) {
+        out.innerHTML = '<span style="color:#ff3366">> ERROR: Effective economy weights are identical (both clamped to ceiling, or both Tiny).</span>';
+        return;
+    }
+
+    const rate = (heavy.nP - light.nP) / (eHeavyW - eLightW);
+    const pZero = heavy.nP - (rate * eHeavyW);
     
     const trueFloor = Math.round(pZero + (rate * dbMinW));
     const trueCeil = Math.round(pZero + (rate * dbMaxW));
 
-    // 4. FIND HIDDEN RNG ROLL (Using uncoupled physics weight)
-    const bcShift = rodBC / 300;
-    const getRoll = (c) => {
-        if (c.isTiny) return "N/A (Tiny)";
-        let physW = c.isHuge ? (c.w / 4) : c.w;
-        if (dbMaxW === dbMinW) return "0.000";
-        let pct = (physW - dbMinW) / (dbMaxW - dbMinW);
-        pct = Math.max(0, Math.min(1, pct));
-        let roll = (Math.asin(pct) / (Math.PI / 2)) - bcShift;
-        return roll.toFixed(3);
-    };
-
-    // 5. DIFF COMPARISON
-    const fDiff = trueFloor - db.baseFloor;
-    const cDiff = trueCeil - db.baseCeil;
+    const fDiff = trueFloor - dbFloor;
+    const cDiff = trueCeil - dbCeil;
     const statusColor = (fDiff === 0 && cDiff === 0) ? "#00ffaa" : "#ff595e";
 
     out.innerHTML = `
         <div class="output-block">
-            <span class="math-step">// 1. Economy Normalization (Multipliers Stripped, Weights Clamped)</span><br>
-            A: <span class="math-highlight">${cA.w.toFixed(2)}kg</span> &rarr; Effective <span class="math-highlight">${eWA.toFixed(2)}kg</span> / <span class="math-highlight">${nPA.toFixed(1)} coins</span> (RNG: ${getRoll(cA)})<br>
-            B: <span class="math-highlight">${cB.w.toFixed(2)}kg</span> &rarr; Effective <span class="math-highlight">${eWB.toFixed(2)}kg</span> / <span class="math-highlight">${nPB.toFixed(1)} coins</span> (RNG: ${getRoll(cB)})
+            <span class="math-step">// 1. Economy Scaling</span><br>
+            > RATE: <span class="rate-highlight">${rate.toFixed(3)} coins per 1.0kg</span>
         </div>
-        <div class="output-block">
-            <span class="math-step">// 2. Economy Scaling</span><br>
-            > RATE: <span class="rate-highlight">${rate.toFixed(3)} coins per 1.0kg</span><br>
-            > ZERO PRICE (0.0kg): <span class="rate-highlight">${Math.round(pZero)} coins</span>
-        </div>
-        <div class="output-block" style="border:none">
-            <span class="math-step">// 3. Comparative Validation</span><br>
+        <div class="output-block" style="border:none; margin-top: 15px;">
+            <span class="math-step">// 2. Comparative Validation</span><br>
             <div class="diff-container">
                 <div class="diff-col left">
                     <span class="diff-label">JSON DATA</span><br>
-                    Floor: <span style="color:#fff">${db.baseFloor}</span><br>Ceil: <span style="color:#fff">${db.baseCeil}</span>
+                    Floor: <span style="color:#fff">${dbFloor}</span><br>Ceil: <span style="color:#fff">${dbCeil}</span>
                 </div>
                 <div class="diff-col">
                     <span class="diff-label" style="color:#ffaa00">ENGINE TRUTH</span><br>
@@ -160,10 +219,10 @@ document.getElementById('fishSelector').addEventListener('change', (e) => {
     activeKey = e.target.value;
     const sBox = document.getElementById('activeFishStats');
     if (activeKey) {
-        document.getElementById('lblMinW').textContent = fishDatabase[activeKey].baseMinW;
-        document.getElementById('lblMaxW').textContent = fishDatabase[activeKey].baseMaxW;
         sBox.style.display = 'block';
-    } else { sBox.style.display = 'none'; }
+    } else { 
+        sBox.style.display = 'none'; 
+    }
     runMathEngine();
 });
 
@@ -173,12 +232,6 @@ document.getElementById('fishSelector').addEventListener('change', (e) => {
         el.addEventListener('input', runMathEngine);
         el.addEventListener('change', runMathEngine);
     }
-});
-
-// Fallback bindings for the old checkboxes if they still exist in your HTML
-['tinyA', 'tinyB'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('change', runMathEngine);
 });
 
 window.onload = bootTerminal;

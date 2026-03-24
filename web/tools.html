@@ -24,22 +24,20 @@
                         <option value="">[ LOADING DATABASE... ]</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label class="input-label">Rod Big Catch</label>
-                    <input type="number" id="rodBC" class="matrix-input" value="0">
-                </div>
+								<div class="input-group">
+										<label class="input-label">Rod Big Catch (+/-)</label>
+										<input type="number" id="rodBC" class="matrix-input" value="0">
+								</div>
             </div>
-            <div id="activeFishStats">
-                > Target Locked: <span id="lblMinW" class="math-highlight"></span>kg (Min) to <span id="lblMaxW" class="math-highlight"></span>kg (Max)
-            </div>
+            <div id="activeFishStats"></div>
         </div>
 
         <div class="nerd-section inputs">
-            <strong>2. Input Raw Catch Data</strong>
-            <p class="section-desc">Enter the exact weight and coin value. Select mutations/sizes to strip multipliers.</p>
+            <strong>2. Data Stripping Matrix</strong>
+            <p class="section-desc">Enter raw screen values. The engine will strip multipliers automatically.</p>
             
             <div class="catch-block">
-                <strong class="catch-header-a">// CATCH A</strong>
+                <strong class="catch-header-a">// CATCH A (Lightest Observed)</strong>
                 <div class="input-row-multi">
                     <div class="input-group">
                         <label class="input-label">Weight</label>
@@ -61,7 +59,7 @@
             </div>
 
             <div class="catch-block no-border">
-                <strong class="catch-header-b">// CATCH B</strong>
+                <strong class="catch-header-b">// CATCH B (Heaviest Observed)</strong>
                 <div class="input-row-multi">
                     <div class="input-group">
                         <label class="input-label">Weight</label>
