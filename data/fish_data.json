@@ -112,6 +112,7 @@
   {"name": "Giant Squid", "baseMinW": "89", "baseMaxW": "512", "baseFloor": 1120, "baseCeil": 7000, "rarity": "Mythic", "baseXP": 50, "perfectXP": 75},
   {"name": "Abyssal Serpentfish", "baseMinW": "100", "baseMaxW": "3100", "baseFloor": 1137, "baseCeil": 7105, "rarity": "Exotic", "baseXP": 50, "perfectXP": 75},
   {"name": "Baby Megalodon", "baseMinW": "35000", "baseMaxW": "120000", "baseFloor": 2080, "baseCeil": 13000, "rarity": "Exotic", "baseXP": 50, "perfectXP": 75},
+	{"name": "Three-Headed Salmon", "baseMinW": "0.0", "baseMaxW": "0.0", "baseFloor": 0, "baseCeil": 0, "rarity": "Exotic", "baseXP": 50, "perfectXP": 75},
   {"name": "Ragtime Frog", "baseMinW": "0.1", "baseMaxW": "3.5", "baseFloor": 15000, "baseCeil": 20000, "rarity": "Secret", "baseXP": 60, "perfectXP": 90},
   {"name": "Steve", "baseMinW": "0.1", "baseMaxW": "8.8", "baseFloor": 15000, "baseCeil": 20000, "rarity": "Secret", "baseXP": 60, "perfectXP": 90},
   {"name": "Wabubu", "baseMinW": "0.1", "baseMaxW": "5.5", "baseFloor": 15000, "baseCeil": 20000, "rarity": "Secret", "baseXP": 60, "perfectXP": 90},
