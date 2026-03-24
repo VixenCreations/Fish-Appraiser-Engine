@@ -613,22 +613,35 @@ tr:hover td { background-color: var(--bg-hover); }
     border-radius: 4px;
 }
 
-/* Custom Scrollbar for the Modal */
-.nerd-modal-content::-webkit-scrollbar {
+
+/* =========================================================
+   CUSTOM SCROLLBARS (Global Midnight Theme)
+   ========================================================= */
+/* Applies to all modals and scrolling data tables */
+.modal-content::-webkit-scrollbar,
+.table-container::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
-.nerd-modal-content::-webkit-scrollbar-track {
-    background: #0a0f18;
-    border-left: 1px solid #1e2633;
+
+.modal-content::-webkit-scrollbar-track,
+.table-container::-webkit-scrollbar-track {
+    background: var(--bg-base);
+    border-left: 1px solid var(--border);
     border-radius: 0 8px 8px 0;
 }
-.nerd-modal-content::-webkit-scrollbar-thumb {
-    background: #1e2633;
+
+.modal-content::-webkit-scrollbar-thumb,
+.table-container::-webkit-scrollbar-thumb {
+    background: #2a3b52; /* A sleek, cool slate blue */
     border-radius: 4px;
 }
-.nerd-modal-content::-webkit-scrollbar-thumb:hover {
-    background: #00e6ff;
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--accent); /* Glows electric cyan on hover */
 }
+
 
 /* =========================================================
    DATA MINER TOOLS BUTTON (PURPLE ACCENT)
@@ -643,6 +656,52 @@ tr:hover td { background-color: var(--bg-hover); }
     box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); /* Neon purple glow */
     color: #a855f7;
 }
+
+
+/* =========================================================
+   CREDITS PANEL TYPOGRAPHY
+   ========================================================= */
+
+/* 1. Kill the bullets and use Flexbox for perfect row alignment */
+#creditsModal ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+#creditsModal li {
+    display: flex;
+    align-items: baseline; /* Forces all text to sit on the exact same bottom line */
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+/* 2. The Data Labels: Smaller, sleeker, less chunky */
+.credit-task {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.9);
+    white-space: nowrap; /* Forces the label itself to never wrap */
+}
+
+/* 3. The Developer Names */
+.credit-name {
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* 4. The Separators */
+.credit-divider {
+    color: #334155; /* Dimmed heavily so it fades into the background */
+    margin: 0 8px;
+    font-size: 0.9em;
+}
+
 
 /* =========================================================
    TEXT ANIMATIONS & CREDITS
@@ -666,6 +725,44 @@ tr:hover td { background-color: var(--bg-hover); }
     font-weight: 900;
     letter-spacing: 1px;
     display: inline-block; /* Required for the transform/scale pulse to work */
+}
+
+/* --- THE 3D ARTIST SPOT: Auto-Popping Extrusion --- */
+.artist-3d {
+    color: #F9E0FF;
+    font-weight: 800;
+    letter-spacing: 1px;
+    display: inline-block;
+    
+    /* 3-second infinite loop that smoothly pops and shimmers */
+    animation: artist3DPop 3s infinite ease-in-out;
+}
+
+@keyframes artist3DPop {
+    /* The Resting State (Default Shadow) */
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        text-shadow: 
+            1px 1px 0 #E00DD3, 
+            2px 2px 0 #E00DD3, 
+            3px 3px 0 #0DE01B;
+        filter: brightness(1) drop-shadow(0px 0px 0px rgba(255, 255, 255, 0));
+    }
+    
+    /* The Pop State (Extended Shadow + Shimmer/Glow) */
+    50% {
+        transform: translate(-2px, -2px) scale(1.02);
+        text-shadow: 
+            1px 1px 0 #E00DD3, 
+            2px 2px 0 #E00DD3, 
+            3px 3px 0 #E00DD3, 
+            4px 4px 0 #0DE01B, 
+            5px 5px 0 #0DE01B, 
+            6px 6px 0 #0DE01B;
+        
+        /* Brightens the white text and adds a subtle glowing aura for the shimmer */
+        filter: brightness(1.15) drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.6));
+    }
 }
 
 /* --- THE SPECIAL THANKS SPOT: Aurora Flow --- */
@@ -741,23 +838,18 @@ tr:hover td { background-color: var(--bg-hover); }
 
 /* --- THE DATA MINER SPOT: Starlight Shimmer --- */
 .data-miner {
-    /* Cosmic / High-Value Data palette */
-    background: linear-gradient(
-        90deg, 
-        #ffffff, #00e6ff, #0044ff, #00e6ff, #ffffff
-    );
+    background: linear-gradient(90deg, #ffffff, #00e6ff, #0044ff, #00e6ff, #ffffff);
     background-size: 200% auto;
     color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
-    
-    /* Fast 1.4s scroll + a sharp white glint sweep */
     animation: devRainbowScroll 1.4s linear infinite, dataShimmer 2.5s ease-in-out infinite;
-    
     font-weight: 800;
     letter-spacing: 0.8px;
-    display: inline-block;
     filter: drop-shadow(0px 0px 6px rgba(0, 230, 255, 0.4));
+    
+    /* THE FIX: Changed from inline-block to inline so long names wrap normally! */
+    display: inline; 
 }
 
 /* --- SHIMMER KEYFRAMES --- */
