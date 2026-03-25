@@ -61,32 +61,207 @@ node server.js
 
 ## 🌐 Usage & Navigation
 
-Once your terminal confirms the server is online, open your web browser and navigate to:
-
-* **The Main Appraiser:** `http://localhost:8080`
-  * Calculate catch values, forecast XP efficiency, and analyze rarity drop rates based on your active in-game buffs.
-* **The Data Miner Terminal:** `http://localhost:8080/tools`
-  * A dedicated reverse-engineering sandbox. Input raw screen data from mutated catches to automatically strip multipliers, reverse the Sine curve, and validate true source-code integers against the community JSON database.
-
-[⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
+Once your terminal confirms the server is online, launch your browser and navigate using the same route structure defined by the app's internal routing:
 
 ---
 
+### 🧭 Root: Main Appraiser
+`/`
+
+**URL:** http://localhost:8080
+
+The primary interface defined in `index.html`.
+
+**Capabilities:**
+- Appraise individual catches (price + XP)
+- Analyze Big Catch weight distribution shifts
+- Simulate Luck scaling and rarity drop tables
+- Forecast XP/hour and cycle efficiency
+- Browse full fish database (search + filter matrix)
+
+**UI Entry Points:**
+- `Fish! Validator` button → routes to `/tools`
+- `Stats for Nerds` → opens in-app modal (no route change)
+- `Credits` → opens in-app modal
+
+---
+
+### 🧪 Tools: Data Miner Terminal
+`/tools`
+
+**URL:** http://localhost:8080/tools
+
+A dedicated reverse-engineering interface defined in `tools.html`.
+
+**Capabilities:**
+- Input dual catch samples (A/B)
+- Automatically strip mutation + variant multipliers
+- Reverse Sine curve to recover true percentile rolls
+- Solve for:
+  - True base min/max weights
+  - Economy scaling rates
+  - Source-level integer values
+- Validate against loaded database baselines
+
+**Navigation Behavior:**
+- `< RETURN_TO_APPRAISER` → routes back to `/`
+- Language switcher is isolated but mirrors main app i18n system
+
+---
+
+### 🔀 Navigation Model (Actual Behavior)
+
+The app uses **hard route separation**, not SPA-style dynamic routing:
+
+- `/` → Full Appraiser Engine (`index.html`)
+- `/tools` → Data Miner Toolset (`tools.html`)
+
+There is **no shared DOM state** between routes:
+- Each page loads its own JS (`app.js` vs `tools.js`)
+- Each maintains independent UI state and calculations
+
+---
+
+### 🌍 Internationalization Layer
+
+Both routes share a consistent i18n system:
+
+- Language selector present on both pages
+- Uses JSON payload mapping (`/lang/*.json`)
+- UI text updates dynamically without reload
+- Underlying math + logic remain untouched
+
+---
+
+### ⚠️ Operational Notes
+
+- Always access via `localhost:8080` (not file://) to ensure:
+  - JSON data loads correctly
+  - Routing works as intended
+- Ensure rod constraints and mutation inputs are valid before trusting reverse outputs
+
+
+[⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
+
 ## ⚙️ Server Configuration
 
-By default, the engine runs locally on port `8080`. You can override this by creating a `.env` file in the root directory. The engine natively supports secure live-web deployments via dynamic SSL toggling.
+The engine is configured via a `.env` file located at the project root. It supports both local development and production deployment with optional SSL toggling.
 
-**Example `.env` (Production Deployment):**
+---
+
+### 🧭 Default Configuration (Local Development)
+
+By default, the engine runs using:
+
+```env
+PORT=8080
+HOST=localhost
+USE_SSL=false
+```
+
+**Access:**
+- http://localhost:8080
+- Routes:
+  - `/` → Main Appraiser
+  - `/tools` → Data Miner Terminal
+
+---
+
+### 🔧 Core Environment Variables
+
+#### Network & Hosting
+
+```env
+PORT=8080
+HOST=localhost
+```
+
+- `PORT` → Defines the listening port
+- `HOST` → Domain or IP binding
+
+---
+
+#### Engine Configuration
+
+```env
+DEFAULT_LANG=en
+CACHE_MAX_AGE=86400
+```
+
+- `DEFAULT_LANG`
+  - Fallback language if user preference is not set
+  - Supported: `en`, `jp`
+
+- `CACHE_MAX_AGE`
+  - Controls static asset caching (CSS, JS, images)
+  - Value is in seconds
+  - HTML is excluded via cache-busting
+
+---
+
+#### Security (SSL / HTTPS)
+
+```env
+USE_SSL=false
+SSL_KEY=./certs/privkey.pem
+SSL_CERT=./certs/fullchain.pem
+```
+
+- `USE_SSL`
+  - `false` → HTTP server
+  - `true` → HTTPS server (requires valid cert paths)
+
+- `SSL_KEY` / `SSL_CERT`
+  - Required when `USE_SSL=true`
+  - Paths are relative to the server root
+
+---
+
+### 🚀 Production Configuration Example
+
 ```env
 PORT=443
 HOST=yourdomain.com
 CACHE_MAX_AGE=86400
 
-# Set to 'true' to enable HTTPS for live web deployment
 USE_SSL=true
 SSL_KEY=./certs/privkey.pem
 SSL_CERT=./certs/fullchain.pem
 ```
+
+**Behavior:**
+- Server boots in HTTPS mode
+- Automatically binds to standard secure port (443)
+- Uses provided certificate chain for TLS
+
+---
+
+### 🔀 Runtime Behavior
+
+- SSL toggling is **dynamic at startup**
+  - No code changes required between environments
+- Routing remains identical:
+  - `/` and `/tools` are always available
+- Static assets respect cache headers defined by `CACHE_MAX_AGE`
+
+---
+
+### ⚠️ Deployment Notes
+
+- Always run behind a proper domain when using SSL
+- Ensure certificate files exist and are readable before enabling `USE_SSL=true`
+- Avoid using `localhost` with SSL unless explicitly configured for it
+- Port `443` may require elevated privileges depending on your host OS
+
+---
+
+### 🧪 Dev vs Prod Snapshot
+
+| Mode        | PORT | HOST       | SSL  |
+|------------|------|------------|------|
+| Local Dev  | 8080 | localhost  | ❌   |
+| Production | 443  | domain     | ✅   |
+
 
 [⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
 
@@ -140,6 +315,7 @@ The application relies on a strict separation of concerns (Structure, Logic, and
  │    │-- tools.css            # Midnight Terminal Theme
  │    │-- app.js               # Core appraisal & forecasting engine
  │    │-- tools.js             # Data Miner reverse-algebra engine
+ │    │-- /lang/               # Core Language Files
  │    └── /assets/             # Static branding images
  │
  └── /gitpreviews           # Documentation images
@@ -151,69 +327,156 @@ The application relies on a strict separation of concerns (Structure, Logic, and
 
 ## 🔬 The Nerd Stuff: Reverse-Engineered Mechanics
 
-During the development of this engine, several core mechanics of the game's hidden source code were successfully reverse-engineered. The engine strictly adheres to these mathematical truths.
+## 1. The Core Equation (Sine Curve)
 
-### 1. The Core Equation (Sine Curve)
-Fish weights are not rolled linearly. The game rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a `Math.sin()` ease-out curve to bias catches toward the lower end of the weight spectrum.
+Fish weights are not rolled linearly. The game rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a sin ease-out curve to bias catches toward the lower end of the weight spectrum.
 
-* **The Shift:** `EffectiveRoll = clamp(RandomRoll + (RodBC / 300), 0.0, 1.0)`
-* **The Curve:** `WeightPercent = Math.sin(EffectiveRoll * (Math.PI / 2))`
-* **The Result:** Rolling a `0.5` internally does not yield a 50% weight fish; it yields a `~70.7%` weight fish. True 100% "Perfect" catches require an exact `1.0` float roll, making them exponentially rarer than linear math would suggest.
-
-### 2. The Big Catch Shift (Floors & Ceilings)
-The "Big Catch" rod stat does not multiply weight; it acts as a hard floor shift to the base RNG roll. `1 Big Catch Point = +0.00333...` to the internal RNG.
-
-* **The Floor Effect (Positive Buffs):** Because the effective roll floor-caps at `0.0`, positive points make it mathematically impossible to reach the bottom of the curve.
-  * *Example:* If you have **+90 Big Catch**, your minimum possible effective roll is `0.3` (0.0 + 0.3). `Math.sin(0.3 * (π / 2)) = 0.4539`. You can never catch a fish smaller than **45.39%** of its potential size range.
-* **The Ceiling Effect (Negative Penalties):** Because the effective roll hard-caps at `1.0`, negative points make it mathematically impossible to reach the top of the curve.
-  * *Example:* If you have **-90 Big Catch**, your maximum possible effective roll is `0.7` (1.0 - 0.3). `Math.sin(0.7 * (π / 2)) = 0.8910`. You can never catch a fish larger than **89.10%** of its true maximum size.
-
-### 3. Reverse-Algebra (Solving for True Stats)
-You do not need to remove stats to find a fish's true values. By logging your extreme highs and lows, we can reverse the math for both the Ceiling and the Floor.
-
-```text
-// SCENARIO A: Solving Max Weight (Using a Negative Penalty)
-// Ex: Caught a 1.00kg max fish at -90 Penalty (Min is known 0.1kg)
-1. MaxPercentile (-90) = 0.8910
-2. TrueBaseMax = ((ObservedMax - BaseMin) / MaxPercentile) + BaseMin
-> ((1.00 - 0.1) / 0.8910) + 0.1 = 1.11kg (True Max)
-
-// SCENARIO B: Solving Min Weight (Using a Positive Buff)
-// Ex: Caught a 0.56kg min fish at +90 Buff (Max is known 1.11kg)
-1. MinPercentile (+90) = 0.4539
-2. TrueBaseMin = (ObservedMin - (BaseMax * MinPercentile)) / (1 - MinPercentile)
-> (0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg (True Min)
+**The Shift:**
+```
+EffectiveRoll = clamp(RandomRoll + (RodBC / 300), 0.0, 1.0)
 ```
 
-### 4. The Economy Engine (Solving True Prices)
-Price scales linearly between `baseFloor` (at Min Weight) and `baseCeil` (at Max Weight). By catching a "Tiny" mutation (which forces weight to 0.0kg), we force the price equation to extrapolate backward, revealing the exact coin-value per kilogram.
-
-```text
-// SCENARIO: Caught a 0.0kg Tiny ($29 value) and a 0.1kg Normal ($31 value)
-// The fish has a known Base Max Weight of 0.5kg
-1. Weight Difference = 0.1kg - 0.0kg = 0.1kg
-2. Price Difference = $31 - $29 = $2
-3. Scaling Rate = $2 / 0.1kg = $20 per 1.0kg
-
-// Solving True Base Floor (Price at known Min Weight: 0.1kg)
-> BaseFloor = $31
-
-// Solving True Base Ceil (Price at known Max Weight: 0.5kg)
-4. Remaining Weight to Max = 0.5kg - 0.1kg = 0.4kg
-5. Max Weight Value = 0.4kg * $20 = $8
-> True Base Ceil = $31 (Floor) + $8 = $39
+**The Curve:**
+```
+WeightPercent = sin(EffectiveRoll * (π / 2))
 ```
 
-### 5. The Hardware Cap (Rod Weight Limits)
-Every fishing rod in the game has a built-in `Max Weight` stat (e.g., the Stick and String caps at 5kg). This acts as a hard ceiling on what you can catch.
+**The Result:**
+Rolling a 0.5 internally yields ~70.7% weight, not 50%. True 100% "Perfect" catches require an exact 1.0 roll, making them exponentially rare.
 
-> 🛑 **DATA WARNING:** If a fish's natural calculated weight exceeds your rod's capacity, your data will be artificially flatlined. **Always ensure your rod's Max Weight is significantly higher than the fish you are testing**, or your reverse-algebra equations will be solving for the rod, not the fish!
+---
 
-### 6. Economy Clamping & Mutation Mechanics
-Mutations fundamentally alter the math engine. They do not use separate base stats.
+## 2. The Big Catch Shift (Floors & Ceilings)
 
-* **Tiny:** Forces the physical weight variable to exactly `0.0kg`. The price engine then extrapolates backward normally using the established Scaling Rate.
-* **Huge (Infinite Scaling):** A Huge fish applies a `4x` multiplier to its physical base weight boundaries. However, the internal economy engine **hard-clamps** the pricing matrix at the species' standard `baseMaxW`. 
-* **The Exploit Prevention:** If a fish's maximum base weight is `0.5kg`, and you catch a Huge variant weighing `1.3kg`, the engine calculates the coin value using exactly `0.5kg` before applying the flat `1.5x` Huge coin multiplier. This allows players to catch physically massive "flex" fish without mathematically breaking the backend economy integer limits.
+Big Catch does not multiply weight; it shifts the RNG floor.
+
+- 1 Big Catch Point = +0.00333... to RNG
+
+### Floor Effect (Positive Buffs)
+
+Example:
+```
++90 Big Catch → min roll = 0.3
+sin(0.3 * π/2) = 0.4539
+```
+You cannot catch below **45.39% size**.
+
+### Ceiling Effect (Negative Penalties)
+
+Example:
+```
+-90 Big Catch → max roll = 0.7
+sin(0.7 * π/2) = 0.8910
+```
+You cannot catch above **89.10% size**.
+
+---
+
+## 3. Reverse-Algebra (Solving True Stats)
+
+### Scenario A: Solving Max Weight
+
+```
+TrueBaseMax = ((ObservedMax - BaseMin) / MaxPercentile) + BaseMin
+```
+
+Example:
+```
+((1.00 - 0.1) / 0.8910) + 0.1 = 1.11kg
+```
+
+---
+
+### Scenario B: Solving Min Weight
+
+```
+TrueBaseMin = (ObservedMin - (BaseMax * MinPercentile)) / (1 - MinPercentile)
+```
+
+Example:
+```
+(0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg
+```
+
+---
+
+## 4. The Economy Engine (Solving True Prices)
+
+Price scales linearly between min and max weight.
+
+Example:
+```
+0.0kg = $29
+0.1kg = $31
+
+ΔWeight = 0.1kg
+ΔPrice = $2
+
+Rate = $20 per kg
+```
+
+Solving max price:
+```
+$31 + (0.4kg * $20) = $39
+```
+
+---
+
+## 5. The Hardware Cap (Rod Weight Limits)
+
+Every rod has a max weight cap.
+
+⚠️ If exceeded:
+- Data becomes flatlined
+- Calculations become invalid
+
+Always test with rods above target fish weight.
+
+---
+
+## 6. Economy Clamping & Mutation Mechanics
+
+### Tiny
+- Forces weight = 0.0kg
+- Price extrapolates backward
+
+### Huge
+- 4× weight scaling
+- 2× price bounds
+
+### Anti-Exploit Clamp
+- Caps calculations at base max weight
+- Applies flat 1.5× multiplier afterward
+
+---
+
+## 7. The Luck Engine (Exponential Scaling)
+
+```
+LuckMult = max(0.01, 1 + (TotalLuck / 100))
+EffectiveWeight = BaseWeight * (LuckMult ^ ScaleFactor)
+
+SpawnChance = (EffectiveWeight / TotalPoolWeight) * 100
+```
+
+### Scale Factors
+
+- Trash: -1.0  
+- Abundant: -1.2  
+- Ultimate Secret: +1.26  
+
+---
+
+## 8. Cycle Time & Expected Yields
+
+Cycle consists of:
+
+- Wait Time (0–14s, scaled)
+- Reel Time (weighted avg)
+- Cast Delay (1.5s)
+
+```
+CatchesPerHour = 3600 / (Wait + Reel + 1.5)
+```
 
 [⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
