@@ -1,5 +1,76 @@
 let fishDatabase = [];
+let modifierData = null;
 let currentSort = { column: null, direction: 'asc' };
+
+// =========================================================
+// 0. LANGUAGE TRANSLATION ENGINE
+// =========================================================
+let langData = {};
+let currentLang = localStorage.getItem('fishAppLang') || window.SERVER_DEFAULT_LANG || 'en';
+
+async function loadLanguage(langCode) {
+    try {
+        const res = await fetch(`/lang/${langCode}.json`);
+        if (!res.ok) throw new Error('Language payload failed');
+        langData = await res.json();
+        
+        applyTranslations();
+        
+        localStorage.setItem('fishAppLang', langCode);
+        const langSwitch = document.getElementById('langSwitch');
+        if (langSwitch) langSwitch.value = langCode;
+
+        // INSTANT TRANSLATION HOT-SWAP FOR UI DATA
+        if (fishDatabase.length > 0 && modifierData) {
+            populateDropdowns(modifierData);
+            populateFishSelector();
+            renderMatrix();
+        }
+        
+    } catch (err) {
+        console.error(`[i18n] Error loading language ${langCode}:`, err);
+    }
+}
+
+function applyTranslations() {
+    // Helper to resolve dot-notation paths (e.g., "header.dev_by" -> langData.header.dev_by)
+    const resolvePath = (path, obj) => {
+        return path.split('.').reduce((prev, curr) => prev ? prev[curr] : null, obj);
+    };
+
+    // 1. Translate Standard Text (innerHTML)
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const text = resolvePath(key, langData);
+        if (text) el.innerHTML = text; // innerHTML preserves nested HTML like <strong> tags
+    });
+
+    // 2. Translate Placeholders (Input boxes)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        const text = resolvePath(key, langData);
+        if (text) el.placeholder = text;
+    });
+
+    // 3. Translate Hover Tooltips (Title attributes)
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        const text = resolvePath(key, langData);
+        if (text) el.title = text;
+    });
+}
+
+// Bind Dropdown Listener & Boot Engine
+document.addEventListener('DOMContentLoaded', () => {
+    const langSwitch = document.getElementById('langSwitch');
+    if (langSwitch) {
+        langSwitch.value = currentLang;
+        langSwitch.addEventListener('change', (e) => loadLanguage(e.target.value));
+    }
+    
+    // Boot the language engine immediately
+    loadLanguage(currentLang);
+});
 
 // --- 1. BOOT SEQUENCE ---
 async function initEngine() {
@@ -12,7 +83,7 @@ async function initEngine() {
         if (!fishResponse.ok || !modResponse.ok) throw new Error('Failed to load JSON payloads');
         
         fishDatabase = await fishResponse.json();
-        const modifiersData = await modResponse.json();
+        modifiersData = await modResponse.json();
         
         populateDropdowns(modifiersData);
         populateFishSelector();
@@ -40,40 +111,64 @@ function populateDropdowns(modData) {
     targets.forEach(t => {
         const mEl = document.getElementById(t.mut);
         const sEl = document.getElementById(t.size);
+        
+        // Save current selection to prevent resetting user inputs on language swap
+        const savedMut = mEl.value;
+        const savedSize = sEl.value;
+        
         mEl.innerHTML = ''; sEl.innerHTML = '';
 
         modData.mutations.forEach(mut => {
             const opt = document.createElement('option');
-            opt.value = mut.value; opt.textContent = mut.label;
+            opt.value = mut.value; 
+            const translatedName = langData?.database?.modifiers?.[mut.id] || mut.label.split(' ')[0];
+            opt.textContent = `${translatedName} (${mut.value.toFixed(1)}x)`;
             mEl.appendChild(opt);
         });
         modData.sizes.forEach(size => {
             const opt = document.createElement('option');
-            opt.value = size.id; opt.textContent = size.label;
+            opt.value = size.id; 
+            opt.textContent = langData?.database?.modifiers?.[size.id] || size.label;
             sEl.appendChild(opt);
         });
+        
+        if (savedMut) mEl.value = savedMut;
+        if (savedSize) sEl.value = savedSize;
     });
 }
 
 function populateFishSelector() {
     const calcSelect = document.getElementById('calcFishSelect');
-    const bcSelect = document.getElementById('bigCatchFishSelect'); // The new selector
+    const bcSelect = document.getElementById('bigCatchFishSelect'); 
     
+    const savedCalc = calcSelect ? calcSelect.value : null;
+    const savedBc = bcSelect ? bcSelect.value : null;
+
     if (calcSelect) calcSelect.innerHTML = '';
     if (bcSelect) bcSelect.innerHTML = '';
 
-    // Sort alphabetically for easier selection
-    fishDatabase.sort((a,b) => a.name.localeCompare(b.name)).forEach((fish, i) => {
+    // Sort alphabetically by the TRANSLATED name
+    fishDatabase.sort((a,b) => {
+        const nameA = langData?.database?.fish?.[a.id] || a.name;
+        const nameB = langData?.database?.fish?.[b.id] || b.name;
+        return nameA.localeCompare(nameB);
+    }).forEach((fish, i) => {
+        const translatedName = langData?.database?.fish?.[fish.id] || fish.name;
+        
         const opt1 = document.createElement('option');
         opt1.value = i; 
-        opt1.textContent = fish.name;
-        calcSelect.appendChild(opt1);
+        opt1.textContent = translatedName;
+        if (calcSelect) calcSelect.appendChild(opt1);
 
         const opt2 = document.createElement('option');
         opt2.value = i; 
-        opt2.textContent = fish.name;
+        opt2.textContent = translatedName;
         if (bcSelect) bcSelect.appendChild(opt2);
     });
+    
+    if (savedCalc) calcSelect.value = savedCalc;
+    if (savedBc) bcSelect.value = savedBc;
+    
     updateWeightBounds();
 }
 
@@ -235,9 +330,11 @@ function renderMatrix() {
         else if (rarityKey.includes("ultimate")) rarityClass = "rarity-ultimate";
         else if (rarityKey.includes("secret")) rarityClass = "rarity-secret";
 
+				const translatedName = langData?.database?.fish?.[fish.id] || fish.name;
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="fish-name">${fish.name}</td>
+            <td class="fish-name">${translatedName}</td>
             <td><span class="rarity-tag ${rarityClass}">${fish.rarity || 'Unknown'}</span></td>
             <td class="weight">${minWFinal}kg - ${maxWFinal}kg</td>
             <td class="money">$${floorFinal.toLocaleString()} - $${ceilFinal.toLocaleString()}</td>
@@ -334,21 +431,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 5. LUCK & RARITY CALCULATOR ---
 
-// --- OMNI-CALIBRATED RARITY WEIGHTS ---
-// Mathematically solved exponents, now perfectly anchored to the 
-// official 100.00% base rarity dataset (Total Base Weight = 10,000)
+// --- OMNI-CALIBRATED RARITY WEIGHTS (v1.9.1 Truth) ---
+// Mathematically triangulated to hit exact Developer constraints at 1000 Luck (11.0x Multiplier):
+// 1. Abundant is the most nerfed (Lowest exponent: -1.2)
+// 2. Trash drops to < 1% (Exponent: -1.0 yields ~0.79% rate)
+// 3. Ultimate Secret hits exactly 20x baseline rate (Exponent: 1.26 yields 0.100% rate)
 const rarityWeightPool = [
-    { id: "trash", label: "Trash", baseWeight: 900, scaleFactor: 0.25, color: "#4a4a4a" },         // 9.00%
-    { id: "abundant", label: "Abundant", baseWeight: 2700, scaleFactor: -0.25, color: "#6b7280" }, // 27.00%
-    { id: "common", label: "Common", baseWeight: 2500, scaleFactor: 0.75, color: "#3b82f6" },      // 25.00%
-    { id: "curious", label: "Curious", baseWeight: 1800, scaleFactor: 1.0, color: "#10b981" },     // 18.00%
-    { id: "elusive", label: "Elusive", baseWeight: 1100, scaleFactor: 1.4, color: "#8b5cf6" },     // 11.00%
-    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.8, color: "#f59e0b" },          // 3.00%
-    { id: "fabled", label: "Fabled", baseWeight: 440, scaleFactor: 1.15, color: "#ef4444" },       // 4.40%
-    { id: "mythic", label: "Mythic", baseWeight: 250, scaleFactor: 1.05, color: "#ec4899" },       // 2.50%
-    { id: "exotic", label: "Exotic", baseWeight: 8.5, scaleFactor: 1.25, color: "#14b8a6" },       // 0.085%
-    { id: "secret", label: "Secret", baseWeight: 1.0, scaleFactor: 3.0, color: "#fbbf24" },        // 0.01%
-    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.5, scaleFactor: 3.2, color: "#8b5cf6" } // 0.005%
+    { id: "trash", label: "Trash", baseWeight: 900, scaleFactor: -1.0, color: "#4a4a4a" },         // 9.00%
+    { id: "abundant", label: "Abundant", baseWeight: 2700, scaleFactor: -1.2, color: "#6b7280" },  // 27.00%
+    { id: "common", label: "Common", baseWeight: 2500, scaleFactor: -0.2, color: "#3b82f6" },      // 25.00%
+    { id: "curious", label: "Curious", baseWeight: 1800, scaleFactor: 0.1, color: "#10b981" },     // 18.00%
+    { id: "elusive", label: "Elusive", baseWeight: 1100, scaleFactor: 0.2, color: "#8b5cf6" },     // 11.00%
+    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.4, color: "#f59e0b" },          // 3.00%
+    { id: "fabled", label: "Fabled", baseWeight: 440, scaleFactor: 0.6, color: "#ef4444" },        // 4.40%
+    { id: "mythic", label: "Mythic", baseWeight: 250, scaleFactor: 0.8, color: "#ec4899" },        // 2.50%
+    { id: "exotic", label: "Exotic", baseWeight: 8.5, scaleFactor: 1.0, color: "#14b8a6" },        // 0.085%
+    { id: "secret", label: "Secret", baseWeight: 1.0, scaleFactor: 1.15, color: "#fbbf24" },       // 0.01%
+    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.5, scaleFactor: 1.26, color: "#8b5cf6" } // 0.005%
 ];
 
 function calculateLuck() {
@@ -372,68 +471,83 @@ function calculateLuck() {
 
 function calculateBigCatch() {
     // 1. Gather Inputs
-    // THE FIX: Removed the Math.max(0) floor to allow negative Big Catch points!
     const points = Math.min(100, parseFloat(document.getElementById('bigCatchPoints').value) || 0);
     const roll = Math.min(1.0, Math.max(0, parseFloat(document.getElementById('bigCatchRoll').value) || 0));
     
     const fishIndex = document.getElementById('bigCatchFishSelect').value;
     const fish = fishDatabase[fishIndex];
 
-    // 2. The Dev-Confirmed Math Core
+    // 2. The Dev-Confirmed Math Core (Sine Curve Shift)
     const shift = points / 300;
     
-    // User's Test Roll
-    // We also need to clamp the effective roll from dropping below 0, or the Sine wave will dip negative!
+    // Test Roll Calculation
     const effectiveRoll = Math.min(1.0, Math.max(0.0, roll + shift));
     const weightPercentile = Math.sin(effectiveRoll * (Math.PI / 2));
     const finalPercent = (weightPercentile * 100).toFixed(2);
 
-    // Absolute Minimum Roll (0.0) mapping
-    const minEffectiveRoll = Math.min(1.0, Math.max(0.0, 0.0 + shift));
-    const minWeightPercentile = Math.sin(minEffectiveRoll * (Math.PI / 2));
-    const minFinalPercent = (minWeightPercentile * 100).toFixed(2);
+    // Tools Math: Absolute Hardware Limits
+    const minEff = Math.max(0, Math.min(1, 0.0 + shift));
+    const maxEff = Math.max(0, Math.min(1, 1.0 + shift));
+    const minPct = Math.sin(minEff * (Math.PI / 2));
+    const maxPct = Math.sin(maxEff * (Math.PI / 2));
 
-    // 3. Update the Percentile UI
+    // 3. Update the Specific Roll UI
     const outPercentEl = document.getElementById('bigCatchOutPercent');
     if (outPercentEl) outPercentEl.innerText = `${finalPercent}%`;
     
-    // THE FIX: Dynamically show +/- so negative shifts look clean in the UI
     const descDisplay = document.getElementById('bigCatchOutDesc');
     if (descDisplay) {
         const sign = shift >= 0 ? "+" : "";
         descDisplay.innerText = `(Sine Curve Shifted by ${sign}${shift.toFixed(3)})`;
     }
 
-    // 4. Translate Percentiles to Real Kilograms if a fish is loaded
+    // 4. Translate Percentiles to Real Kilograms and Update Bounds
     if (fish) {
         const minW = parseFloat(fish.baseMinW);
         const maxW = parseFloat(fish.baseMaxW);
 
-        // Calculate Specific Roll Weight
+        // Specific Roll Weight
         const calculatedWeight = minW + ((maxW - minW) * weightPercentile);
         document.getElementById('bigCatchOutWeight').innerText = `${calculatedWeight.toFixed(2)}kg`;
 
-        // Calculate Explanation Box Range
-        const absoluteMinWeight = minW + ((maxW - minW) * minWeightPercentile);
-        
-        document.getElementById('explainBcPoints').innerText = points;
-        document.getElementById('bcMinPercentile').innerText = `${minFinalPercent}%`;
-        document.getElementById('bcMinWeight').innerText = `${absoluteMinWeight.toFixed(2)}kg`;
-        document.getElementById('bcMaxWeight').innerText = `${maxW.toFixed(2)}kg`;
+        // True Hardware Limits
+        const trueMinW = minW + ((maxW - minW) * minPct);
+        const trueMaxW = minW + ((maxW - minW) * maxPct);
+
+        document.getElementById('bcMinWeight').innerText = `${trueMinW.toFixed(2)}kg`;
+        document.getElementById('bcMaxWeight').innerText = `${trueMaxW.toFixed(2)}kg`;
+        document.getElementById('bcMinPercentile').innerText = `(${(minPct * 100).toFixed(2)}%)`;
+        document.getElementById('bcMaxPercentile').innerText = `(${(maxPct * 100).toFixed(2)}%)`;
+
+        // 5. Dynamic Status and Explanation Text
+        let statusText = "True 0% to 100% Range";
+        let explanationText = `With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.`;
+
+        if (points > 0) {
+            statusText = `Floor Shifted to ${(minPct*100).toFixed(1)}%`;
+            explanationText = `With <strong style="color: var(--success);">${points} points</strong>, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong style="color: var(--success);">${(minPct*100).toFixed(2)}%</strong> percentile. This guarantees you will NEVER catch a fish smaller than <strong style="color: var(--accent);">${trueMinW.toFixed(2)}kg</strong>.`;
+        } else if (points < 0) {
+            statusText = `Ceiling Penalized to ${(maxPct*100).toFixed(1)}%`;
+            explanationText = `With <strong style="color: var(--warning);">${points} points</strong>, your absolute best-case RNG roll (1.0) is mathematically capped at the <strong style="color: var(--warning);">${(maxPct*100).toFixed(2)}%</strong> percentile. This means it is physically impossible to catch a fish larger than <strong style="color: var(--accent);">${trueMaxW.toFixed(2)}kg</strong>.`;
+        }
+
+        document.getElementById('bcHardwareStatus').innerText = statusText;
+        document.getElementById('explainBcPoints').innerHTML = explanationText;
     }
 }
 
 function renderProbabilities(luckMult) {
     const container = document.getElementById('probabilityBars');
-    if (!container) return;
-    container.innerHTML = '';
+    const simTbody = document.getElementById('simTableBody');
+    
+    if (container) container.innerHTML = '';
+    if (simTbody) simTbody.innerHTML = '';
 
     let totalPoolWeight = 0;
     const calculatedWeights = [];
 
     // 1. Calculate the modified weight for each rarity tier
     rarityWeightPool.forEach(tier => {
-        // THE FIX: Stripped out the weird Trash hack and restored pure dataset math
         let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
         
         // Failsafe clamp to prevent negative weights breaking the pool
@@ -443,21 +557,50 @@ function renderProbabilities(luckMult) {
         totalPoolWeight += dynamicWeight;
     });
 
+    // Helper for 4D-chess Simulator Display
+    // If you expect < 1 fish, it shows a decimal (0.05) instead of rounding down to 0 so the user knows exactly how rare it is!
+    const formatSim = (val) => {
+        if (val === 0) return "0";
+        if (val < 1) return val.toFixed(2);
+        return Math.round(val).toLocaleString();
+    };
+
+    const simFragment = document.createDocumentFragment();
+
     // 2. Normalize to percentages and render DOM
     calculatedWeights.forEach(tier => {
-        const percent = totalPoolWeight > 0 ? (tier.currentWeight / totalPoolWeight) * 100 : 0;
+        const rawDecimal = totalPoolWeight > 0 ? (tier.currentWeight / totalPoolWeight) : 0;
+        const percent = rawDecimal * 100;
         
-        const row = document.createElement('div');
-        row.className = 'prob-row';
-        row.innerHTML = `
-            <div class="prob-label rarity-${tier.id}" style="background:none; color: ${tier.color};">${tier.label}</div>
-            <div class="prob-bar-track">
-                <div class="prob-bar-fill" style="width: ${percent}%; background-color: ${tier.color};"></div>
-            </div>
-            <div class="prob-percent">${percent.toFixed(2)}%</div>
-        `;
-        container.appendChild(row);
+        // Build Probability Bar Chart
+        if (container) {
+            const row = document.createElement('div');
+            row.className = 'prob-row';
+            row.innerHTML = `
+                <div class="prob-label rarity-${tier.id}" style="background:none; color: ${tier.color};">${tier.label}</div>
+                <div class="prob-bar-track">
+                    <div class="prob-bar-fill" style="width: ${percent}%; background-color: ${tier.color};"></div>
+                </div>
+                <div class="prob-percent">${percent.toFixed(2)}%</div>
+            `;
+            container.appendChild(row);
+        }
+
+				// Build Catch Simulator Row
+        if (simTbody) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding: 10px 14px;"><span class="rarity-tag rarity-${tier.id}" style="font-size: 0.8em; padding: 4px 8px;">${tier.label}</span></td>
+                <td style="text-align: right; padding: 10px 14px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 1.05em;">${formatSim(rawDecimal * 100)}</td>
+                <td style="text-align: right; padding: 10px 14px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 1.05em;">${formatSim(rawDecimal * 250)}</td>
+                <td style="text-align: right; padding: 10px 14px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 1.05em;">${formatSim(rawDecimal * 500)}</td>
+                <td style="text-align: right; padding: 10px 14px; color: var(--accent); font-family: 'Courier New', Courier, monospace; font-size: 1.1em; font-weight: bold;">${formatSim(rawDecimal * 1000)}</td>
+            `;
+            simFragment.appendChild(tr);
+        }
     });
+
+    if (simTbody) simTbody.appendChild(simFragment);
 }
 
 // --- 6. XP EFFICIENCY FORECASTER ---

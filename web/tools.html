@@ -3,78 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish! Appraiser // Data Miner Tools</title>
+    <title data-i18n="head.title">Fish! Appraiser // Data Miner Tools</title>
     <link rel="stylesheet" href="/tools.css">
 </head>
 <body>
 
     <div class="terminal-container">
-        <a href="/" class="nav-link">< RETURN_TO_APPRAISER</a>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <a href="/" class="nav-link" data-i18n="nav.return">< RETURN_TO_APPRAISER</a>
+            
+            <!-- LANGUAGE SWITCHER FOR TOOLS -->
+            <select id="langSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: #00ffaa; border-color: #00ffaa; margin-top: 0;">
+                <option value="en">English (EN)</option>
+                <option value="jp">日本語 (JP)</option>
+            </select>
+        </div>
         
-        <h2 class="nerd-header">> FISH! VALIDATOR TOOLSET</h2>
-        <p class="nerd-subtitle">Input two separate catches to decode the source Economy integers.</p>
+        <h2 class="nerd-header" data-i18n="header.title">> FISH! VALIDATOR TOOLSET</h2>
+        <p class="nerd-subtitle" data-i18n="header.subtitle">Input two separate catches to decode the source Economy integers.</p>
 
         <div class="nerd-section selector">
-            <strong>1. Target & Hardware</strong>
-            <p class="section-desc">Select species to load DB baselines and input your rod's Big Catch stat.</p>
+            <strong data-i18n="sec1.title">1. Target & Hardware</strong>
+            <p class="section-desc" data-i18n="sec1.desc">Select species to load DB baselines and input your rod's Big Catch stat.</p>
             <div class="input-row">
                 <div class="input-group species-select">
-                    <label class="input-label">Species (Loads DB Baseline)</label>
+                    <label class="input-label" data-i18n="sec1.species_label">Species (Loads DB Baseline)</label>
                     <select id="fishSelector" class="matrix-select">
-                        <option value="">[ LOADING DATABASE... ]</option>
+                        <option value="" data-i18n="sec1.loading_db">[ LOADING DATABASE... ]</option>
                     </select>
                 </div>
-								<div class="input-group">
-										<label class="input-label">Rod Big Catch (+/-)</label>
-										<input type="number" id="rodBC" class="matrix-input" value="0">
-								</div>
+                <div class="input-group">
+                    <label class="input-label" data-i18n="sec1.rod_label">Rod Big Catch (+/-)</label>
+                    <input type="number" id="rodBC" class="matrix-input" value="0">
+                </div>
             </div>
             <div id="activeFishStats"></div>
         </div>
 
         <div class="nerd-section inputs">
-            <strong>2. Data Stripping Matrix</strong>
-            <p class="section-desc">Enter raw screen values. The engine will strip multipliers automatically.</p>
+            <strong data-i18n="sec2.title">2. Data Stripping Matrix</strong>
+            <p class="section-desc" data-i18n="sec2.desc">Enter raw screen values. The engine will strip multipliers automatically.</p>
             
             <div class="catch-block">
-                <strong class="catch-header-a">// CATCH A (Lightest Observed)</strong>
+                <strong class="catch-header-a" data-i18n="sec2.catch_a">// CATCH A (Lightest Observed)</strong>
                 <div class="input-row-multi">
                     <div class="input-group">
-                        <label class="input-label">Weight</label>
-                        <input type="number" id="wA" class="matrix-input" placeholder="0.00" step="any">
+                        <label class="input-label" data-i18n="global.weight">Weight</label>
+                        <input type="number" id="wA" class="matrix-input" data-i18n-placeholder="global.placeholder_weight" placeholder="0.00" step="any">
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Coins</label>
-                        <input type="number" id="pA" class="matrix-input" placeholder="0" step="any">
+                        <label class="input-label" data-i18n="global.coins">Coins</label>
+                        <input type="number" id="pA" class="matrix-input" data-i18n-placeholder="global.placeholder_coins" placeholder="0" step="any">
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Mutation</label>
+                        <label class="input-label" data-i18n="global.mutation">Mutation</label>
                         <select id="mutA" class="matrix-select"></select>
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Variant</label>
+                        <label class="input-label" data-i18n="global.variant">Variant</label>
                         <select id="sizeA" class="matrix-select"></select>
                     </div>
                 </div>
             </div>
 
             <div class="catch-block no-border">
-                <strong class="catch-header-b">// CATCH B (Heaviest Observed)</strong>
+                <strong class="catch-header-b" data-i18n="sec2.catch_b">// CATCH B (Heaviest Observed)</strong>
                 <div class="input-row-multi">
                     <div class="input-group">
-                        <label class="input-label">Weight</label>
-                        <input type="number" id="wB" class="matrix-input" placeholder="0.00" step="any">
+                        <label class="input-label" data-i18n="global.weight">Weight</label>
+                        <input type="number" id="wB" class="matrix-input" data-i18n-placeholder="global.placeholder_weight" placeholder="0.00" step="any">
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Coins</label>
-                        <input type="number" id="pB" class="matrix-input" placeholder="0" step="any">
+                        <label class="input-label" data-i18n="global.coins">Coins</label>
+                        <input type="number" id="pB" class="matrix-input" data-i18n-placeholder="global.placeholder_coins" placeholder="0" step="any">
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Mutation</label>
+                        <label class="input-label" data-i18n="global.mutation">Mutation</label>
                         <select id="mutB" class="matrix-select"></select>
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Variant</label>
+                        <label class="input-label" data-i18n="global.variant">Variant</label>
                         <select id="sizeB" class="matrix-select"></select>
                     </div>
                 </div>
@@ -82,9 +90,9 @@
         </div>
 
         <div class="nerd-section output">
-            <strong>3. Source Engine Compilation</strong>
+            <strong data-i18n="sec3.title">3. Source Engine Compilation</strong>
             <div id="dmOutput" class="output-console">
-                <span class="math-step">> Awaiting valid target and data variables...</span>
+                <span class="math-step" data-i18n="sec3.awaiting">> Awaiting valid target and data variables...</span>
             </div>
         </div>
     </div>

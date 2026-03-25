@@ -23,7 +23,8 @@ const config = {
     CACHE_MAX_AGE: 86400,
     USE_SSL: false,
     SSL_KEY: '',
-    SSL_CERT: ''
+    SSL_CERT: '',
+    DEFAULT_LANG: 'en' // New fallback dictionary
 };
 
 if (fs.existsSync(envPath)) {
@@ -39,6 +40,7 @@ if (fs.existsSync(envPath)) {
             if (trimmedKey === 'USE_SSL') config.USE_SSL = trimmedValue.toLowerCase() === 'true';
             if (trimmedKey === 'SSL_KEY') config.SSL_KEY = trimmedValue;
             if (trimmedKey === 'SSL_CERT') config.SSL_CERT = trimmedValue;
+            if (trimmedKey === 'DEFAULT_LANG') config.DEFAULT_LANG = trimmedValue.toLowerCase();
         }
     });
 }
@@ -94,21 +96,23 @@ const requestHandler = (req, res) => {
             console.log(`[ERR] ${err.code} on ${req.url} (Mapped: ${filePath})`);
         } else {
             
-            // --- AUTOMATED CACHE BUSTING ENGINE ---
+            // --- AUTOMATED CACHE BUSTING & ENV INJECTION ---
             if (extname === '.html') {
-                // Convert buffer to string so we can manipulate the HTML
                 let htmlStr = content.toString('utf-8');
                 
-                // Regex: Finds all src="" and href="" pointing to .css or .js files
-                // It actively overrides any old ?v= tags with the live package.json version
+                // Regex: Cache Buster
                 htmlStr = htmlStr.replace(/(href|src)=["']([^"']+\.(css|js))(?:\?[^"']*)?["']/gi, `$1="$2?v=${APP_VERSION}"`);
+                
+                // Inject Server Config into HTML Head
+                const envInjection = `<script>window.SERVER_DEFAULT_LANG = "${config.DEFAULT_LANG}";</script>`;
+                htmlStr = htmlStr.replace('</head>', `${envInjection}\n</head>`);
                 
                 res.writeHead(200, { 
                     'Content-Type': contentType,
                     'Cache-Control': `public, max-age=${config.CACHE_MAX_AGE}`
                 });
                 res.end(htmlStr, 'utf-8');
-                console.log(`[GET] ${req.url} (Injected Cache v${APP_VERSION})`);
+                console.log(`[GET] ${req.url} (Injected Cache v${APP_VERSION} | Lang: ${config.DEFAULT_LANG})`);
             } 
             // --- STANDARD ASSETS (Images, JSON, CSS, JS) ---
             else {
@@ -116,7 +120,6 @@ const requestHandler = (req, res) => {
                     'Content-Type': contentType,
                     'Cache-Control': `public, max-age=${config.CACHE_MAX_AGE}`
                 });
-                // Send raw binary buffer for standard assets
                 res.end(content);
                 console.log(`[GET] ${req.url}`);
             }
@@ -139,7 +142,7 @@ if (config.USE_SSL) {
     } catch (err) {
         console.error('\n[FATAL ERROR] Failed to boot SSL server. Check your cert paths in .env!');
         console.error(err.message);
-        process.exit(1); // Kill the app if SSL is requested but fails
+        process.exit(1); 
     }
 } else {
     server = http.createServer(requestHandler);
@@ -150,6 +153,7 @@ server.listen(config.PORT, config.HOST, () => {
     console.log(`🐟 Fish! Appraiser Engine : Release v${APP_VERSION}`);
     console.log(`👤 Developer: Vixenlicious`);
     console.log(`🔒 Security: ${config.USE_SSL ? 'SSL Enabled' : 'Local / Unencrypted'}`);
+    console.log(`🌐 Language: Base config set to [${config.DEFAULT_LANG.toUpperCase()}]`);
     console.log(`🚀 Network: ${protocol}://${config.HOST}:${config.PORT}`);
     console.log('=======================================\n');
 });

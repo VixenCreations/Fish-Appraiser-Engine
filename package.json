@@ -1,14 +1,23 @@
 {
-  "name": "fishing-table-db",
-  "version": "1.9.0",
-  "description": "",
-  "main": "app.js",
+  "name": "fish-appraiser-engine",
+  "version": "1.9.5",
+  "description": "A fun side hobby project and community toolset for Fish! — a VRChat world for fishing in, well, VRChat!",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "fish",
+    "vrchat",
+    "community-tool",
+    "calculator",
+    "luck-engine",
+    "reverse-engineering",
+    "i18n"
+  ],
+  "author": "Vixenlicious",
+  "license": "MIT",
   "type": "commonjs"
 }
