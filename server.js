@@ -3,6 +3,18 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
+// --- APP VERSION (CACHE BUSTER) ---
+let APP_VERSION = '1.0.0';
+try {
+    const pkgPath = path.join(__dirname, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        APP_VERSION = pkg.version || '1.0.0';
+    }
+} catch (err) {
+    console.log('[WARN] Could not read package.json version. Defaulting to 1.0.0');
+}
+
 // --- NATIVE ENV PARSER ---
 const envPath = path.join(__dirname, '.env');
 const config = {
@@ -81,12 +93,33 @@ const requestHandler = (req, res) => {
             res.end(err.code === 'ENOENT' ? '404 - Not Found' : '500 - Server Error');
             console.log(`[ERR] ${err.code} on ${req.url} (Mapped: ${filePath})`);
         } else {
-            res.writeHead(200, { 
-                'Content-Type': contentType,
-                'Cache-Control': `public, max-age=${config.CACHE_MAX_AGE}`
-            });
-            res.end(content, 'utf-8');
-            console.log(`[GET] ${req.url}`);
+            
+            // --- AUTOMATED CACHE BUSTING ENGINE ---
+            if (extname === '.html') {
+                // Convert buffer to string so we can manipulate the HTML
+                let htmlStr = content.toString('utf-8');
+                
+                // Regex: Finds all src="" and href="" pointing to .css or .js files
+                // It actively overrides any old ?v= tags with the live package.json version
+                htmlStr = htmlStr.replace(/(href|src)=["']([^"']+\.(css|js))(?:\?[^"']*)?["']/gi, `$1="$2?v=${APP_VERSION}"`);
+                
+                res.writeHead(200, { 
+                    'Content-Type': contentType,
+                    'Cache-Control': `public, max-age=${config.CACHE_MAX_AGE}`
+                });
+                res.end(htmlStr, 'utf-8');
+                console.log(`[GET] ${req.url} (Injected Cache v${APP_VERSION})`);
+            } 
+            // --- STANDARD ASSETS (Images, JSON, CSS, JS) ---
+            else {
+                res.writeHead(200, { 
+                    'Content-Type': contentType,
+                    'Cache-Control': `public, max-age=${config.CACHE_MAX_AGE}`
+                });
+                // Send raw binary buffer for standard assets
+                res.end(content);
+                console.log(`[GET] ${req.url}`);
+            }
         }
     });
 };
@@ -114,7 +147,7 @@ if (config.USE_SSL) {
 
 server.listen(config.PORT, config.HOST, () => {
     console.log('\n=======================================');
-    console.log('🐟 Fish! Appraiser Engine : Release');
+    console.log(`🐟 Fish! Appraiser Engine : Release v${APP_VERSION}`);
     console.log(`👤 Developer: Vixenlicious`);
     console.log(`🔒 Security: ${config.USE_SSL ? 'SSL Enabled' : 'Local / Unencrypted'}`);
     console.log(`🚀 Network: ${protocol}://${config.HOST}:${config.PORT}`);
