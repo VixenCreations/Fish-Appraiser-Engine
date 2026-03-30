@@ -1,6 +1,6 @@
 {
   "name": "fish-appraiser-engine",
-  "version": "1.9.5",
+  "version": "1.9.5.1",
   "description": "A fun side hobby project and community toolset for Fish! — a VRChat world for fishing in, well, VRChat!",
   "main": "server.js",
   "scripts": {

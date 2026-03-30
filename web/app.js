@@ -431,23 +431,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 5. LUCK & RARITY CALCULATOR ---
 
-// --- OMNI-CALIBRATED RARITY WEIGHTS (v1.9.1 Truth) ---
-// Mathematically triangulated to hit exact Developer constraints at 1000 Luck (11.0x Multiplier):
-// 1. Abundant is the most nerfed (Lowest exponent: -1.2)
-// 2. Trash drops to < 1% (Exponent: -1.0 yields ~0.79% rate)
-// 3. Ultimate Secret hits exactly 20x baseline rate (Exponent: 1.26 yields 0.100% rate)
+// --- OMNI-CALIBRATED RARITY WEIGHTS (v1.9.5 Truth) ---
+// Positive Exponents (scaleFactor) triangulated to Dev Constraints at 1,000 Luck.
+// Negative Exponents (negScaleFactor) triangulated to empirical 500-catch data at -150 Luck.
 const rarityWeightPool = [
-    { id: "trash", label: "Trash", baseWeight: 900, scaleFactor: -1.0, color: "#4a4a4a" },         // 9.00%
-    { id: "abundant", label: "Abundant", baseWeight: 2700, scaleFactor: -1.2, color: "#6b7280" },  // 27.00%
-    { id: "common", label: "Common", baseWeight: 2500, scaleFactor: -0.2, color: "#3b82f6" },      // 25.00%
-    { id: "curious", label: "Curious", baseWeight: 1800, scaleFactor: 0.1, color: "#10b981" },     // 18.00%
-    { id: "elusive", label: "Elusive", baseWeight: 1100, scaleFactor: 0.2, color: "#8b5cf6" },     // 11.00%
-    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.4, color: "#f59e0b" },          // 3.00%
-    { id: "fabled", label: "Fabled", baseWeight: 440, scaleFactor: 0.6, color: "#ef4444" },        // 4.40%
-    { id: "mythic", label: "Mythic", baseWeight: 250, scaleFactor: 0.8, color: "#ec4899" },        // 2.50%
-    { id: "exotic", label: "Exotic", baseWeight: 8.5, scaleFactor: 1.0, color: "#14b8a6" },        // 0.085%
-    { id: "secret", label: "Secret", baseWeight: 1.0, scaleFactor: 1.15, color: "#fbbf24" },       // 0.01%
-    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.5, scaleFactor: 1.26, color: "#8b5cf6" } // 0.005%
+    { id: "trash", label: "Trash", baseWeight: 900, scaleFactor: -1.0, negScaleFactor: -0.55, color: "#4a4a4a" },
+    { id: "abundant", label: "Abundant", baseWeight: 2700, scaleFactor: -1.2, negScaleFactor: -0.26, color: "#6b7280" },
+    { id: "common", label: "Common", baseWeight: 2500, scaleFactor: -0.2, negScaleFactor: 0.33, color: "#3b82f6" },
+    { id: "curious", label: "Curious", baseWeight: 1800, scaleFactor: 0.1, negScaleFactor: 0.81, color: "#10b981" },
+    { id: "elusive", label: "Elusive", baseWeight: 1100, scaleFactor: 0.2, negScaleFactor: 0.96, color: "#8b5cf6" },
+    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.4, negScaleFactor: 0.0, color: "#f59e0b" },
+    { id: "fabled", label: "Fabled", baseWeight: 440, scaleFactor: 0.6, negScaleFactor: 1.6, color: "#ef4444" },
+    { id: "mythic", label: "Mythic", baseWeight: 250, scaleFactor: 0.8, negScaleFactor: 1.7, color: "#ec4899" },
+    { id: "exotic", label: "Exotic", baseWeight: 8.5, scaleFactor: 1.0, negScaleFactor: 1.8, color: "#14b8a6" },
+    { id: "secret", label: "Secret", baseWeight: 1.0, scaleFactor: 1.15, negScaleFactor: 1.9, color: "#fbbf24" },
+    { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.5, scaleFactor: 1.26, negScaleFactor: 2.0, color: "#8b5cf6" }
 ];
 
 function calculateLuck() {
@@ -455,12 +453,10 @@ function calculateLuck() {
     const buffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const external = parseFloat(document.getElementById('luckExternal').value) || 1.0;
 
-    // THE FIX: Restored the mathematically accurate order of operations!
     let luckMultiplier = 1 + ((rawLuck * buffs * external) / 100);
     
-    // Engine Floor to prevent NaN crashes on stupidly negative luck.
-    // This allows negative luck to naturally boost Abundant without breaking Math.pow()
-    luckMultiplier = Math.max(0.01, luckMultiplier);
+    // THE FIX: Floor raised to 0.1 to perfectly map the -150 Luck benchmark to the negScaleFactors
+    luckMultiplier = Math.max(0.1, luckMultiplier);
 
     const luckOut = document.getElementById('luckOutMult');
     if (luckOut) luckOut.value = luckMultiplier.toFixed(2) + "x";
@@ -470,65 +466,56 @@ function calculateLuck() {
 }
 
 function calculateBigCatch() {
-    // 1. Gather Inputs
     const points = Math.min(100, parseFloat(document.getElementById('bigCatchPoints').value) || 0);
     const roll = Math.min(1.0, Math.max(0, parseFloat(document.getElementById('bigCatchRoll').value) || 0));
     
     const fishIndex = document.getElementById('bigCatchFishSelect').value;
     const fish = fishDatabase[fishIndex];
 
-    // 2. The Dev-Confirmed Math Core (Sine Curve Shift)
     const shift = points / 300;
     
-    // Test Roll Calculation
     const effectiveRoll = Math.min(1.0, Math.max(0.0, roll + shift));
     const weightPercentile = Math.sin(effectiveRoll * (Math.PI / 2));
     const finalPercent = (weightPercentile * 100).toFixed(2);
 
-    // Tools Math: Absolute Hardware Limits
     const minEff = Math.max(0, Math.min(1, 0.0 + shift));
     const maxEff = Math.max(0, Math.min(1, 1.0 + shift));
     const minPct = Math.sin(minEff * (Math.PI / 2));
     const maxPct = Math.sin(maxEff * (Math.PI / 2));
 
-    // 3. Update the Specific Roll UI
     const outPercentEl = document.getElementById('bigCatchOutPercent');
-    if (outPercentEl) outPercentEl.innerText = `${finalPercent}%`;
+    if (outPercentEl) outPercentEl.innerText = finalPercent + "%";
     
     const descDisplay = document.getElementById('bigCatchOutDesc');
     if (descDisplay) {
         const sign = shift >= 0 ? "+" : "";
-        descDisplay.innerText = `(Sine Curve Shifted by ${sign}${shift.toFixed(3)})`;
+        descDisplay.innerText = "(Sine Curve Shifted by " + sign + shift.toFixed(3) + ")";
     }
 
-    // 4. Translate Percentiles to Real Kilograms and Update Bounds
     if (fish) {
         const minW = parseFloat(fish.baseMinW);
         const maxW = parseFloat(fish.baseMaxW);
 
-        // Specific Roll Weight
         const calculatedWeight = minW + ((maxW - minW) * weightPercentile);
-        document.getElementById('bigCatchOutWeight').innerText = `${calculatedWeight.toFixed(2)}kg`;
+        document.getElementById('bigCatchOutWeight').innerText = calculatedWeight.toFixed(2) + "kg";
 
-        // True Hardware Limits
         const trueMinW = minW + ((maxW - minW) * minPct);
         const trueMaxW = minW + ((maxW - minW) * maxPct);
 
-        document.getElementById('bcMinWeight').innerText = `${trueMinW.toFixed(2)}kg`;
-        document.getElementById('bcMaxWeight').innerText = `${trueMaxW.toFixed(2)}kg`;
-        document.getElementById('bcMinPercentile').innerText = `(${(minPct * 100).toFixed(2)}%)`;
-        document.getElementById('bcMaxPercentile').innerText = `(${(maxPct * 100).toFixed(2)}%)`;
+        document.getElementById('bcMinWeight').innerText = trueMinW.toFixed(2) + "kg";
+        document.getElementById('bcMaxWeight').innerText = trueMaxW.toFixed(2) + "kg";
+        document.getElementById('bcMinPercentile').innerText = "( " + (minPct * 100).toFixed(2) + "% )";
+        document.getElementById('bcMaxPercentile').innerText = "( " + (maxPct * 100).toFixed(2) + "% )";
 
-        // 5. Dynamic Status and Explanation Text
         let statusText = "True 0% to 100% Range";
-        let explanationText = `With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.`;
+        let explanationText = "With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.";
 
         if (points > 0) {
-            statusText = `Floor Shifted to ${(minPct*100).toFixed(1)}%`;
-            explanationText = `With <strong style="color: var(--success);">${points} points</strong>, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong style="color: var(--success);">${(minPct*100).toFixed(2)}%</strong> percentile. This guarantees you will NEVER catch a fish smaller than <strong style="color: var(--accent);">${trueMinW.toFixed(2)}kg</strong>.`;
+            statusText = "Floor Shifted to " + (minPct*100).toFixed(1) + "%";
+            explanationText = "With <strong style='color: var(--success);'>" + points + " points</strong>, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong style='color: var(--success);'>" + (minPct*100).toFixed(2) + "%</strong> percentile. This guarantees you will NEVER catch a fish smaller than <strong style='color: var(--accent);'>" + trueMinW.toFixed(2) + "kg</strong>.";
         } else if (points < 0) {
-            statusText = `Ceiling Penalized to ${(maxPct*100).toFixed(1)}%`;
-            explanationText = `With <strong style="color: var(--warning);">${points} points</strong>, your absolute best-case RNG roll (1.0) is mathematically capped at the <strong style="color: var(--warning);">${(maxPct*100).toFixed(2)}%</strong> percentile. This means it is physically impossible to catch a fish larger than <strong style="color: var(--accent);">${trueMaxW.toFixed(2)}kg</strong>.`;
+            statusText = "Ceiling Penalized to " + (maxPct*100).toFixed(1) + "%";
+            explanationText = "With <strong style='color: var(--warning);'>" + points + " points</strong>, your absolute best-case RNG roll (1.0) is mathematically capped at the <strong style='color: var(--warning);'>" + (maxPct*100).toFixed(2) + "%</strong> percentile. This means it is physically impossible to catch a fish larger than <strong style='color: var(--accent);'>" + trueMaxW.toFixed(2) + "kg</strong>.";
         }
 
         document.getElementById('bcHardwareStatus').innerText = statusText;
@@ -546,19 +533,17 @@ function renderProbabilities(luckMult) {
     let totalPoolWeight = 0;
     const calculatedWeights = [];
 
-    // 1. Calculate the modified weight for each rarity tier
     rarityWeightPool.forEach(tier => {
-        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        // DUAL-EXPONENT ENGINE: Flips to negative calibration if Luck < 1.0
+        const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
+        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
         
-        // Failsafe clamp to prevent negative weights breaking the pool
         dynamicWeight = Math.max(0, dynamicWeight); 
 
         calculatedWeights.push({ ...tier, currentWeight: dynamicWeight });
         totalPoolWeight += dynamicWeight;
     });
 
-    // Helper for 4D-chess Simulator Display
-    // If you expect < 1 fish, it shows a decimal (0.05) instead of rounding down to 0 so the user knows exactly how rare it is!
     const formatSim = (val) => {
         if (val === 0) return "0";
         if (val < 1) return val.toFixed(2);
@@ -567,35 +552,28 @@ function renderProbabilities(luckMult) {
 
     const simFragment = document.createDocumentFragment();
 
-    // 2. Normalize to percentages and render DOM
     calculatedWeights.forEach(tier => {
         const rawDecimal = totalPoolWeight > 0 ? (tier.currentWeight / totalPoolWeight) : 0;
         const percent = rawDecimal * 100;
         
-        // Build Probability Bar Chart
         if (container) {
             const row = document.createElement('div');
             row.className = 'prob-row';
-            row.innerHTML = `
-                <div class="prob-label rarity-${tier.id}" style="background:none; color: ${tier.color};">${tier.label}</div>
-                <div class="prob-bar-track">
-                    <div class="prob-bar-fill" style="width: ${percent}%; background-color: ${tier.color};"></div>
-                </div>
-                <div class="prob-percent">${percent.toFixed(2)}%</div>
-            `;
+            row.innerHTML = "<div class='prob-label rarity-" + tier.id + "' style='background:none; color: " + tier.color + ";'>" + tier.label + "</div>" +
+                            "<div class='prob-bar-track'>" +
+                            "<div class='prob-bar-fill' style='width: " + percent + "%; background-color: " + tier.color + ";'></div>" +
+                            "</div>" +
+                            "<div class='prob-percent'>" + percent.toFixed(2) + "%</div>";
             container.appendChild(row);
         }
 
-				// Build Catch Simulator Row
         if (simTbody) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="padding: 10px 14px;"><span class="rarity-tag rarity-${tier.id}" style="font-size: 0.8em; padding: 4px 8px;">${tier.label}</span></td>
-                <td style="text-align: right; padding: 10px 14px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 1.05em;">${formatSim(rawDecimal * 100)}</td>
-                <td style="text-align: right; padding: 10px 14px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 1.05em;">${formatSim(rawDecimal * 250)}</td>
-                <td style="text-align: right; padding: 10px 14px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 1.05em;">${formatSim(rawDecimal * 500)}</td>
-                <td style="text-align: right; padding: 10px 14px; color: var(--accent); font-family: 'Courier New', Courier, monospace; font-size: 1.1em; font-weight: bold;">${formatSim(rawDecimal * 1000)}</td>
-            `;
+            tr.innerHTML = "<td style='padding: 10px 14px;'><span class='rarity-tag rarity-" + tier.id + "' style='font-size: 0.8em; padding: 4px 8px;'>" + tier.label + "</span></td>" +
+                           "<td style='text-align: right; padding: 10px 14px; color: var(--text-main); font-family: Courier New, monospace; font-size: 1.05em;'>" + formatSim(rawDecimal * 100) + "</td>" +
+                           "<td style='text-align: right; padding: 10px 14px; color: var(--text-main); font-family: Courier New, monospace; font-size: 1.05em;'>" + formatSim(rawDecimal * 250) + "</td>" +
+                           "<td style='text-align: right; padding: 10px 14px; color: var(--text-main); font-family: Courier New, monospace; font-size: 1.05em;'>" + formatSim(rawDecimal * 500) + "</td>" +
+                           "<td style='text-align: right; padding: 10px 14px; color: var(--accent); font-family: Courier New, monospace; font-size: 1.1em; font-weight: bold;'>" + formatSim(rawDecimal * 1000) + "</td>";
             simFragment.appendChild(tr);
         }
     });
@@ -605,7 +583,6 @@ function renderProbabilities(luckMult) {
 
 // --- 6. XP EFFICIENCY FORECASTER ---
 
-// Updated to include Developer-Confirmed Mini-Game Times
 const rarityXpMap = {
     "trash": { base: 10, perf: 10, reel: 5.5 },
     "abundant": { base: 15, perf: 23, reel: 6.0 },
@@ -621,24 +598,18 @@ const rarityXpMap = {
 };
 
 function calculateXP() {
-    // 1. Gather Inputs
     const enchantBonus = parseFloat(document.getElementById('xpEnchant').value) || 0;
     const attractionRate = Math.max(0, Math.min(100, parseFloat(document.getElementById('xpAttraction').value) || 0));
     const perfRate = Math.max(0, Math.min(100, parseFloat(document.getElementById('xpPerfect').value) || 0)) / 100;
     
-    // Grab the hidden luck multiplier
     const rawLuck = parseFloat(document.getElementById('luckRaw').value) || 0;
     const luckBuffs = parseFloat(document.getElementById('luckBuffs').value) || 1.0;
     const luckExt = parseFloat(document.getElementById('luckExternal').value) || 1.0;
     
-    // THE FIX: Restored mathematically accurate order of operations!
     let luckMult = 1 + ((rawLuck * luckBuffs * luckExt) / 100);
-    
-    // THE ENGINE FIX: Apply the 0.01x hard floor to prevent NaN crashes
-    luckMult = Math.max(0.01, luckMult);
+    luckMult = Math.max(0.1, luckMult);
 
-    // 2. Piecewise Linear Interpolation (Lerp) for Attraction Time
-    let attractionTime = 14.0; // Mathematically proven base for 0%
+    let attractionTime = 14.0;
     const attrCurve = [
         { r: 0, t: 14.0 }, { r: 10, t: 12.6 }, { r: 20, t: 11.2 },
         { r: 30, t: 9.8 }, { r: 40, t: 8.4 }, { r: 65, t: 4.9 },
@@ -653,63 +624,53 @@ function calculateXP() {
         }
     }
 
-    // 3. 4D Chess: Calculate Dynamic Average XP & Dynamic Reel Time
     let totalWeight = 0;
     let expectedXP = 0;
     let expectedReelTime = 0;
 
     rarityWeightPool.forEach(tier => {
-        // THE FIX: Stripped out the bad Trash hack and restored pure dataset math
-        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, tier.scaleFactor);
+        const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
+        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
         
-        // Failsafe clamp to prevent negative weights breaking the pool
         dynamicWeight = Math.max(0, dynamicWeight); 
 
         totalWeight += dynamicWeight;
 
-        // Calculate XP mapping
         const baseXP = rarityXpMap[tier.id].base;
         const perfXP = rarityXpMap[tier.id].perf;
         const tierAvgXP = (baseXP * (1 - perfRate)) + (perfXP * perfRate);
 
-        // Fetch the specific reel time for this tier
         const tierReelTime = rarityXpMap[tier.id].reel;
 
-        // Add the weighted values to the pool
         expectedXP += dynamicWeight * tierAvgXP;
         expectedReelTime += dynamicWeight * tierReelTime;
     });
 
-    // Finalize the weighted averages
     const avgXpPerCatch = expectedXP / totalWeight;
     const avgReelTime = expectedReelTime / totalWeight;
 
-    // Cycle Time now perfectly maps: Wait + Reel + Human/Animation Delay
     const castDelay = 1.5; 
     const cycleTime = attractionTime + avgReelTime + castDelay;
     
     const catchesPerHour = 3600 / cycleTime;
     const catchesPerMin = 60 / cycleTime;
 
-    // 4. Final Math & UI Update
     const xpMultiplier = 1.0 + (enchantBonus / 100);
     const finalXpPerMin = catchesPerMin * avgXpPerCatch * xpMultiplier;
     const finalXpHour = catchesPerHour * avgXpPerCatch * xpMultiplier;
 
-    // --- Update the 3-Stage Visual Timeline Bar ---
     const waitPct = (attractionTime / cycleTime) * 100;
     const reelPct = (avgReelTime / cycleTime) * 100;
     const castPct = (castDelay / cycleTime) * 100;
     
-    document.getElementById('barWait').style.width = `${waitPct}%`;
-    document.getElementById('barReel').style.width = `${reelPct}%`;
-    document.getElementById('barCast').style.width = `${castPct}%`; // New delay bar
+    document.getElementById('barWait').style.width = waitPct + "%";
+    document.getElementById('barReel').style.width = reelPct + "%";
+    document.getElementById('barCast').style.width = castPct + "%";
 
-    // --- Push Data to the DOM ---
     document.getElementById('outCycleTime').innerText = cycleTime.toFixed(1);
     document.getElementById('outAttrTime').innerText = attractionTime.toFixed(1) + "s";
     document.getElementById('outReelTime').innerText = avgReelTime.toFixed(1) + "s";
-    document.getElementById('outCastTime').innerText = castDelay.toFixed(1) + "s"; // Static lock
+    document.getElementById('outCastTime').innerText = castDelay.toFixed(1) + "s";
     document.getElementById('outAvgXp').innerText = avgXpPerCatch.toFixed(2);
     document.getElementById('outCatchesHour').innerText = Math.floor(catchesPerHour).toLocaleString();
     
