@@ -4,7 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="head.title">Fish! Appraiser // Data Miner Tools</title>
+    
     <link rel="stylesheet" href="/tools.css">
+
+    <script>
+        (function() {
+            // Get the user's local date
+            const today = new Date();
+            const month = today.getMonth() + 1; // JS months are 0-indexed (Jan = 0)
+            const day = today.getDate();
+
+            // Define your active holiday dates
+            const isAprilFools = (month === 4 && day === 1);
+
+            // If today matches a holiday constraint, inject the CSS
+            if (isAprilFools) {
+                const holidayCSS = document.createElement('link');
+                holidayCSS.rel = 'stylesheet';
+                holidayCSS.href = '/toolsHoliday.css'; 
+                
+                // Append it to the head so it overrides the base tools.css
+                document.head.appendChild(holidayCSS);
+                console.log("[THEME] 🐶🧀 April Fools tools override injected!");
+            }
+        })();
+    </script>
 </head>
 <body>
 

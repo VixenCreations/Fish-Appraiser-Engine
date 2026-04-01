@@ -25,6 +25,10 @@ async function loadLanguage(langCode) {
             populateDropdowns(modifierData);
             populateFishSelector();
             renderMatrix();
+            
+            // THE FIX: Force the JS-generated modules to redraw with the new language!
+            calculateLuck();
+            calculateBigCatch();
         }
         
     } catch (err) {
@@ -507,15 +511,25 @@ function calculateBigCatch() {
         document.getElementById('bcMinPercentile').innerText = "( " + (minPct * 100).toFixed(2) + "% )";
         document.getElementById('bcMaxPercentile').innerText = "( " + (maxPct * 100).toFixed(2) + "% )";
 
-        let statusText = "True 0% to 100% Range";
-        let explanationText = "With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.";
+				// 5. Dynamic Status and Explanation Text (i18n Compatible)
+        // Using optional chaining (?.) to prevent crashes if the language payload is still loading
+        let statusText = langData?.bc?.status_0 || "True 0% to 100% Range";
+        let explanationText = langData?.bc?.explain_0 || "With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.";
 
         if (points > 0) {
-            statusText = "Floor Shifted to " + (minPct*100).toFixed(1) + "%";
-            explanationText = "With <strong style='color: var(--success);'>" + points + " points</strong>, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong style='color: var(--success);'>" + (minPct*100).toFixed(2) + "%</strong> percentile. This guarantees you will NEVER catch a fish smaller than <strong style='color: var(--accent);'>" + trueMinW.toFixed(2) + "kg</strong>.";
+            statusText = (langData?.bc?.status_pos || "Floor Shifted to ") + (minPct*100).toFixed(1) + "%";
+            
+            explanationText = (langData?.bc?.explain_pos_1 || "With <strong style='color: var(--success);'>") + points + 
+                              (langData?.bc?.explain_pos_2 || " points</strong>, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong style='color: var(--success);'>") + (minPct*100).toFixed(2) + 
+                              (langData?.bc?.explain_pos_3 || "%</strong> percentile. This guarantees you will NEVER catch a fish smaller than <strong style='color: var(--accent);'>") + trueMinW.toFixed(2) + 
+                              (langData?.bc?.explain_pos_4 || "kg</strong>.");
         } else if (points < 0) {
-            statusText = "Ceiling Penalized to " + (maxPct*100).toFixed(1) + "%";
-            explanationText = "With <strong style='color: var(--warning);'>" + points + " points</strong>, your absolute best-case RNG roll (1.0) is mathematically capped at the <strong style='color: var(--warning);'>" + (maxPct*100).toFixed(2) + "%</strong> percentile. This means it is physically impossible to catch a fish larger than <strong style='color: var(--accent);'>" + trueMaxW.toFixed(2) + "kg</strong>.";
+            statusText = (langData?.bc?.status_neg || "Ceiling Penalized to ") + (maxPct*100).toFixed(1) + "%";
+            
+            explanationText = (langData?.bc?.explain_neg_1 || "With <strong style='color: var(--warning);'>") + points + 
+                              (langData?.bc?.explain_neg_2 || " points</strong>, your absolute best-case RNG roll (1.0) is mathematically capped at the <strong style='color: var(--warning);'>") + (maxPct*100).toFixed(2) + 
+                              (langData?.bc?.explain_neg_3 || "%</strong> percentile. This means it is physically impossible to catch a fish larger than <strong style='color: var(--accent);'>") + trueMaxW.toFixed(2) + 
+                              (langData?.bc?.explain_neg_4 || "kg</strong>.");
         }
 
         document.getElementById('bcHardwareStatus').innerText = statusText;
@@ -552,14 +566,17 @@ function renderProbabilities(luckMult) {
 
     const simFragment = document.createDocumentFragment();
 
-    calculatedWeights.forEach(tier => {
+		calculatedWeights.forEach(tier => {
         const rawDecimal = totalPoolWeight > 0 ? (tier.currentWeight / totalPoolWeight) : 0;
         const percent = rawDecimal * 100;
+        
+        // DYNAMIC TRANSLATION: Looks for the translated name, falls back to English if missing
+        const translatedName = langData?.rarities?.[tier.id] || tier.label;
         
         if (container) {
             const row = document.createElement('div');
             row.className = 'prob-row';
-            row.innerHTML = "<div class='prob-label rarity-" + tier.id + "' style='background:none; color: " + tier.color + ";'>" + tier.label + "</div>" +
+            row.innerHTML = "<div class='prob-label rarity-" + tier.id + "' style='background:none; color: " + tier.color + ";'>" + translatedName + "</div>" +
                             "<div class='prob-bar-track'>" +
                             "<div class='prob-bar-fill' style='width: " + percent + "%; background-color: " + tier.color + ";'></div>" +
                             "</div>" +
@@ -569,7 +586,7 @@ function renderProbabilities(luckMult) {
 
         if (simTbody) {
             const tr = document.createElement('tr');
-            tr.innerHTML = "<td style='padding: 10px 14px;'><span class='rarity-tag rarity-" + tier.id + "' style='font-size: 0.8em; padding: 4px 8px;'>" + tier.label + "</span></td>" +
+            tr.innerHTML = "<td style='padding: 10px 14px;'><span class='rarity-tag rarity-" + tier.id + "' style='font-size: 0.8em; padding: 4px 8px;'>" + translatedName + "</span></td>" +
                            "<td style='text-align: right; padding: 10px 14px; color: var(--text-main); font-family: Courier New, monospace; font-size: 1.05em;'>" + formatSim(rawDecimal * 100) + "</td>" +
                            "<td style='text-align: right; padding: 10px 14px; color: var(--text-main); font-family: Courier New, monospace; font-size: 1.05em;'>" + formatSim(rawDecimal * 250) + "</td>" +
                            "<td style='text-align: right; padding: 10px 14px; color: var(--text-main); font-family: Courier New, monospace; font-size: 1.05em;'>" + formatSim(rawDecimal * 500) + "</td>" +

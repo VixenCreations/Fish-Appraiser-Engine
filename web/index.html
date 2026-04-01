@@ -4,7 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="global.title">Fish Appraiser Engine | Vixenlicious</title>
+    
     <link rel="stylesheet" href="style.css">
+
+    <script>
+        (function() {
+            // Get the user's local date
+            const today = new Date();
+            const month = today.getMonth() + 1; // JS months are 0-indexed (Jan = 0)
+            const day = today.getDate();
+
+            // Define your active holiday dates
+            const isAprilFools = (month === 4 && day === 1);
+            // const isHalloween  = (month === 10 && day === 31);
+            // const isWinterFest = (month === 12 && day >= 20 && day <= 31); // Example of a date range
+
+            // If today matches a holiday constraint, inject the CSS
+            if (isAprilFools) {
+                const holidayCSS = document.createElement('link');
+                holidayCSS.rel = 'stylesheet';
+                holidayCSS.href = 'stylesHoliday.css'; 
+                
+                // Append it to the head so it overrides the base styles.css
+                document.head.appendChild(holidayCSS);
+                console.log("[THEME] 🐶🧀 April Fools holiday override injected!");
+            }
+        })();
+    </script>
+
     <script src="app.js" defer></script>
 </head>
 <body>
@@ -172,7 +199,7 @@
                 </div>
             </div>
 
-            <div class="luck-readout">
+						<div class="luck-readout">
                 <div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.85em; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08); margin-bottom: 10px;" data-i18n="luck.probabilities">Rarity Probabilities</div>
                 <div id="probabilityBars" class="prob-container"></div>
             </div>
@@ -232,13 +259,12 @@
                         </div>
 
                         <div class="cycle-footer">
-                            <div><span data-i18n="xp.avg_yield">Avg Yield:</span> <strong id="outAvgXp">0.0</strong> XP</div>
-                            <div><span data-i18n="xp.volume">Volume:</span> <strong id="outCatchesHour">0</strong> / hr</div>
+                            <div><span data-i18n="xp.avg_yield">Avg Yield:</span> <strong id="outAvgXp">0.0</strong> <span data-i18n="xp.xp_suffix">XP</span></div>
+                            <div><span data-i18n="xp.volume">Volume:</span> <strong id="outCatchesHour">0</strong> <span data-i18n="xp.per_hr_suffix">/ hr</span></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
         <div class="dashboard">
             <div class="control-group">
