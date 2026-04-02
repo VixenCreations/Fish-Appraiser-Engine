@@ -1,29 +1,145 @@
 :root {
-    --bg-base: #1e1b18; --bg-panel: #2d2824; --bg-hover: #3d3732;
-    --text-main: #f4ede8; --text-muted: #d4c5b9;
-    --accent: #d4af37; --border: #4a423b;
-    --success: #34d399; --warning: #fbbf24; --xp-color: #9ca3af;
+    --bg-base: #1e1b18;
+    --bg-panel: #2d2824;
+    --bg-hover: #3d3732;
+    --text-main: #f4ede8;
+    --text-muted: #d4c5b9;
+    --accent: #d4af37;
+    --border: #4a423b;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --xp-color: #9ca3af;
     --panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
-.app-main, .tools-main { background: radial-gradient(circle at 50% 0%, #3a342f 0%, var(--bg-base) 80%) !important; }
-.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
-    background-color: var(--bg-panel) !important; border-radius: 16px !important; border: 1px solid var(--border) !important; box-shadow: var(--panel-shadow) !important;
+
+.app-main, .tools-main {
+    background: radial-gradient(circle at 50% 0%, #3a342f 0%, var(--bg-base) 80%) !important;
 }
-.tools-sidebar { background-color: var(--bg-panel) !important; }
-input, select, .matrix-input, .matrix-select { background-color: var(--bg-base) !important; color: var(--text-main) !important; border: 1px solid var(--border) !important; border-radius: 8px !important; }
-option { background-color: var(--bg-base); color: var(--text-main); }
-input:focus, select:focus, .matrix-input:focus, .matrix-select:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important; }
-.action-btn, .secondary-btn, .accent-btn { border-radius: 8px !important; transition: all 0.5s ease; }
-th { background-color: #1a1714 !important; color: var(--text-main) !important; border-bottom: 1px solid var(--accent) !important; }
-.output-console, .calc-output, .diff-container, code, .nerd-code-list { background-color: var(--bg-base) !important; color: var(--text-main) !important; border-color: var(--border) !important; }
-.nerd-modal-content { background-color: var(--bg-base) !important; border-color: var(--border) !important; }
-.nerd-section, .nerd-section p { color: var(--text-main) !important; } .nerd-section strong { color: var(--accent) !important; }
-.nerd-subtitle, .math-step, .diff-label, .section-desc { color: var(--text-muted) !important; border-bottom-color: var(--border) !important; }
-h1 { color: var(--accent); } h1::after { content: " 🕊️🤝"; } h3.section-title::before { content: "🏔️ "; }
-.nerd-header::before { content: "📜 "; } .secondary-btn::after { content: " 🕊️"; }
-.output-price { color: var(--text-main); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
-.dev-rainbow, .data-miner, .thanks-rainbow { background: linear-gradient(90deg, #d4af37, #f4ede8, #d4af37); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: devRainbowScroll 3s linear infinite; }
-.external-links a { background-color: var(--text-main); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-.external-links a:hover { background-color: var(--accent); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
-.external-links img { opacity: 1 !important; filter: brightness(0) invert(1) !important; width: 24px !important; height: auto !important; }
-.external-links img:hover { transform: none !important; }
+
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
+    background-color: var(--bg-panel) !important;
+    border-radius: 16px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--panel-shadow) !important;
+}
+
+.tools-sidebar {
+    background-color: var(--bg-panel) !important;
+}
+
+input, select, .matrix-input, .matrix-select {
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+}
+
+option {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+}
+
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important;
+}
+
+.action-btn, .secondary-btn, .accent-btn {
+    border-radius: 8px !important;
+    transition: all 0.5s ease;
+}
+
+th {
+    background-color: #1a1714 !important;
+    color: var(--text-main) !important;
+    border-bottom: 1px solid var(--accent) !important;
+}
+
+.output-console, .calc-output, .diff-container, code, .nerd-code-list {
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+.nerd-modal-content {
+    background-color: var(--bg-base) !important;
+    border-color: var(--border) !important;
+}
+
+.nerd-section, .nerd-section p {
+    color: var(--text-main) !important;
+}
+
+    .nerd-section strong {
+        color: var(--accent) !important;
+    }
+
+.nerd-subtitle, .math-step, .diff-label, .section-desc {
+    color: var(--text-muted) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+h1 {
+    color: var(--accent);
+}
+
+    h1::after {
+        content: " 🕊️🤝";
+    }
+
+h3.section-title::before {
+    content: "🏔️ ";
+}
+
+.nerd-header::before {
+    content: "📜 ";
+}
+
+.secondary-btn::after {
+    content: " 🕊️";
+}
+
+.output-price {
+    color: var(--text-main);
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.dev-rainbow, .data-miner, .thanks-rainbow {
+    background: linear-gradient(90deg, #d4af37, #f4ede8, #d4af37);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: devRainbowScroll 3s linear infinite;
+}
+
+/* --- FIX EXTERNAL ICONS VISIBILITY --- */
+.external-links a {
+    background-color: var(--text-main); /* Uses the darkest text color of the theme */
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+    .external-links a:hover {
+        background-color: var(--accent); /* Pops to the theme's accent color on hover */
+        transform: translateY(-4px) scale(1.1);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+.external-links img {
+    opacity: 1 !important;
+    /* Forces the original image to pure white so it stands out inside the dark circle */
+    filter: brightness(0) invert(1) !important;
+    width: 24px !important;
+    height: auto !important;
+}
+
+    .external-links img:hover {
+        transform: none !important; /* Disables the old image scale, since the circle wrapper scales now */
+    }

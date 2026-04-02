@@ -28,31 +28,31 @@ This engine runs entirely on native Node.js modules (`http`, `fs`, `path`, `http
 ### 🪟 Windows Setup
 1. Open **Command Prompt** or **PowerShell**.
 2. Clone the repository and enter the directory:
-```cmd
+cmd
 git clone https://github.com/VixenCreations/Fish-Appraiser-Engine.git
 cd Fish-Appraiser-Engine
-```
+
 3. Start the local server:
-```cmd
+cmd
 node server.js
-```
+
 *(Note: If updating from an older version, simply run `update.bat`)*
 
 ### 🐧 Linux Setup (Ubuntu/Debian)
 1. Open your terminal. If you don't have Git and Node.js installed, grab them first:
-```bash
+bash
 sudo apt update
 sudo apt install git nodejs -y
-```
+
 2. Clone the repository and enter the directory:
-```bash
+bash
 git clone https://github.com/VixenCreations/Fish-Appraiser-Engine.git
 cd Fish-Appraiser-Engine
-```
+
 3. Start the local server:
-```bash
+bash
 node server.js
-```
+
 *(Note: If updating from an older version, simply run `./update.sh`)*
 
 [⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
@@ -153,11 +153,11 @@ The engine is configured via a `.env` file located at the project root. It suppo
 
 By default, the engine runs using:
 
-```env
+env
 PORT=8080
 HOST=localhost
 USE_SSL=false
-```
+
 
 **Access:**
 - http://localhost:8080
@@ -171,10 +171,10 @@ USE_SSL=false
 
 #### Network & Hosting
 
-```env
+env
 PORT=8080
 HOST=localhost
-```
+
 
 - `PORT` → Defines the listening port
 - `HOST` → Domain or IP binding
@@ -183,10 +183,10 @@ HOST=localhost
 
 #### Engine Configuration
 
-```env
+env
 DEFAULT_LANG=en
 CACHE_MAX_AGE=86400
-```
+
 
 - `DEFAULT_LANG`
   - Fallback language if user preference is not set
@@ -201,11 +201,11 @@ CACHE_MAX_AGE=86400
 
 #### Security (SSL / HTTPS)
 
-```env
+env
 USE_SSL=false
 SSL_KEY=./certs/privkey.pem
 SSL_CERT=./certs/fullchain.pem
-```
+
 
 - `USE_SSL`
   - `false` → HTTP server
@@ -219,7 +219,7 @@ SSL_CERT=./certs/fullchain.pem
 
 ### 🚀 Production Configuration Example
 
-```env
+env
 PORT=443
 HOST=yourdomain.com
 CACHE_MAX_AGE=86400
@@ -227,7 +227,7 @@ CACHE_MAX_AGE=86400
 USE_SSL=true
 SSL_KEY=./certs/privkey.pem
 SSL_CERT=./certs/fullchain.pem
-```
+
 
 **Behavior:**
 - Server boots in HTTPS mode
@@ -296,7 +296,7 @@ SSL_CERT=./certs/fullchain.pem
 
 The application relies on a strict separation of concerns (Structure, Logic, and Data) while isolating the frontend UI from the backend payloads for maximum security.
 
-```text
+text
 /Fish-Appraiser-Engine
  │-- .env                   # Network configuration & SSL overrides (Optional)
  │-- server.js              # Native Node.js web server & custom router
@@ -319,7 +319,7 @@ The application relies on a strict separation of concerns (Structure, Logic, and
  │    └── /assets/             # Static branding images
  │
  └── /gitpreviews           # Documentation images
-```
+
 
 [⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
 
@@ -332,14 +332,14 @@ The application relies on a strict separation of concerns (Structure, Logic, and
 Fish weights are not rolled linearly. The game rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a sin ease-out curve to bias catches toward the lower end of the weight spectrum.
 
 **The Shift:**
-```
+
 EffectiveRoll = clamp(RandomRoll + (RodBC / 300), 0.0, 1.0)
-```
+
 
 **The Curve:**
-```
+
 WeightPercent = sin(EffectiveRoll * (π / 2))
-```
+
 
 **The Result:**
 Rolling a 0.5 internally yields ~70.7% weight, not 50%. True 100% "Perfect" catches require an exact 1.0 roll, making them exponentially rare.
@@ -355,19 +355,19 @@ Big Catch does not multiply weight; it shifts the RNG floor.
 ### Floor Effect (Positive Buffs)
 
 Example:
-```
+
 +90 Big Catch → min roll = 0.3
 sin(0.3 * π/2) = 0.4539
-```
+
 You cannot catch below **45.39% size**.
 
 ### Ceiling Effect (Negative Penalties)
 
 Example:
-```
+
 -90 Big Catch → max roll = 0.7
 sin(0.7 * π/2) = 0.8910
-```
+
 You cannot catch above **89.10% size**.
 
 ---
@@ -376,27 +376,27 @@ You cannot catch above **89.10% size**.
 
 ### Scenario A: Solving Max Weight
 
-```
+
 TrueBaseMax = ((ObservedMax - BaseMin) / MaxPercentile) + BaseMin
-```
+
 
 Example:
-```
+
 ((1.00 - 0.1) / 0.8910) + 0.1 = 1.11kg
-```
+
 
 ---
 
 ### Scenario B: Solving Min Weight
 
-```
+
 TrueBaseMin = (ObservedMin - (BaseMax * MinPercentile)) / (1 - MinPercentile)
-```
+
 
 Example:
-```
+
 (0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg
-```
+
 
 ---
 
@@ -405,7 +405,7 @@ Example:
 Price scales linearly between min and max weight.
 
 Example:
-```
+
 0.0kg = $29
 0.1kg = $31
 
@@ -413,12 +413,12 @@ Example:
 ΔPrice = $2
 
 Rate = $20 per kg
-```
+
 
 Solving max price:
-```
+
 $31 + (0.4kg * $20) = $39
-```
+
 
 ---
 
@@ -452,12 +452,12 @@ Always test with rods above target fish weight.
 
 ## 7. The Luck Engine (Exponential Scaling)
 
-```
+
 LuckMult = max(0.01, 1 + (TotalLuck / 100))
 EffectiveWeight = BaseWeight * (LuckMult ^ ScaleFactor)
 
 SpawnChance = (EffectiveWeight / TotalPoolWeight) * 100
-```
+
 
 ### Scale Factors
 
@@ -475,8 +475,8 @@ Cycle consists of:
 - Reel Time (weighted avg)
 - Cast Delay (1.5s)
 
-```
+
 CatchesPerHour = 3600 / (Wait + Reel + 1.5)
-```
+
 
 [⬆ Back to Top](https://github.com/VixenCreations/Fish-Appraiser-Engine#-table-of-contents)
