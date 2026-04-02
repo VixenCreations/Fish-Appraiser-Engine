@@ -1,0 +1,195 @@
+/* =========================================================
+   THEME: APRIL FOOLS (Puppy, Cheese & Girl-Boss)
+   ========================================================= */
+
+/* --- 1. GLOBAL VARIABLES OVERRIDE --- */
+:root {
+    --bg-base: #fff0f5;     /* Soft lavender blush pink */
+    --bg-panel: #ffeb3b;    /* Bright cheddar cheese yellow */
+    --bg-hover: #ffd700;    /* Deep golden melted cheese */
+    
+    --text-main: #d81b60;   /* Deep magenta/hot pink for readability */
+    --text-muted: #e65100;  /* Cheesy orange for labels */
+    
+    --accent: #ff69b4;      /* Hot pink girl-boss accent */
+    --border: #ff8c00;      /* Dark orange cheese rind border */
+    
+    --success: #ff1493;     /* Deep pink (because green is out, pink is in) */
+    --warning: #ff4500;     /* Danger orange */
+    --xp-color: #ba68c8;    /* Sparkly purple */
+    
+    /* A hard, retro 90s web drop shadow */
+    --panel-shadow: 8px 8px 0px rgba(255, 105, 180, 0.4);
+}
+
+/* --- 2. BASE CHAOS (Fonts & Cursors) --- */
+* {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif !important;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'><text y='20' font-size='20'>🐾</text></svg>"), auto !important;
+}
+
+::selection {
+    background-color: var(--bg-panel);
+    color: var(--text-main);
+}
+
+/* Override the main scrolling backgrounds with cheese polka dots */
+.app-main, .tools-main {
+    background-color: var(--bg-base) !important;
+    background-image: radial-gradient(#ffeb3b 15%, transparent 15%), radial-gradient(#ffeb3b 15%, transparent 15%) !important;
+    background-position: 0 0, 30px 30px !important;
+    background-size: 60px 60px !important;
+}
+
+/* --- 3. TYPOGRAPHY & HEADERS --- */
+label, .control-group label, .input-label {
+    text-transform: lowercase !important; /* Girly aesthetic, no caps */
+    letter-spacing: 2px;
+    font-weight: 900;
+    text-shadow: 1px 1px 0px #fff, 2px 2px 0px #ffe4e1;
+}
+
+div[style*="color: var(--text-muted)"] {
+    color: var(--accent) !important;
+    letter-spacing: 1px !important;
+    text-shadow: 1px 1px 0px #fff !important;
+}
+
+h1 { text-transform: lowercase; text-shadow: 2px 2px 0px #fff, 4px 4px 0px var(--bg-panel); }
+h1::after { content: " 🧀✨🐾"; }
+h3.section-title::before { content: "💖 "; }
+
+/* Tools Header */
+.nerd-header { text-shadow: 2px 2px 0px #ffeb3b; font-size: 2em; }
+.nerd-header::before { content: "🐶 "; }
+.nerd-header::after { content: " 🧀"; }
+
+.nerd-subtitle { border-bottom: 3px dashed var(--accent); font-weight: 900; }
+.main-header { background: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 20px; border: 5px dashed var(--accent); }
+
+/* --- 4. PANELS & UI ELEMENTS --- */
+/* Gaslight the user with a 1 degree tilt on everything */
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container {
+    background: rgba(255, 255, 255, 0.9);
+    border: 4px solid var(--accent) !important;
+    border-radius: 25px !important;
+    box-shadow: 8px 8px 0px var(--bg-panel) !important;
+    transform: rotate(1deg); 
+}
+
+.calc-grid { background: rgba(255, 255, 255, 0.5); padding: 15px; border-radius: 15px; }
+
+.calc-output {
+    background-color: rgba(255, 240, 245, 0.9);
+    border: 4px dotted var(--accent);
+    border-radius: 20px;
+}
+
+.output-price { 
+    text-shadow: 2px 2px 0px #fff, 4px 4px 0px var(--bg-panel);
+    animation: puppyWiggle 2s infinite ease-in-out;
+}
+
+/* --- 5. INPUTS & BUTTONS --- */
+input, select, .matrix-input, .matrix-select {
+    background-color: #fff !important;
+    border: 3px solid var(--bg-panel) !important;
+    border-radius: 15px !important;
+    font-weight: 900 !important;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+    transition: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+}
+
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus {
+    border-color: var(--accent) !important;
+    transform: scale(1.05) rotate(-2deg);
+    box-shadow: 5px 5px 0px var(--bg-panel) !important;
+}
+
+.secondary-btn, .accent-btn, .action-btn {
+    border: 3px solid var(--accent) !important;
+    border-radius: 20px !important;
+    font-weight: 900 !important;
+    box-shadow: 3px 3px 0px var(--bg-panel) !important;
+    text-transform: lowercase;
+}
+
+.secondary-btn:hover, .accent-btn:hover, .action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 3px 6px 0px var(--accent) !important;
+}
+.secondary-btn::after { content: " 🐶"; }
+
+/* --- 6. TERMINAL SPECIFICS (Tools Page) --- */
+.nerd-section { border: 3px dashed var(--bg-panel) !important; background: #fff0f5 !important; border-radius: 20px !important; color: var(--text-main) !important; }
+.catch-block { border-bottom: 4px dotted var(--bg-panel); background: rgba(255, 235, 59, 0.2); padding: 15px; border-radius: 15px; }
+.output-console { background: #fff; border: 4px dashed var(--accent); color: var(--border); font-weight: 900; }
+.math-step { text-transform: lowercase; }
+.math-step::before { content: "✨ "; }
+.diff-container { background: #fff; border: 3px solid var(--accent); border-radius: 15px; }
+.diff-col.left { border-right: 3px dashed var(--bg-panel); }
+
+/* --- 7. TABLES & SCROLLBARS --- */
+th { background-color: var(--accent); color: #fff; text-transform: lowercase; border-bottom: 3px solid var(--bg-panel); }
+td { border-bottom: 2px dotted var(--bg-panel); }
+th.sort-asc::after { content: " 🧀▲"; }
+th.sort-desc::after { content: " 🐾▼"; }
+
+::-webkit-scrollbar-track { background: #fff; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; border: 2px solid #fff; }
+
+/* --- 8. CUTE RARITY TAGS --- */
+.rarity-tag { border: 2px dashed #fff; border-radius: 15px; font-weight: 900; text-transform: lowercase; }
+.rarity-trash    { --rarity-hex: #a8a8a8; background-color: var(--rarity-hex); color: #fff; }
+.rarity-abundant { --rarity-hex: #dcdcdc; background-color: var(--rarity-hex); color: #ff69b4; } 
+.rarity-common   { --rarity-hex: #98fb98; background-color: var(--rarity-hex); color: #000; } 
+.rarity-curious  { --rarity-hex: #87ceeb; background-color: var(--rarity-hex); color: #fff; } 
+.rarity-elusive  { --rarity-hex: #dda0dd; background-color: var(--rarity-hex); color: #fff; } 
+.rarity-relic    { --rarity-hex: #ffb347; background-color: var(--rarity-hex); color: #fff; } 
+.rarity-fabled   { --rarity-hex: #ff69b4; background-color: var(--rarity-hex); color: #fff; } 
+.rarity-mythic   { --rarity-hex: #ff1493; background-color: var(--rarity-hex); color: #fff; } 
+.rarity-exotic   { --rarity-hex: #00fa9a; background-color: var(--rarity-hex); color: #000; } 
+.rarity-secret { --rarity-hex: #ffd700; background: repeating-linear-gradient(45deg, #ffeb3b, #ffeb3b 10px, #ffb347 10px, #ffb347 20px); color: #d81b60; text-shadow: 1px 1px 0px #fff; }
+.rarity-ultimate { --rarity-hex: #ffb6c1; background: linear-gradient(90deg, #ffb6c1, #ff69b4, #ff1493); color: #fff; border: 2px solid #ffeb3b; }
+
+/* --- 9. ANIMATIONS --- */
+@keyframes puppyWiggle {
+    0%, 100% { transform: rotate(-3deg) scale(1); }
+    50% { transform: rotate(3deg) scale(1.05); }
+}
+
+.artist-3d, .composer-beat, .thanks-rainbow, .bug-hunter, .data-miner {
+    color: var(--accent); background: var(--bg-panel); border: 2px dashed var(--border);
+    animation: puppyWiggle 1.5s infinite; text-shadow: none;
+}
+
+/* --- FIX EXTERNAL ICONS VISIBILITY --- */
+.external-links a {
+    background-color: var(--text-main); /* Uses the darkest text color of the theme */
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.external-links a:hover {
+    background-color: var(--accent); /* Pops to the theme's accent color on hover */
+    transform: translateY(-4px) scale(1.1);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.external-links img {
+    opacity: 1 !important;
+    /* Forces the original image to pure white so it stands out inside the dark circle */
+    filter: brightness(0) invert(1) !important; 
+    width: 24px !important;
+    height: auto !important;
+}
+
+.external-links img:hover {
+    transform: none !important; /* Disables the old image scale, since the circle wrapper scales now */
+}

@@ -5,480 +5,610 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="global.title">Fish Appraiser Engine | Vixenlicious</title>
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/styles/global.css">
 
-    <script>
+		<script>
         (function() {
-            // Get the user's local date
-            const today = new Date();
-            const month = today.getMonth() + 1; // JS months are 0-indexed (Jan = 0)
-            const day = today.getDate();
+            // 1. Get user preference (default to 'auto' if first time)
+            const savedTheme = localStorage.getItem('fishAppTheme') || 'auto';
+            let themeToLoad = null;
 
-            // Define your active holiday dates
-            const isAprilFools = (month === 4 && day === 1);
-            // const isHalloween  = (month === 10 && day === 31);
-            // const isWinterFest = (month === 12 && day >= 20 && day <= 31); // Example of a date range
-
-            // If today matches a holiday constraint, inject the CSS
-            if (isAprilFools) {
-                const holidayCSS = document.createElement('link');
-                holidayCSS.rel = 'stylesheet';
-                holidayCSS.href = 'stylesHoliday.css'; 
+            // 2. If Auto, calculate holiday
+            if (savedTheme === 'auto') {
+                const today = new Date();
+                const y = today.getFullYear(), m = today.getMonth() + 1, d = today.getDate(), dw = today.getDay();
                 
-                // Append it to the head so it overrides the base styles.css
-                document.head.appendChild(holidayCSS);
-                console.log("[THEME] 🐶🧀 April Fools holiday override injected!");
+                const isNthDay = (tm, tdw, n) => {
+                    if (m !== tm || dw !== tdw) return false;
+                    if (n === 'last') {
+                        const nw = new Date(today); nw.setDate(d + 7); return nw.getMonth() !== today.getMonth();
+                    }
+                    return Math.ceil(d / 7) === n;
+                };
+
+                // LUNAR EASTER CALCULATION (Meeus/Jones/Butcher algorithm)
+                const a = y % 19, b = Math.floor(y / 100), c = y % 100, eD = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - eD - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, eM = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * eM + 114;
+                const easterMonth = Math.floor(n / 31);
+                const easterDay = (n % 31) + 1;
+
+                // Fixed Dates
+                if      (m === 1 && d === 1)   themeToLoad = "theme-newyear.css";
+                else if (m === 2 && d === 14)  themeToLoad = "theme-valentine.css";
+                else if (m === 3 && d === 17)  themeToLoad = "theme-stpatricks.css";
+                else if (m === 4 && d === 1)   themeToLoad = "theme-aprilfools.css";
+                else if (m === 7 && d === 4)   themeToLoad = "theme-july4.css";
+                else if (m === 10 && d === 31) themeToLoad = "theme-halloween.css";
+                else if (m === 11 && d === 11) themeToLoad = "theme-veterans.css";
+                else if (m === 12 && d === 25) themeToLoad = "theme-christmas.css";
+                else if (m === 12 && d === 31) themeToLoad = "theme-newyear.css";
+                // Dynamic & Lunar Dates
+                else if (m === easterMonth && d === easterDay) themeToLoad = "theme-easter.css";
+                else if (isNthDay(1, 1, 3))       themeToLoad = "theme-mlk.css";
+                else if (isNthDay(2, 1, 3))       themeToLoad = "theme-presidents.css";
+                else if (isNthDay(5, 0, 2))       themeToLoad = "theme-mothers.css";
+                else if (isNthDay(5, 1, 'last'))  themeToLoad = "theme-memorial.css";
+                else if (isNthDay(6, 0, 3))       themeToLoad = "theme-fathers.css";
+                else if (isNthDay(9, 1, 1))       themeToLoad = "theme-labor.css";
+                else if (isNthDay(11, 4, 4))      themeToLoad = "theme-thanksgiving.css";
+            } 
+            // 3. If a specific theme is chosen (and it's not the base 'default')
+            else if (savedTheme !== 'default') {
+                themeToLoad = savedTheme;
+            }
+
+            // 4. Inject the CSS file
+            if (themeToLoad) {
+                const link = document.createElement('link');
+                link.id = 'dynamicThemeCSS';
+                link.rel = 'stylesheet';
+                link.href = `/styles/${themeToLoad}`;
+                document.head.appendChild(link);
             }
         })();
     </script>
-
+		
     <script src="app.js" defer></script>
 </head>
 <body>
 
-		<header class="main-header">
-				<div class="header-left">
-						<h1 data-i18n="header.app_name">Fish Appraiser</h1>
-						<p class="maintainer"><span data-i18n="header.dev_by">Developed & Written by</span> <strong class="dev-rainbow">Vixenlicous</strong></p>
-				</div>
-				<div class="header-right">
-                        <!-- LANGUAGE SWITCHER -->
-                        <div class="control-group" style="margin-right: 15px; text-align: right;">
-                            <select id="langSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: var(--success); border-color: var(--success);">
-                                <option value="en">English (EN)</option>
-                                <option value="jp">日本語 (JP)</option>
-                            </select>
-                        </div>
-
-						<button id="dataMinerBtn" class="secondary-btn tools-btn" data-i18n-title="header.validator_tooltip" data-i18n="header.validator_btn" title="Open the Fish Validation Tools">Fish! Validator</button>
-						
-						<button id="nerdStatsBtn" class="secondary-btn" data-i18n-title="header.nerd_tooltip" data-i18n="header.nerd_btn" title="View the underlying math and engine algorithms">Stats for Nerds</button>
-						<button id="creditsBtn" class="secondary-btn" data-i18n-title="header.credits_tooltip" data-i18n="header.credits_btn" title="View engine contributors and special thanks">Credits</button>
-						
-						<a href="https://wikifish.net/" target="_blank" class="icon-link" title="Official Fish! Wiki">
-								<img src="/assets/FishLogo.png" alt="Fish! Wiki" width="32">
-						</a>
-						
-						<a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" class="icon-link" title="GitHub">
-								<img src="/assets/GitHub_Invertocat_White.png" alt="GitHub" width="32">
-						</a>
-						
-						<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
-						<script type='text/javascript'>
-								kofiwidget2.init('Support me on Ko-fi', '#58a6ff', 'S6S61WAIUV');
-								kofiwidget2.draw();
-						</script>
-				</div>
-		</header>
-	
-    <div id="loader" data-i18n="global.loading">Fetching Payload from /data/...</div>
-
-    <div id="mainEngineContainer" style="display: none;">
-        <div class="appraiser-panel">
-            <div>
-                <h3 class="section-title" data-i18n="appraiser.title">Catch Appraiser (Linear Weight Sync)</h3>
-                <div class="calc-grid">
-                    <div class="control-group">
-                        <label data-i18n="global.target_fish">Target Fish</label>
-                        <select id="calcFishSelect" style="width: 200px;"></select>
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="global.mutation">Mutation</label>
-                        <select id="calcMutSelect"></select>
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="global.size_variant">Size Variant</label>
-                        <select id="calcSizeSelect"></select>
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="appraiser.exact_weight">Exact Weight (kg)</label>
-                        <input type="number" id="calcWeightInput" value="0" step="0.01" style="width: 120px;">
-                        <span id="weightBounds" style="font-size: 0.75em; color: var(--text-muted); margin-top: 4px;"></span>
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="appraiser.player_buff">Player Global Buff (%)</label>
-                        <input type="number" id="calcBuffInput" value="0" step="1" style="width: 120px;">
-                    </div>
-                </div>
-            </div>
-            <div class="calc-output">
-                <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold;" data-i18n="appraiser.appraisal_value">Appraisal Value</div>
-                <div class="output-price" id="outPrice">---</div>
-                <div class="output-xp" id="outXP">---</div>
-            </div>
-        </div>
-
-        <div class="appraiser-panel" style="display: flex; flex-direction: column; gap: 20px;">
-            <div>
-                <h3 class="section-title" data-i18n="bc.title">Big Catch (Weight Distro) Analyzer</h3>
-                <div class="calc-grid">
-                    <div class="control-group">
-                        <label data-i18n="global.target_fish">Target Fish</label>
-                        <select id="bigCatchFishSelect" style="width: 200px;"></select>
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="bc.points_label">Big Catch Points</label>
-                        <input type="number" id="bigCatchPoints" value="0" max="100" min="-100" step="1" style="width: 200px;">
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="bc.test_roll_label">Test RNG Roll (0.0 - 1.0)</label>
-                        <input type="number" id="bigCatchRoll" value="0.1" min="0" max="1" step="0.05" style="width: 200px;">
-                    </div>
-                </div>
+    <div class="app-layout">
+        
+        <aside id="sidebar" class="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">FISH!</div>
+                <button id="toggleSidebar" class="sidebar-toggle" title="Toggle Sidebar">☰</button>
             </div>
             
-            <div class="calc-output" style="width: 100%; align-items: flex-start; text-align: left; padding: 20px; box-sizing: border-box;">
-                <div style="font-size: 1.1em; line-height: 1.6; width: 100%; display: flex; flex-wrap: wrap; gap: 30px;">
-                    
-                    <div style="flex: 1; min-width: 250px;">
-                        <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;" data-i18n="bc.specific_roll_test">Specific Roll Test</div>
-                        <span data-i18n="bc.resulting_percentile">Resulting Percentile:</span> <strong id="bigCatchOutPercent" style="color: var(--warning);">0.00%</strong>
-                        <span id="bigCatchOutDesc" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(Shifted by +0.000)</span><br>
-                        <span data-i18n="bc.specific_roll_weight">Specific Roll Weight:</span> <strong id="bigCatchOutWeight" style="color: var(--accent);">0.00kg</strong>
-                    </div>
-
-                    <div style="flex: 1; min-width: 250px; border-left: 1px solid var(--border); padding-left: 30px;">
-                        <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;" data-i18n="bc.physical_limits">Hardware Physical Limits</div>
-                        <div id="bcHardwareStatus" style="color: var(--accent); font-weight: bold; margin-bottom: 4px;" data-i18n="bc.true_range">True 0% to 100% Range</div>
-                        <div><span data-i18n="bc.true_min">True Min:</span> <strong id="bcMinWeight" style="color: var(--success);">0.00kg</strong> <span style="font-size: 0.85em; color: var(--text-muted);" id="bcMinPercentile">(0.00%)</span></div>
-                        <div><span data-i18n="bc.true_max">True Max:</span> <strong id="bcMaxWeight" style="color: var(--warning);">0.00kg</strong> <span style="font-size: 0.85em; color: var(--text-muted);" id="bcMaxPercentile">(100.00%)</span></div>
-                    </div>
-
-                    <div style="width: 100%; margin-top: 5px; font-size: 0.85em; padding: 12px; background-color: var(--bg-hover); border-radius: 6px; border: 1px solid var(--border);">
-                        <strong data-i18n="bc.how_affects">How this affects your catches:</strong><br>
-                        <span id="explainBcPoints" style="line-height: 1.6;">With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.</span>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-				
-        <div class="luck-panel appraiser-panel">
-            <div>
-                <h3 class="section-title" data-i18n="luck.title">Luck & Drop Rate Analyzer</h3>
-                <div class="calc-grid">
-                    <div class="control-group">
-                        <label data-i18n="luck.raw_luck">Raw Luck</label>
-                        <input type="number" id="luckRaw" value="10" step="1" style="width: 100px;">
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="luck.buffs">Buffs (Multiplier)</label>
-                        <input type="number" id="luckBuffs" value="1.0" step="0.1" style="width: 100px;">
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="luck.external">External Factors</label>
-                        <input type="number" id="luckExternal" value="1.0" step="0.1" style="width: 100px;">
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="luck.final_multiplier">Final Luck Multiplier</label>
-                        <input type="text" id="luckOutMult" value="1.00x" disabled style="width: 100px; color: var(--accent); font-weight: bold; border-color: var(--accent);">
-                    </div>
-                </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-target="view-appraiser">
+                    <span class="nav-icon">⚖️</span>
+                    <span class="nav-text" data-i18n="nav.appraiser">Catch Appraiser</span>
+                </button>
+                <button class="nav-btn" data-target="view-bc">
+                    <span class="nav-icon">📏</span>
+                    <span class="nav-text" data-i18n="nav.big_catch">Big Catch Limits</span>
+                </button>
+                <button class="nav-btn" data-target="view-farming">
+                    <span class="nav-icon">🍀</span>
+                    <span class="nav-text" data-i18n="nav.farming">Luck & Farming</span>
+                </button>
+                <button class="nav-btn" data-target="view-matrix">
+                    <span class="nav-icon">🗄️</span>
+                    <span class="nav-text" data-i18n="nav.database">Database Matrix</span>
+                </button>
+								<button class="nav-btn" data-target="view-scrap">
+                    <span class="nav-icon">♻️</span>
+                    <span class="nav-text" data-i18n="nav.scrap">Scrap Simulator</span>
+                </button>
+								
+                <div class="nav-divider"></div>
                 
-                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
-                    <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;" data-i18n="luck.yields_title">Expected Catch Yields</div>
-                    
-                    <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; opacity: 0.8;" data-i18n="luck.yields_desc">
-                        This table shows the <strong>estimated number of fish</strong> you will catch of each rarity over a set number of total catches based on your current luck. Decimals indicate fractional chances (e.g., 0.50 means you have a 50% chance to see at least 1).
-                    </div>
-                    
-                    <div class="table-container" style="max-height: 320px; overflow-y: auto;">
-                        <table style="font-size: 1em; width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th style="background: var(--bg-hover); padding: 10px 14px;" data-i18n="global.rarity">Rarity</th>
-                                    <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.100x">100 Catches</th>
-                                    <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.250x">250 Catches</th>
-                                    <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.500x">500 Catches</th>
-                                    <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.1000x">1,000 Catches</th>
-                                </tr>
-                            </thead>
-                            <tbody id="simTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-						<div class="luck-readout">
-                <div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.85em; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8), 0px 0px 10px rgba(255, 255, 255, 0.08); margin-bottom: 10px;" data-i18n="luck.probabilities">Rarity Probabilities</div>
-                <div id="probabilityBars" class="prob-container"></div>
-            </div>
-
-            <div class="luck-readout xp-forecaster-panel">
-                <div class="glass-heading md" data-i18n="xp.title">XP Efficiency & Farm Forecaster</div>
+                <button id="dataMinerBtn" class="nav-btn tools-link">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text" data-i18n="nav.tools">Data Miner Tools</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="nerdStatsBtn" class="secondary-btn fluid-btn" data-i18n-title="header.nerd_tooltip" data-i18n="header.nerd_btn">Stats for Nerds</button>
+                <button id="creditsBtn" class="secondary-btn fluid-btn" style="margin-top: 10px;" data-i18n-title="header.credits_tooltip" data-i18n="header.credits_btn">Credits</button>
                 
-                <div class="calc-grid xp-grid">
-                    <div class="control-group">
-                        <label data-i18n="xp.enchantment">XP Enchantment</label>
-                        <select id="xpEnchant">
-                            <option value="0" data-i18n="xp.ench_none">None (+0%)</option>
-                            <option value="5" data-i18n="xp.ench_curious">Curious (+5%)</option>
-                            <option value="12" data-i18n="xp.ench_student">Student (+12%)</option>
-                            <option value="35" data-i18n="xp.ench_enlightened">Enlightened (+35%)</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="xp.attraction">Attraction Rate (%)</label>
-                        <input type="number" id="xpAttraction" value="0" min="0" max="100" step="1">
-                    </div>
-                    <div class="control-group">
-                        <label data-i18n="xp.perfect">Perfect Catch Rate (%)</label>
-                        <input type="number" id="xpPerfect" value="0" min="0" max="100" step="1">
+                <div class="external-links">
+                    <a href="https://wikifish.net/" target="_blank" title="Official Fish! Wiki">
+                        <img src="/assets/FishLogo.png" alt="Fish! Wiki" width="28">
+                    </a>
+                    <a href="https://github.com/VixenCreations/Fish-Appraiser-Engine" target="_blank" title="GitHub">
+                        <img src="/assets/GitHub_Invertocat_White.png" alt="GitHub" width="28">
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 data-i18n="header.app_name">Fish Appraiser</h1>
+                    <p class="maintainer"><span data-i18n="header.dev_by">Developed & Written by</span> <strong class="dev-rainbow">Vixenlicous</strong></p>
+                </div>
+                <div class="header-right">
+								<div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 10px;">
+                    <select id="themeSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: #a855f7; border-color: #a855f7; margin-top: 0;">
+												<option value="auto" data-i18n="theme.auto">Auto (Holiday)</option>
+                        <option value="default" data-i18n="theme.default">Default (Midnight)</option>
+                        <option value="theme-newyear.css" data-i18n="theme.newyear">New Year</option>
+                        <option value="theme-mlk.css" data-i18n="theme.mlk">MLK Jr. Day</option>
+                        <option value="theme-valentine.css" data-i18n="theme.valentine">Valentine's</option>
+                        <option value="theme-presidents.css" data-i18n="theme.presidents">Presidents' Day</option>
+                        <option value="theme-stpatricks.css" data-i18n="theme.stpatricks">St. Patrick's</option>
+                        <option value="theme-aprilfools.css" data-i18n="theme.aprilfools">April Fools</option>
+                        <option value="theme-easter.css" data-i18n="theme.easter">Easter</option>
+                        <option value="theme-mothers.css" data-i18n="theme.mothers">Mother's Day</option>
+                        <option value="theme-memorial.css" data-i18n="theme.memorial">Memorial Day</option>
+                        <option value="theme-fathers.css" data-i18n="theme.fathers">Father's Day</option>
+                        <option value="theme-july4.css" data-i18n="theme.july4">Patriotic</option>
+                        <option value="theme-labor.css" data-i18n="theme.labor">Labor Day</option>
+                        <option value="theme-halloween.css" data-i18n="theme.halloween">Halloween</option>
+                        <option value="theme-veterans.css" data-i18n="theme.veterans">Veterans Day</option>
+                        <option value="theme-thanksgiving.css" data-i18n="theme.thanksgiving">Thanksgiving</option>
+                        <option value="theme-christmas.css" data-i18n="theme.christmas">WinterFest</option>
+                    </select>
+                    <select id="langSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: #00ffaa; border-color: #00ffaa; margin-top: 0;">
+                        <option value="en">English (EN)</option>
+                        <option value="jp">日本語 (JP)</option>
+                    </select>
+                </div>
+                    <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+                    <script type='text/javascript'>
+                        kofiwidget2.init('Support me on Ko-fi', '#58a6ff', 'S6S61WAIUV');
+                        kofiwidget2.draw();
+                    </script>
+                </div>
+            </header>
+          
+            <div id="loader" data-i18n="global.loading">Fetching Payload from /data/...</div>
+
+            <div id="mainEngineContainer" style="display: none; height: 100%;">
+                
+                <div id="view-appraiser" class="app-view active">
+                    <div class="appraiser-panel">
+                        <div>
+                            <h3 class="section-title" data-i18n="appraiser.title">Catch Appraiser (Linear Weight Sync)</h3>
+                            <div class="calc-grid">
+                                <div class="control-group">
+                                    <label data-i18n="global.target_fish">Target Fish</label>
+                                    <select id="calcFishSelect" style="width: 200px;"></select>
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="global.mutation">Mutation</label>
+                                    <select id="calcMutSelect"></select>
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="global.size_variant">Size Variant</label>
+                                    <select id="calcSizeSelect"></select>
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="appraiser.exact_weight">Exact Weight (kg)</label>
+                                    <input type="number" id="calcWeightInput" value="0" step="0.01" style="width: 120px;">
+                                    <span id="weightBounds" style="font-size: 0.75em; color: var(--text-muted); margin-top: 4px;"></span>
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="appraiser.player_buff">Player Global Buff (%)</label>
+                                    <input type="number" id="calcBuffInput" value="0" step="1" style="width: 120px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calc-output">
+                            <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold;" data-i18n="appraiser.appraisal_value">Appraisal Value</div>
+                            <div class="output-price" id="outPrice">---</div>
+                            <div class="output-xp" id="outXP">---</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="xp-results-row">
-                    <div class="xp-stat-block">
-                        <div class="glass-heading sm" data-i18n="xp.hr">XP / Hour</div>
-                        <div id="outXpHour" class="xp-val-hr">0</div>
+                <div id="view-bc" class="app-view" style="display: none;">
+                    <div class="appraiser-panel" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div>
+                            <h3 class="section-title" data-i18n="bc.title">Big Catch (Weight Distro) Analyzer</h3>
+                            <div class="calc-grid">
+                                <div class="control-group">
+                                    <label data-i18n="global.target_fish">Target Fish</label>
+                                    <select id="bigCatchFishSelect" style="width: 200px;"></select>
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="bc.points_label">Big Catch Points</label>
+                                    <input type="number" id="bigCatchPoints" value="0" max="100" min="-100" step="1" style="width: 200px;">
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="bc.test_roll_label">Test RNG Roll (0.0 - 1.0)</label>
+                                    <input type="number" id="bigCatchRoll" value="0.1" min="0" max="1" step="0.05" style="width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="calc-output" style="width: 100%; align-items: flex-start; text-align: left; padding: 20px; box-sizing: border-box;">
+                            <div style="font-size: 1.1em; line-height: 1.6; width: 100%; display: flex; flex-wrap: wrap; gap: 30px;">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;" data-i18n="bc.specific_roll_test">Specific Roll Test</div>
+                                    <span data-i18n="bc.resulting_percentile">Resulting Percentile:</span> <strong id="bigCatchOutPercent" style="color: var(--warning);">0.00%</strong>
+                                    <span id="bigCatchOutDesc" style="font-size: 0.85em; color: var(--text-muted); margin-left: 8px;">(Shifted by +0.000)</span><br>
+                                    <span data-i18n="bc.specific_roll_weight">Specific Roll Weight:</span> <strong id="bigCatchOutWeight" style="color: var(--accent);">0.00kg</strong>
+                                </div>
+                                <div style="flex: 1; min-width: 250px; border-left: 1px solid var(--border); padding-left: 30px;">
+                                    <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;" data-i18n="bc.physical_limits">Hardware Physical Limits</div>
+                                    <div id="bcHardwareStatus" style="color: var(--accent); font-weight: bold; margin-bottom: 4px;" data-i18n="bc.true_range">True 0% to 100% Range</div>
+                                    <div><span data-i18n="bc.true_min">True Min:</span> <strong id="bcMinWeight" style="color: var(--success);">0.00kg</strong> <span style="font-size: 0.85em; color: var(--text-muted);" id="bcMinPercentile">(0.00%)</span></div>
+                                    <div><span data-i18n="bc.true_max">True Max:</span> <strong id="bcMaxWeight" style="color: var(--warning);">0.00kg</strong> <span style="font-size: 0.85em; color: var(--text-muted);" id="bcMaxPercentile">(100.00%)</span></div>
+                                </div>
+                                <div style="width: 100%; margin-top: 5px; font-size: 0.85em; padding: 12px; background-color: var(--bg-hover); border-radius: 6px; border: 1px solid var(--border);">
+                                    <strong data-i18n="bc.how_affects">How this affects your catches:</strong><br>
+                                    <span id="explainBcPoints" style="line-height: 1.6;">With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="xp-stat-block">
-                        <div class="glass-heading sm" data-i18n="xp.min">XP / Minute</div>
-                        <div id="outXpMin" class="xp-val-min">0</div>
+                </div>
+
+                <div id="view-farming" class="app-view" style="display: none;">
+                    <div class="luck-panel appraiser-panel" style="margin-bottom: 20px;">
+                        <div>
+                            <h3 class="section-title" data-i18n="luck.title">Luck & Drop Rate Analyzer</h3>
+                            <div class="calc-grid">
+                                <div class="control-group">
+                                    <label data-i18n="luck.raw_luck">Raw Luck</label>
+                                    <input type="number" id="luckRaw" value="0" step="1" style="width: 100px;">
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="luck.buffs">Buffs (Multiplier)</label>
+                                    <input type="number" id="luckBuffs" value="1.0" step="0.1" style="width: 100px;">
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="luck.external">External Factors</label>
+                                    <input type="number" id="luckExternal" value="1.0" step="0.1" style="width: 100px;">
+                                </div>
+                                <div class="control-group">
+                                    <label data-i18n="luck.final_multiplier">Final Luck Multiplier</label>
+                                    <input type="text" id="luckOutMult" value="1.00x" disabled style="width: 100px; color: var(--accent); font-weight: bold; border-color: var(--accent);">
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border);">
+                                <div style="color: var(--text-muted); text-transform: uppercase; font-size: 0.85em; font-weight: bold; margin-bottom: 5px;" data-i18n="luck.yields_title">Expected Catch Yields</div>
+                                <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; opacity: 0.8;" data-i18n="luck.yields_desc">
+                                    This table shows the <strong>estimated number of fish</strong> you will catch of each rarity over a set number of total catches based on your current luck.
+                                </div>
+                                <div class="table-container" style="max-height: 320px; overflow-y: auto;">
+                                    <table style="font-size: 1em; width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="background: var(--bg-hover); padding: 10px 14px;" data-i18n="global.rarity">Rarity</th>
+                                                <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.100x">100 Catches</th>
+                                                <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.250x">250 Catches</th>
+                                                <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.500x">500 Catches</th>
+                                                <th style="background: var(--bg-hover); text-align: right; padding: 10px 14px;" data-i18n="luck.1000x">1,000 Catches</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="simTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="luck-readout">
+                            <div style="color: rgba(255, 255, 255, 0.55); text-transform: uppercase; font-size: 0.85em; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 10px;" data-i18n="luck.probabilities">Rarity Probabilities</div>
+                            <div id="probabilityBars" class="prob-container"></div>
+                        </div>
                     </div>
-                    
-                    <div class="cycle-widget">
-                        <div class="cycle-header">
-                            <div class="glass-heading sm" style="margin-bottom: 0;" data-i18n="xp.visualizer">Cycle Visualizer (Average)</div>
-                            <div class="cycle-total-text">
-                                <span id="outCycleTime" class="cycle-total-time">0.0</span><span data-i18n="xp.s_total">s Total</span>
+
+                    <div class="luck-readout xp-forecaster-panel" style="display: block;">
+                        <div class="glass-heading md" data-i18n="xp.title">XP Efficiency & Farm Forecaster</div>
+                        <div class="calc-grid xp-grid">
+                            <div class="control-group">
+                                <label data-i18n="xp.enchantment">XP Enchantment</label>
+                                <select id="xpEnchant">
+                                    <option value="0" data-i18n="xp.ench_none">None (+0%)</option>
+                                    <option value="5" data-i18n="xp.ench_curious">Curious (+5%)</option>
+                                    <option value="12" data-i18n="xp.ench_student">Student (+12%)</option>
+                                    <option value="35" data-i18n="xp.ench_enlightened">Enlightened (+35%)</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label data-i18n="xp.attraction">Attraction Rate (%)</label>
+                                <input type="number" id="xpAttraction" value="0" min="0" max="100" step="1">
+                            </div>
+                            <div class="control-group">
+                                <label data-i18n="xp.perfect">Perfect Catch Rate (%)</label>
+                                <input type="number" id="xpPerfect" value="0" min="0" max="100" step="1">
                             </div>
                         </div>
 
-                        <div class="cycle-track">
-                            <div id="barWait" class="cycle-bar wait" style="width: 33%;"></div>
-                            <div id="barReel" class="cycle-bar reel" style="width: 33%;"></div>
-                            <div id="barCast" class="cycle-bar cast" style="width: 34%;"></div>
+                        <div class="xp-results-row">
+                            <div class="xp-stat-block">
+                                <div class="glass-heading sm" data-i18n="xp.hr">XP / Hour</div>
+                                <div id="outXpHour" class="xp-val-hr">0</div>
+                            </div>
+                            <div class="xp-stat-block">
+                                <div class="glass-heading sm" data-i18n="xp.min">XP / Minute</div>
+                                <div id="outXpMin" class="xp-val-min">0</div>
+                            </div>
+                            <div class="cycle-widget">
+                                <div class="cycle-header">
+                                    <div class="glass-heading sm" style="margin-bottom: 0;" data-i18n="xp.visualizer">Cycle Visualizer (Average)</div>
+                                    <div class="cycle-total-text">
+                                        <span id="outCycleTime" class="cycle-total-time">0.0</span><span data-i18n="xp.s_total">s Total</span>
+                                    </div>
+                                </div>
+                                <div class="cycle-track">
+                                    <div id="barWait" class="cycle-bar wait" style="width: 33%;"></div>
+                                    <div id="barReel" class="cycle-bar reel" style="width: 33%;"></div>
+                                    <div id="barCast" class="cycle-bar cast" style="width: 34%;"></div>
+                                </div>
+                                <div class="cycle-labels">
+                                    <div><span data-i18n="xp.wait">Wait:</span> <strong id="outAttrTime" class="txt-accent">0.0s</strong></div>
+                                    <div><span data-i18n="xp.reel">Reel:</span> <strong id="outReelTime" class="txt-success">6.0s</strong></div>
+                                    <div><span data-i18n="xp.cast">Cast:</span> <strong id="outCastTime" class="txt-cast">1.5s</strong></div>
+                                </div>
+                                <div class="cycle-footer">
+                                    <div><span data-i18n="xp.avg_yield">Avg Yield:</span> <strong id="outAvgXp">0.0</strong> <span data-i18n="xp.xp_suffix">XP</span></div>
+                                    <div><span data-i18n="xp.volume">Volume:</span> <strong id="outCatchesHour">0</strong> <span data-i18n="xp.per_hr_suffix">/ hr</span></div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+								
+								<div id="view-scrap" class="app-view" style="display: none;">
+										<div class="appraiser-panel" style="display: flex; flex-direction: column; gap: 20px;">
+												<div>
+														<h3 class="section-title" data-i18n="scrap.title">Scrap Loot Simulator</h3>
+														<p class="scrap-subtitle" data-i18n="scrap.subtitle">Based on community sample data (103 Total Rolls).</p>
+														
+														<div class="calc-grid">
+																<div class="control-group">
+																		<label data-i18n="scrap.rolls_label">Number of Scrap to Open</label>
+																		<input type="number" id="scrapRollsInput" class="input-md" value="100" min="1" step="1">
+																</div>
+																<div class="scrap-controls">
+																		<button id="btnScrapExpected" class="secondary-btn" data-i18n="scrap.btn_expected">Calculate Expected</button>
+																		<button id="btnScrapSimulate" class="accent-btn inline" data-i18n="scrap.btn_simulate">Simulate RNG</button>
+																</div>
+														</div>
+												</div>
+												
+												<div class="table-container">
+														<table class="scrap-table">
+																<thead>
+																		<tr>
+																				<th data-i18n="scrap.col_item">Item</th>
+																				<th data-i18n="scrap.col_rate">Drop Rate</th>
+																				<th data-i18n="scrap.col_expected">Expected Yield</th>
+																				<th style="color: var(--accent);" data-i18n="scrap.col_simulated">Simulated Results</th>
+																		</tr>
+																</thead>
+																<tbody id="scrapTableBody">
+																		</tbody>
+														</table>
+												</div>
+										</div>
+								</div>
 
-                        <div class="cycle-labels">
-                            <div><span data-i18n="xp.wait">Wait:</span> <strong id="outAttrTime" class="txt-accent">0.0s</strong></div>
-                            <div><span data-i18n="xp.reel">Reel:</span> <strong id="outReelTime" class="txt-success">6.0s</strong></div>
-                            <div><span data-i18n="xp.cast">Cast:</span> <strong id="outCastTime" class="txt-cast">1.5s</strong></div>
+                <div id="view-matrix" class="app-view" style="display: none;">
+                    <div class="dashboard">
+                        <div class="control-group">
+                            <label data-i18n="matrix.search_filter">Matrix Search Filter</label>
+                            <input type="text" id="searchInput" data-i18n-placeholder="matrix.search_placeholder" placeholder="Search by fish name or rarity..." autocomplete="off" style="width: 250px;">
                         </div>
+                        <div class="control-group">
+                            <label data-i18n="matrix.mut_preview">Matrix Mutation Preview</label>
+                            <select id="matrixMutSelect"></select>
+                        </div>
+                        <div class="control-group">
+                            <label data-i18n="matrix.size_preview">Matrix Size Preview</label>
+                            <select id="matrixSizeSelect"></select>
+                        </div>
+                    </div>
 
-                        <div class="cycle-footer">
-                            <div><span data-i18n="xp.avg_yield">Avg Yield:</span> <strong id="outAvgXp">0.0</strong> <span data-i18n="xp.xp_suffix">XP</span></div>
-                            <div><span data-i18n="xp.volume">Volume:</span> <strong id="outCatchesHour">0</strong> <span data-i18n="xp.per_hr_suffix">/ hr</span></div>
-                        </div>
+                    <div class="table-container" style="max-height: calc(100vh - 250px);">
+                        <table id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th data-sort="name" data-i18n="matrix.col_name">Fish Name</th>
+                                    <th data-sort="rarity" data-i18n="global.rarity">Rarity</th>
+                                    <th data-sort="weight" data-i18n="matrix.col_weight">Weight Range</th>
+                                    <th data-sort="price" data-i18n="matrix.col_price">Base Sell Range</th>
+                                    <th data-sort="basexp" data-i18n="matrix.col_catchxp">Catch XP</th>
+                                    <th data-sort="perfectxp" data-i18n="matrix.col_perfectxp">Perfect XP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="nerdStatsModal" class="modal">
+        <div class="modal-content nerd-modal-content">
+            <h3 class="nerd-header" data-i18n="nerds.header">> STATS_FOR_NERDS // Math Engine</h3>
+            
+            <p class="nerd-subtitle" data-i18n="nerds.subtitle">
+                For Spreadsheet Maintainers and Data Miners. The underlying physics and math of the Fish! engine.
+            </p>
+
+            <div class="nerd-section core">
+                <strong data-i18n="nerds.s1_title">1. The Core Equation (Sine Curve)</strong>
+                <p data-i18n="nerds.s1_p1">The game does not use flat random numbers for weight. It rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a Sine wave.</p>
+                <ul class="nerd-code-list">
+                    <li>Shift = Big Catch Points / 300</li>
+                    <li>EffectiveRoll = clamp(Roll + Shift, 0.0, 1.0)</li>
+                    <li>Percentile = Math.sin(EffectiveRoll * (π / 2))</li>
+                    <li>FinalWeight = MinW + ((MaxW - MinW) * Percentile)</li>
+                </ul>
+            </div>
+
+            <div class="nerd-section ceiling">
+                <strong data-i18n="nerds.s2_title">2. The "Ceiling Effect" (Negative Penalties)</strong>
+                <p data-i18n="nerds.s2_p1">Because the effective roll hard-caps at <code>1.0</code>, negative points make it mathematically impossible to reach the top of the curve.</p>
+                <p data-i18n="nerds.s2_p2">If you have <strong>-90 Big Catch</strong>, your maximum possible effective roll is <code>0.7</code> (1.0 - 0.3). <br>
+                <code>Math.sin(0.7 * (π / 2)) = 0.8910</code>.</p>
+                <p style="color: #ffca3a;"><em data-i18n="nerds.s2_p3">Conclusion: At -90 Big Catch, you can never catch a fish larger than <strong>89.10%</strong> of its true maximum size.</em></p>
+            </div>
+
+            <div class="nerd-section floor">
+                <strong data-i18n="nerds.s3_title">3. The "Floor Effect" (Positive Buffs)</strong>
+                <p data-i18n="nerds.s3_p1">Because the effective roll floor-caps at <code>0.0</code>, positive points make it mathematically impossible to reach the bottom of the curve.</p>
+                <p data-i18n="nerds.s3_p2">If you have <strong>+90 Big Catch</strong>, your minimum possible effective roll is <code>0.3</code> (0.0 + 0.3). <br>
+                <code>Math.sin(0.3 * (π / 2)) = 0.4539</code>.</p>
+                <p style="color: #ffca3a;"><em data-i18n="nerds.s3_p3">Conclusion: At +90 Big Catch, you can never catch a fish smaller than <strong>45.39%</strong> of its potential size range.</em></p>
+            </div>
+
+            <div class="nerd-section algebra">
+                <strong data-i18n="nerds.s4_title">4. Reverse-Algebra (Solving for True Stats)</strong>
+                <p data-i18n="nerds.s4_p1">You do not need to remove stats to find a fish's true values. By logging your extreme highs and lows, we can reverse the math for both the Ceiling and the Floor.</p>
+                
+                <div style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 15px; border-radius: 5px; line-height: 1.5; margin-top: 10px; overflow-x: auto; white-space: nowrap;">
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #8b949e;" data-i18n="nerds.s4_scen1_l1">// SCENARIO A: Solving Max Weight (Using a Negative Penalty)</span><br>
+                        <span style="color: #8b949e;" data-i18n="nerds.s4_scen1_l2">// Ex: Caught a 1.00kg max fish at -90 Penalty (Min is known 0.1kg)</span><br>
+                        1. MaxPercentile (-90) = 0.8910<br>
+                        2. TrueBaseMax = ((ObservedMax - BaseMin) / MaxPercentile) + BaseMin<br>
+                        <strong style="color: #00ffaa;">> ((1.00 - 0.1) / 0.8910) + 0.1 = 1.11kg (True Max)</strong>
+                    </div>
+                    <div>
+                        <span style="color: #8b949e;" data-i18n="nerds.s4_scen2_l1">// SCENARIO B: Solving Min Weight (Using a Positive Buff)</span><br>
+                        <span style="color: #8b949e;" data-i18n="nerds.s4_scen2_l2">// Ex: Caught a 0.56kg min fish at +90 Buff (Max is known 1.11kg)</span><br>
+                        1. MinPercentile (+90) = 0.4539<br>
+                        2. TrueBaseMin = (ObservedMin - (BaseMax * MinPercentile)) / (1 - MinPercentile)<br>
+                        <strong style="color: #00ffaa;">> (0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg (True Min)</strong>
                     </div>
                 </div>
             </div>
 
-        <div class="dashboard">
-            <div class="control-group">
-                <label data-i18n="matrix.search_filter">Matrix Search Filter</label>
-                <input type="text" id="searchInput" data-i18n-placeholder="matrix.search_placeholder" placeholder="Search by fish name or rarity..." autocomplete="off" style="width: 250px;">
+            <div class="nerd-section economy">
+                <strong data-i18n="nerds.s5_title">5. The Economy Engine (Solving True Prices)</strong>
+                <p data-i18n="nerds.s5_p1">The developer confirmed price scales linearly between <code>baseFloor</code> (at Min Weight) and <code>baseCeil</code> (at Max Weight). By catching a "Tiny" mutation (which forces weight to 0.0kg), we force the price equation to extrapolate backward, revealing the exact coin-value per kilogram.</p>
+                
+                <div style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 15px; border-radius: 5px; line-height: 1.5; margin-top: 10px; overflow-x: auto; white-space: nowrap;">
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #8b949e;" data-i18n="nerds.s5_scen1_l1">// SCENARIO: Caught a 0.0kg Tiny ($29 value) and a 0.1kg Normal ($31 value)</span><br>
+                        <span style="color: #8b949e;" data-i18n="nerds.s5_scen1_l2">// The fish has a known Base Max Weight of 0.5kg</span><br>
+                        1. Weight Difference = 0.1kg - 0.0kg = 0.1kg<br>
+                        2. Price Difference = $31 - $29 = $2<br>
+                        <span data-i18n="nerds.s5_scen1_l3">3. Scaling Rate = $2 / 0.1kg = </span><strong style="color: #ffca3a;" data-i18n="nerds.s5_scen1_l4">$20 per 1.0kg</strong>
+                    </div>
+                    <div>
+                        <span style="color: #8b949e;" data-i18n="nerds.s5_scen2_l1">// Solving True Base Floor (Price at known Min Weight: 0.1kg)</span><br>
+                        <strong style="color: #00ffaa;" data-i18n="nerds.s5_scen2_l2">> BaseFloor = $31</strong><br><br>
+                        <span style="color: #8b949e;" data-i18n="nerds.s5_scen2_l3">// Solving True Base Ceil (Price at known Max Weight: 0.5kg)</span><br>
+                        <span data-i18n="nerds.s5_scen2_l4">4. Remaining Weight to Max = 0.5kg - 0.1kg = 0.4kg</span><br>
+                        <span data-i18n="nerds.s5_scen2_l5">5. Max Weight Value = 0.4kg * $20 = $8</span><br>
+                        <strong style="color: #00ffaa;" data-i18n="nerds.s5_scen2_l6">> True Base Ceil = $31 (Floor) + $8 = $39</strong>
+                    </div>
+                </div>
             </div>
-            <div class="control-group">
-                <label data-i18n="matrix.mut_preview">Matrix Mutation Preview</label>
-                <select id="matrixMutSelect"></select>
-            </div>
-            <div class="control-group">
-                <label data-i18n="matrix.size_preview">Matrix Size Preview</label>
-                <select id="matrixSizeSelect"></select>
-            </div>
-        </div>
 
-        <div class="table-container">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th data-sort="name" data-i18n="matrix.col_name">Fish Name</th>
-                        <th data-sort="rarity" data-i18n="global.rarity">Rarity</th>
-                        <th data-sort="weight" data-i18n="matrix.col_weight">Weight Range</th>
-                        <th data-sort="price" data-i18n="matrix.col_price">Base Sell Range</th>
-                        <th data-sort="basexp" data-i18n="matrix.col_catchxp">Catch XP</th>
-                        <th data-sort="perfectxp" data-i18n="matrix.col_perfectxp">Perfect XP</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+            <div class="nerd-section hardware">
+                <strong data-i18n="nerds.s6_title">6. The Hardware Cap (Rod Weight Limits)</strong>
+                <p data-i18n="nerds.s6_p1">Every fishing rod in the game has a built-in <code>Max Weight</code> stat (e.g., the Stick and String caps at 5kg). This acts as a hard ceiling on what you can catch.</p>
+                <p style="color: #ff595e;" data-i18n="nerds.s6_p2"><em>DATA WARNING:</em> If a fish's natural calculated weight exceeds your rod's capacity, your data will be artificially flatlined. <strong>Always ensure your rod's Max Weight is significantly higher than the fish you are testing</strong>, or your reverse-algebra equations will be solving for the rod, not the fish!</p>
+            </div>
+
+            <div class="nerd-section mutation" style="margin-bottom: 20px;">
+                <strong data-i18n="nerds.s7_title">7. Mutation Mechanics (Tiny & Huge)</strong>
+                <p data-i18n="nerds.s7_p1">Mutations fundamentally alter the math engine. They do not use separate base stats.</p>
+                <ul class="nerd-code-list" style="margin-bottom: 10px;">
+                    <li data-i18n="nerds.s7_li1"><strong>Tiny:</strong> Forces the physical weight variable to exactly <code>0.0kg</code>. The price engine then extrapolates backward normally using the established Scaling Rate.</li>
+                    <li data-i18n="nerds.s7_li2"><strong>Huge:</strong> Multiplies the fish's <code>baseMinW</code> and <code>baseMaxW</code> by <strong>4x</strong>, and multiplies the <code>baseFloor</code> and <code>baseCeil</code> by <strong>2x</strong>. The Sine curve roll is then applied to these expanded brackets.</li>
+                </ul>
+            </div>
+
+            <div class="nerd-section" style="border-left: 3px solid #10b981; margin-bottom: 20px;">
+                <strong data-i18n="nerds.s8_title">8. The Luck Engine (Exponential Scaling)</strong>
+                <p data-i18n="nerds.s8_p1">Luck does not linearly add percentage points to your drops. It creates a global <code>Multiplier</code> that modifies each rarity's <code>BaseWeight</code> using an exponential <code>ScaleFactor</code>.</p>
+                <ul class="nerd-code-list">
+                    <li>LuckMult = Math.max(0.01, 1 + (TotalLuck / 100))</li>
+                    <li>EffectiveWeight = BaseWeight * Math.pow(LuckMult, ScaleFactor)</li>
+                    <li>SpawnChance = (EffectiveWeight / TotalPoolWeight) * 100</li>
+                </ul>
+                <p><strong data-i18n="nerds.s8_p2">The Scale Factors:</strong> <span data-i18n="nerds.s8_p2_desc">We mathematically triangulated the game's exact source exponents by anchoring them to 1,000 Luck developer constraints:</span></p>
+                <ul style="color: #c9d1d9; margin-top: 5px; line-height: 1.6;">
+                    <li data-i18n="nerds.s8_li1"><strong>Trash (Exponent -1.0):</strong> Forces spawn rate to drop &lt;1%.</li>
+                    <li data-i18n="nerds.s8_li2"><strong>Abundant (Exponent -1.2):</strong> Heaviest negative exponent makes it the "most nerfed" rarity.</li>
+                    <li data-i18n="nerds.s8_li3"><strong>Ultimate (Exponent +1.26):</strong> Exact factor required to hit 20x the base spawn rate.</li>
+                </ul>
+                <p style="color: #00ffaa; margin-top: 10px;"><em data-i18n="nerds.s8_p3">Because common fish have negative exponents, negative/cursed luck will mathematically buff common spawns while crushing rare spawns!</em></p>
+            </div>
+
+            <div class="nerd-section" style="border-left: 3px solid #00aaff; margin-bottom: 25px;">
+                <strong data-i18n="nerds.s9_title">9. Cycle Time & Expected Yields</strong>
+                <p data-i18n="nerds.s9_p1">To accurately forecast XP and expected catch yields per hour, the engine simulates an average "Cycle Time" consisting of three distinct phases:</p>
+                <ul class="nerd-code-list">
+                    <li data-i18n="nerds.s9_li1"><strong>Wait (Attraction):</strong> A Piecewise Linear Interpolation (Lerp) from 14.0s (0% Attraction) down to 0.0s (100% Attraction).</li>
+                    <li data-i18n="nerds.s9_li2"><strong>Reel Time:</strong> A dynamically weighted average based on the specific reel times of the current Luck Pool.</li>
+                    <li data-i18n="nerds.s9_li3"><strong>Cast Delay:</strong> A static 1.5s human/animation penalty applied to every cycle.</li>
+                    <br>
+                    <li>CycleTime = WaitTime + AvgReelTime + 1.5</li>
+                    <li>CatchesPerHour = 3600 / CycleTime</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">
+                <button id="closeNerdStatsModal" class="accent-btn" data-i18n="global.close_terminal">Close Terminal</button>
+            </div>
         </div>
     </div>
+    
+    <div id="creditsModal" class="modal">
+        <div class="modal-content" style="text-align: left; width: 650px; max-width: 90vw;">
+            <h3 style="text-align: center; color: var(--accent); margin-top: 0;" data-i18n="credits.header">Credits & Disclaimer</h3>
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--success); padding: 12px 15px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+                <p style="margin: 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5;">
+                    <strong style="color: var(--success);" data-i18n="credits.accuracy_title">Engine Accuracy:</strong> <span data-i18n="credits.accuracy_desc">The <strong>Luck Scaling</strong>, <strong>Big Catch Limits</strong>, and <strong>Economy Pricing</strong> algorithms in this tool have been mathematically triangulated to perfectly match explicit constraints and hints provided directly by the TrickForge Developers.</span> 
+                    <br><br>
+                    <span style="color: var(--warning);"><em data-i18n="credits.note_title">Note:</em></span> <span data-i18n="credits.note_desc">While the core physics engine is exact, community-sourced Database values (like specific fish weights) may still contain slight UI rounding errors.</span>
+                </p>
+            </div>
 
-		<div id="nerdStatsModal" class="modal">
-				<div class="modal-content nerd-modal-content">
-						<h3 class="nerd-header" data-i18n="nerds.header">> STATS_FOR_NERDS // Math Engine</h3>
-						
-						<p class="nerd-subtitle" data-i18n="nerds.subtitle">
-								For Spreadsheet Maintainers and Data Miners. The underlying physics and math of the Fish! engine.
-						</p>
+            <div style="margin-bottom: 15px;">
+                <strong style="color: var(--text-main);" data-i18n="credits.links_title">Official Fish! Links</strong>
+                <ul>
+                    <li><a href="https://vrchat.com/home/world/wrld_ae001ea3-ed05-42f0-adf2-3d47efd10a77/info" target="_blank" data-i18n="credits.link_vrc">VRChat World</a></li>
+                    <li><a href="https://discord.gg/TrickForge" target="_blank" data-i18n="credits.link_discord">TrickForge Discord</a></li>
+                    <li><a href="https://wikifish.net/" target="_blank" data-i18n="credits.link_wiki">WikiFish!</a></li>
+                </ul>
+            </div>
 
-						<div class="nerd-section core">
-								<strong data-i18n="nerds.s1_title">1. The Core Equation (Sine Curve)</strong>
-								<p data-i18n="nerds.s1_p1">The game does not use flat random numbers for weight. It rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a Sine wave.</p>
-								<ul class="nerd-code-list">
-										<li>Shift = Big Catch Points / 300</li>
-										<li>EffectiveRoll = clamp(Roll + Shift, 0.0, 1.0)</li>
-										<li>Percentile = Math.sin(EffectiveRoll * (π / 2))</li>
-										<li>FinalWeight = MinW + ((MaxW - MinW) * Percentile)</li>
-								</ul>
-						</div>
+            <div style="margin-bottom: 15px;">
+                <strong style="color: var(--text-main);" data-i18n="credits.devs_title">Developers of Fish!</strong>
+                <ul>
+                    <li><span class="credit-name">Gamerexde</span> <span class="credit-divider">-</span> <a href="https://github.com/Gamerexde" target="_blank">GitHub</a></li>
+                    <li><span class="credit-name">Godfall</span> <span class="credit-divider">-</span> <a href="https://godfall.club/" target="_blank" data-i18n="credits.club_website">Club Website</a></li>
+                    <li><span class="credit-name">KittehKun</span> <span class="credit-divider">-</span> <a href="https://github.com/KittehKun" target="_blank">GitHub</a></li>
+                    <li><span class="credit-name">Svenssko</span> <span class="credit-divider">-</span> <span class="composer-beat" data-i18n="credits.dev_music">Music & Audio Assets</span></li>
+                    <li><span class="credit-name">Zernovia</span> <span class="credit-divider">-</span> <span class="artist-3d" data-i18n="credits.dev_3d">3D Art & Models</span></li>
+                </ul>
+            </div>
 
-						<div class="nerd-section ceiling">
-								<strong data-i18n="nerds.s2_title">2. The "Ceiling Effect" (Negative Penalties)</strong>
-								<p data-i18n="nerds.s2_p1">Because the effective roll hard-caps at <code>1.0</code>, negative points make it mathematically impossible to reach the top of the curve.</p>
-								<p data-i18n="nerds.s2_p2">If you have <strong>-90 Big Catch</strong>, your maximum possible effective roll is <code>0.7</code> (1.0 - 0.3). <br>
-								<code>Math.sin(0.7 * (π / 2)) = 0.8910</code>.</p>
-								<p style="color: #ffca3a;"><em data-i18n="nerds.s2_p3">Conclusion: At -90 Big Catch, you can never catch a fish larger than <strong>89.10%</strong> of its true maximum size.</em></p>
-						</div>
+            <div style="margin-bottom: 25px;">
+                <strong style="color: var(--text-main);" data-i18n="credits.data_title">Data Sources & Community Effort</strong>
+                <ul>
+                    <li><span class="credit-task" data-i18n="credits.task_hints">Dev Hints & Math Verification</span> <span class="credit-divider">»</span> <span class="thanks-rainbow" data-i18n="credits.dev_team">The TrickForge Team</span></li>
+                    <li><span class="credit-task" data-i18n="credits.task_datasets">Giant Datasets (Luck Engine)</span> <span class="credit-divider">»</span> <span class="data-miner">Basutei, Mic Xiao, Queen_Cactoos</span></li>
+                    <li><span class="credit-task" data-i18n="credits.task_time">Time Tables (XP Calculator)</span> <span class="credit-divider">»</span> <span class="data-miner">m.max, Snerx</span></li>
+                    <li><span class="credit-task" data-i18n="credits.task_bugs">Bug Finders</span> <span class="credit-divider">»</span> <span class="bug-hunter">plebicide</span></li>
+                    <li><span class="credit-task" data-i18n="credits.task_primary">Primary Data (JP Community)</span> <span class="credit-divider">»</span> <a href="https://wikiwiki.jp/fish_jp/" target="_blank" data-i18n="credits.jp_wiki">Japanese Fish! Wiki</a></li>
+                    <li><span class="credit-task" data-i18n="credits.task_additional">Additional Data (Snerx)</span> <span class="credit-divider">»</span> <a href="https://docs.google.com/spreadsheets/d/1SAggImcqOJbcTP0owCrqv13Z71ZnXynYL64OB5I1CSY/edit?usp=sharing" target="_blank" data-i18n="credits.sheet1">Community Spreadsheet 1</a></li>
+                    <li><span class="credit-task" data-i18n="credits.task_other">Other Data (LucyferVC)</span> <span class="credit-divider">»</span> <a href="https://docs.google.com/spreadsheets/d/1oHP4smYbhtgh7vA6_wz_p0XWaKn52kKJIs7IVPCdcog/edit?usp=sharing" target="_blank" data-i18n="credits.sheet2">Community Spreadsheet 2</a></li>
+                </ul>
+            </div>
 
-						<div class="nerd-section floor">
-								<strong data-i18n="nerds.s3_title">3. The "Floor Effect" (Positive Buffs)</strong>
-								<p data-i18n="nerds.s3_p1">Because the effective roll floor-caps at <code>0.0</code>, positive points make it mathematically impossible to reach the bottom of the curve.</p>
-								<p data-i18n="nerds.s3_p2">If you have <strong>+90 Big Catch</strong>, your minimum possible effective roll is <code>0.3</code> (0.0 + 0.3). <br>
-								<code>Math.sin(0.3 * (π / 2)) = 0.4539</code>.</p>
-								<p style="color: #ffca3a;"><em data-i18n="nerds.s3_p3">Conclusion: At +90 Big Catch, you can never catch a fish smaller than <strong>45.39%</strong> of its potential size range.</em></p>
-						</div>
-
-						<div class="nerd-section algebra">
-								<strong data-i18n="nerds.s4_title">4. Reverse-Algebra (Solving for True Stats)</strong>
-								<p data-i18n="nerds.s4_p1">You do not need to remove stats to find a fish's true values. By logging your extreme highs and lows, we can reverse the math for both the Ceiling and the Floor.</p>
-								
-								<div style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 15px; border-radius: 5px; line-height: 1.5; margin-top: 10px; overflow-x: auto; white-space: nowrap;">
-										<div style="margin-bottom: 15px;">
-												<span style="color: #8b949e;" data-i18n="nerds.s4_scen1_l1">// SCENARIO A: Solving Max Weight (Using a Negative Penalty)</span><br>
-												<span style="color: #8b949e;" data-i18n="nerds.s4_scen1_l2">// Ex: Caught a 1.00kg max fish at -90 Penalty (Min is known 0.1kg)</span><br>
-												1. MaxPercentile (-90) = 0.8910<br>
-												2. TrueBaseMax = ((ObservedMax - BaseMin) / MaxPercentile) + BaseMin<br>
-												<strong style="color: #00ffaa;">> ((1.00 - 0.1) / 0.8910) + 0.1 = 1.11kg (True Max)</strong>
-										</div>
-										<div>
-												<span style="color: #8b949e;" data-i18n="nerds.s4_scen2_l1">// SCENARIO B: Solving Min Weight (Using a Positive Buff)</span><br>
-												<span style="color: #8b949e;" data-i18n="nerds.s4_scen2_l2">// Ex: Caught a 0.56kg min fish at +90 Buff (Max is known 1.11kg)</span><br>
-												1. MinPercentile (+90) = 0.4539<br>
-												2. TrueBaseMin = (ObservedMin - (BaseMax * MinPercentile)) / (1 - MinPercentile)<br>
-												<strong style="color: #00ffaa;">> (0.56 - (1.11 * 0.4539)) / (1 - 0.4539) = 0.10kg (True Min)</strong>
-										</div>
-								</div>
-						</div>
-
-						<div class="nerd-section economy">
-								<strong data-i18n="nerds.s5_title">5. The Economy Engine (Solving True Prices)</strong>
-								<p data-i18n="nerds.s5_p1">The developer confirmed price scales linearly between <code>baseFloor</code> (at Min Weight) and <code>baseCeil</code> (at Max Weight). By catching a "Tiny" mutation (which forces weight to 0.0kg), we force the price equation to extrapolate backward, revealing the exact coin-value per kilogram.</p>
-								
-								<div style="font-family: monospace; color: #a5d6ff; background: #0d1117; padding: 15px; border-radius: 5px; line-height: 1.5; margin-top: 10px; overflow-x: auto; white-space: nowrap;">
-										<div style="margin-bottom: 15px;">
-												<span style="color: #8b949e;" data-i18n="nerds.s5_scen1_l1">// SCENARIO: Caught a 0.0kg Tiny ($29 value) and a 0.1kg Normal ($31 value)</span><br>
-												<span style="color: #8b949e;" data-i18n="nerds.s5_scen1_l2">// The fish has a known Base Max Weight of 0.5kg</span><br>
-												1. Weight Difference = 0.1kg - 0.0kg = 0.1kg<br>
-												2. Price Difference = $31 - $29 = $2<br>
-												<span data-i18n="nerds.s5_scen1_l3">3. Scaling Rate = $2 / 0.1kg = </span><strong style="color: #ffca3a;" data-i18n="nerds.s5_scen1_l4">$20 per 1.0kg</strong>
-										</div>
-										<div>
-												<span style="color: #8b949e;" data-i18n="nerds.s5_scen2_l1">// Solving True Base Floor (Price at known Min Weight: 0.1kg)</span><br>
-												<strong style="color: #00ffaa;" data-i18n="nerds.s5_scen2_l2">> BaseFloor = $31</strong><br><br>
-												<span style="color: #8b949e;" data-i18n="nerds.s5_scen2_l3">// Solving True Base Ceil (Price at known Max Weight: 0.5kg)</span><br>
-												<span data-i18n="nerds.s5_scen2_l4">4. Remaining Weight to Max = 0.5kg - 0.1kg = 0.4kg</span><br>
-												<span data-i18n="nerds.s5_scen2_l5">5. Max Weight Value = 0.4kg * $20 = $8</span><br>
-												<strong style="color: #00ffaa;" data-i18n="nerds.s5_scen2_l6">> True Base Ceil = $31 (Floor) + $8 = $39</strong>
-										</div>
-								</div>
-						</div>
-
-						<div class="nerd-section hardware">
-								<strong data-i18n="nerds.s6_title">6. The Hardware Cap (Rod Weight Limits)</strong>
-								<p data-i18n="nerds.s6_p1">Every fishing rod in the game has a built-in <code>Max Weight</code> stat (e.g., the Stick and String caps at 5kg). This acts as a hard ceiling on what you can catch.</p>
-								<p style="color: #ff595e;" data-i18n="nerds.s6_p2"><em>DATA WARNING:</em> If a fish's natural calculated weight exceeds your rod's capacity, your data will be artificially flatlined. <strong>Always ensure your rod's Max Weight is significantly higher than the fish you are testing</strong>, or your reverse-algebra equations will be solving for the rod, not the fish!</p>
-						</div>
-
-						<div class="nerd-section mutation" style="margin-bottom: 20px;">
-								<strong data-i18n="nerds.s7_title">7. Mutation Mechanics (Tiny & Huge)</strong>
-								<p data-i18n="nerds.s7_p1">Mutations fundamentally alter the math engine. They do not use separate base stats.</p>
-								<ul class="nerd-code-list" style="margin-bottom: 10px;">
-										<li data-i18n="nerds.s7_li1"><strong>Tiny:</strong> Forces the physical weight variable to exactly <code>0.0kg</code>. The price engine then extrapolates backward normally using the established Scaling Rate.</li>
-										<li data-i18n="nerds.s7_li2"><strong>Huge:</strong> Multiplies the fish's <code>baseMinW</code> and <code>baseMaxW</code> by <strong>4x</strong>, and multiplies the <code>baseFloor</code> and <code>baseCeil</code> by <strong>2x</strong>. The Sine curve roll is then applied to these expanded brackets.</li>
-								</ul>
-						</div>
-
-						<div class="nerd-section" style="border-left: 3px solid #10b981; margin-bottom: 20px;">
-								<strong data-i18n="nerds.s8_title">8. The Luck Engine (Exponential Scaling)</strong>
-								<p data-i18n="nerds.s8_p1">Luck does not linearly add percentage points to your drops. It creates a global <code>Multiplier</code> that modifies each rarity's <code>BaseWeight</code> using an exponential <code>ScaleFactor</code>.</p>
-								<ul class="nerd-code-list">
-										<li>LuckMult = Math.max(0.01, 1 + (TotalLuck / 100))</li>
-										<li>EffectiveWeight = BaseWeight * Math.pow(LuckMult, ScaleFactor)</li>
-										<li>SpawnChance = (EffectiveWeight / TotalPoolWeight) * 100</li>
-								</ul>
-								<p><strong data-i18n="nerds.s8_p2">The Scale Factors:</strong> <span data-i18n="nerds.s8_p2_desc">We mathematically triangulated the game's exact source exponents by anchoring them to 1,000 Luck developer constraints:</span></p>
-								<ul style="color: #c9d1d9; margin-top: 5px; line-height: 1.6;">
-										<li data-i18n="nerds.s8_li1"><strong>Trash (Exponent -1.0):</strong> Forces spawn rate to drop &lt;1%.</li>
-										<li data-i18n="nerds.s8_li2"><strong>Abundant (Exponent -1.2):</strong> Heaviest negative exponent makes it the "most nerfed" rarity.</li>
-										<li data-i18n="nerds.s8_li3"><strong>Ultimate (Exponent +1.26):</strong> Exact factor required to hit 20x the base spawn rate.</li>
-								</ul>
-								<p style="color: #00ffaa; margin-top: 10px;"><em data-i18n="nerds.s8_p3">Because common fish have negative exponents, negative/cursed luck will mathematically buff common spawns while crushing rare spawns!</em></p>
-						</div>
-
-						<div class="nerd-section" style="border-left: 3px solid #00aaff; margin-bottom: 25px;">
-								<strong data-i18n="nerds.s9_title">9. Cycle Time & Expected Yields</strong>
-								<p data-i18n="nerds.s9_p1">To accurately forecast XP and expected catch yields per hour, the engine simulates an average "Cycle Time" consisting of three distinct phases:</p>
-								<ul class="nerd-code-list">
-										<li data-i18n="nerds.s9_li1"><strong>Wait (Attraction):</strong> A Piecewise Linear Interpolation (Lerp) from 14.0s (0% Attraction) down to 0.0s (100% Attraction).</li>
-										<li data-i18n="nerds.s9_li2"><strong>Reel Time:</strong> A dynamically weighted average based on the specific reel times of the current Luck Pool.</li>
-										<li data-i18n="nerds.s9_li3"><strong>Cast Delay:</strong> A static 1.5s human/animation penalty applied to every cycle.</li>
-										<br>
-										<li>CycleTime = WaitTime + AvgReelTime + 1.5</li>
-										<li>CatchesPerHour = 3600 / CycleTime</li>
-								</ul>
-						</div>
-
-						<div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">
-								<button id="closeNerdStatsModal" class="accent-btn" data-i18n="global.close_terminal">Close Terminal</button>
-						</div>
-				</div>
-		</div>
-		
-		<div id="creditsModal" class="modal">
-				<div class="modal-content" style="text-align: left; width: 650px; max-width: 90vw;">
-						<h3 style="text-align: center; color: var(--accent); margin-top: 0;" data-i18n="credits.header">Credits & Disclaimer</h3>
-						
-						<div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--success); padding: 12px 15px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
-								<p style="margin: 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5;">
-										<strong style="color: var(--success);" data-i18n="credits.accuracy_title">Engine Accuracy:</strong> <span data-i18n="credits.accuracy_desc">The <strong>Luck Scaling</strong>, <strong>Big Catch Limits</strong>, and <strong>Economy Pricing</strong> algorithms in this tool have been mathematically triangulated to perfectly match explicit constraints and hints provided directly by the TrickForge Developers.</span> 
-										<br><br>
-										<span style="color: var(--warning);"><em data-i18n="credits.note_title">Note:</em></span> <span data-i18n="credits.note_desc">While the core physics engine is exact, community-sourced Database values (like specific fish weights) may still contain slight UI rounding errors.</span>
-								</p>
-						</div>
-
-						<div style="margin-bottom: 15px;">
-								<strong style="color: var(--text-main);" data-i18n="credits.links_title">Official Fish! Links</strong>
-								<ul>
-										<li><a href="https://vrchat.com/home/world/wrld_ae001ea3-ed05-42f0-adf2-3d47efd10a77/info" target="_blank" data-i18n="credits.link_vrc">VRChat World</a></li>
-										<li><a href="https://discord.gg/TrickForge" target="_blank" data-i18n="credits.link_discord">TrickForge Discord</a></li>
-										<li><a href="https://wikifish.net/" target="_blank" data-i18n="credits.link_wiki">WikiFish!</a></li>
-								</ul>
-						</div>
-
-						<div style="margin-bottom: 15px;">
-								<strong style="color: var(--text-main);" data-i18n="credits.devs_title">Developers of Fish!</strong>
-								<ul>
-										<li><span class="credit-name">Gamerexde</span> <span class="credit-divider">-</span> <a href="https://github.com/Gamerexde" target="_blank">GitHub</a></li>
-										<li><span class="credit-name">Godfall</span> <span class="credit-divider">-</span> <a href="https://godfall.club/" target="_blank" data-i18n="credits.club_website">Club Website</a></li>
-										<li><span class="credit-name">KittehKun</span> <span class="credit-divider">-</span> <a href="https://github.com/KittehKun" target="_blank">GitHub</a></li>
-										<li><span class="credit-name">Svenssko</span> <span class="credit-divider">-</span> <span class="composer-beat" data-i18n="credits.dev_music">Music & Audio Assets</span></li>
-										<li><span class="credit-name">Zernovia</span> <span class="credit-divider">-</span> <span class="artist-3d" data-i18n="credits.dev_3d">3D Art & Models</span></li>
-								</ul>
-						</div>
-
-						<div style="margin-bottom: 25px;">
-								<strong style="color: var(--text-main);" data-i18n="credits.data_title">Data Sources & Community Effort</strong>
-								<ul>
-										<li><span class="credit-task" data-i18n="credits.task_hints">Dev Hints & Math Verification</span> <span class="credit-divider">»</span> <span class="thanks-rainbow" data-i18n="credits.dev_team">The TrickForge Team</span></li>
-										<li><span class="credit-task" data-i18n="credits.task_datasets">Giant Datasets (Luck Engine)</span> <span class="credit-divider">»</span> <span class="data-miner">Basutei, Mic Xiao, Queen_Cactoos</span></li>
-										<li><span class="credit-task" data-i18n="credits.task_time">Time Tables (XP Calculator)</span> <span class="credit-divider">»</span> <span class="data-miner">m.max, Snerx</span></li>
-										<li><span class="credit-task" data-i18n="credits.task_bugs">Bug Finders</span> <span class="credit-divider">»</span> <span class="bug-hunter">plebicide</span></li>
-										<li><span class="credit-task" data-i18n="credits.task_primary">Primary Data (JP Community)</span> <span class="credit-divider">»</span> <a href="https://wikiwiki.jp/fish_jp/" target="_blank" data-i18n="credits.jp_wiki">Japanese Fish! Wiki</a></li>
-										<li><span class="credit-task" data-i18n="credits.task_additional">Additional Data (Snerx)</span> <span class="credit-divider">»</span> <a href="https://docs.google.com/spreadsheets/d/1SAggImcqOJbcTP0owCrqv13Z71ZnXynYL64OB5I1CSY/edit?usp=sharing" target="_blank" data-i18n="credits.sheet1">Community Spreadsheet 1</a></li>
-										<li><span class="credit-task" data-i18n="credits.task_other">Other Data (LucyferVC)</span> <span class="credit-divider">»</span> <a href="https://docs.google.com/spreadsheets/d/1oHP4smYbhtgh7vA6_wz_p0XWaKn52kKJIs7IVPCdcog/edit?usp=sharing" target="_blank" data-i18n="credits.sheet2">Community Spreadsheet 2</a></li>
-								</ul>
-						</div>
-
-						<div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">
-								<button id="closeCreditsModal" class="accent-btn" data-i18n="global.close_window">Close Window</button>
-						</div>
-				</div>
-		</div>
-		
+            <div style="text-align: center; border-top: 1px solid var(--border); padding-top: 15px;">
+                <button id="closeCreditsModal" class="accent-btn" data-i18n="global.close_window">Close Window</button>
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>

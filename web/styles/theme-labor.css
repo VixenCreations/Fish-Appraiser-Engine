@@ -1,0 +1,29 @@
+:root {
+    --bg-base: #171717; --bg-panel: #262626; --bg-hover: #404040;
+    --text-main: #f4f4f5; --text-muted: #a1a1aa;
+    --accent: #facc15; --border: #52525b;
+    --success: #4ade80; --warning: #fb923c; --xp-color: #38bdf8;
+    --panel-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+.app-main, .tools-main { background: radial-gradient(circle at 50% 0%, #2f2f31 0%, var(--bg-base) 80%) !important; }
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
+    background-color: var(--bg-panel) !important; border-radius: 2px !important; border: 1px solid #000 !important; border-top: 4px dashed var(--accent) !important; box-shadow: var(--panel-shadow) !important;
+}
+.tools-sidebar { background-color: var(--bg-panel) !important; }
+input, select, .matrix-input, .matrix-select { background-color: #000 !important; color: var(--accent) !important; border: 1px solid var(--border) !important; border-radius: 2px !important; font-family: monospace !important; font-weight: bold !important; }
+option { background-color: #000; color: var(--accent); }
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus { border-color: var(--accent) !important; box-shadow: none !important; }
+.action-btn, .secondary-btn, .accent-btn { border-radius: 2px !important; font-family: monospace !important; text-transform: uppercase;}
+th { background: repeating-linear-gradient(45deg, #facc15, #facc15 10px, #ca8a04 10px, #ca8a04 20px) !important; color: #000 !important; border-bottom: 2px solid #000 !important; font-weight: 900;}
+.output-console, .calc-output, .diff-container, code, .nerd-code-list { background-color: #000 !important; color: var(--text-main) !important; border-color: var(--border) !important; border-radius: 2px !important;}
+.nerd-modal-content { background-color: var(--bg-base) !important; border: 2px solid var(--border) !important; border-top: 6px dashed var(--accent) !important; border-radius: 2px !important;}
+.nerd-section, .nerd-section p { color: var(--text-main) !important; } .nerd-section strong { color: var(--accent) !important; }
+.nerd-subtitle, .math-step, .diff-label, .section-desc { color: var(--text-muted) !important; border-bottom-color: var(--border) !important; }
+h1 { color: var(--accent); text-transform: uppercase;} h1::after { content: " ⚙️🏗️"; } h3.section-title::before { content: "🔧 "; }
+.nerd-header::before { content: "🚧 "; } .secondary-btn::after { content: " 👷"; }
+.output-price { color: var(--text-main); }
+.dev-rainbow, .data-miner, .thanks-rainbow { background: linear-gradient(90deg, #facc15, #fff, #facc15); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: devRainbowScroll 2s linear infinite; }
+.external-links a { background-color: var(--text-main); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+.external-links a:hover { background-color: var(--accent); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+.external-links img { opacity: 1 !important; filter: brightness(0) invert(1) !important; width: 24px !important; height: auto !important; }
+.external-links img:hover { transform: none !important; }

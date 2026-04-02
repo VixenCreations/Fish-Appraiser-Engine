@@ -5,120 +5,288 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="head.title">Fish! Appraiser // Data Miner Tools</title>
     
-    <link rel="stylesheet" href="/tools.css">
+    <link rel="stylesheet" href="/styles/global.css">
 
-    <script>
+		<script>
         (function() {
-            // Get the user's local date
-            const today = new Date();
-            const month = today.getMonth() + 1; // JS months are 0-indexed (Jan = 0)
-            const day = today.getDate();
+            // 1. Get user preference (default to 'auto' if first time)
+            const savedTheme = localStorage.getItem('fishAppTheme') || 'auto';
+            let themeToLoad = null;
 
-            // Define your active holiday dates
-            const isAprilFools = (month === 4 && day === 1);
-
-            // If today matches a holiday constraint, inject the CSS
-            if (isAprilFools) {
-                const holidayCSS = document.createElement('link');
-                holidayCSS.rel = 'stylesheet';
-                holidayCSS.href = '/toolsHoliday.css'; 
+            // 2. If Auto, calculate holiday
+            if (savedTheme === 'auto') {
+                const today = new Date();
+                const y = today.getFullYear(), m = today.getMonth() + 1, d = today.getDate(), dw = today.getDay();
                 
-                // Append it to the head so it overrides the base tools.css
-                document.head.appendChild(holidayCSS);
-                console.log("[THEME] 🐶🧀 April Fools tools override injected!");
+                const isNthDay = (tm, tdw, n) => {
+                    if (m !== tm || dw !== tdw) return false;
+                    if (n === 'last') {
+                        const nw = new Date(today); nw.setDate(d + 7); return nw.getMonth() !== today.getMonth();
+                    }
+                    return Math.ceil(d / 7) === n;
+                };
+
+                // LUNAR EASTER CALCULATION (Meeus/Jones/Butcher algorithm)
+                const a = y % 19, b = Math.floor(y / 100), c = y % 100, eD = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - eD - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, eM = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * eM + 114;
+                const easterMonth = Math.floor(n / 31);
+                const easterDay = (n % 31) + 1;
+
+                // Fixed Dates
+                if      (m === 1 && d === 1)   themeToLoad = "theme-newyear.css";
+                else if (m === 2 && d === 14)  themeToLoad = "theme-valentine.css";
+                else if (m === 3 && d === 17)  themeToLoad = "theme-stpatricks.css";
+                else if (m === 4 && d === 1)   themeToLoad = "theme-aprilfools.css";
+                else if (m === 7 && d === 4)   themeToLoad = "theme-july4.css";
+                else if (m === 10 && d === 31) themeToLoad = "theme-halloween.css";
+                else if (m === 11 && d === 11) themeToLoad = "theme-veterans.css";
+                else if (m === 12 && d === 25) themeToLoad = "theme-christmas.css";
+                else if (m === 12 && d === 31) themeToLoad = "theme-newyear.css";
+                // Dynamic & Lunar Dates
+                else if (m === easterMonth && d === easterDay) themeToLoad = "theme-easter.css";
+                else if (isNthDay(1, 1, 3))       themeToLoad = "theme-mlk.css";
+                else if (isNthDay(2, 1, 3))       themeToLoad = "theme-presidents.css";
+                else if (isNthDay(5, 0, 2))       themeToLoad = "theme-mothers.css";
+                else if (isNthDay(5, 1, 'last'))  themeToLoad = "theme-memorial.css";
+                else if (isNthDay(6, 0, 3))       themeToLoad = "theme-fathers.css";
+                else if (isNthDay(9, 1, 1))       themeToLoad = "theme-labor.css";
+                else if (isNthDay(11, 4, 4))      themeToLoad = "theme-thanksgiving.css";
+            } 
+            // 3. If a specific theme is chosen (and it's not the base 'default')
+            else if (savedTheme !== 'default') {
+                themeToLoad = savedTheme;
+            }
+
+            // 4. Inject the CSS file
+            if (themeToLoad) {
+                const link = document.createElement('link');
+                link.id = 'dynamicThemeCSS';
+                link.rel = 'stylesheet';
+                link.href = `/styles/${themeToLoad}`;
+                document.head.appendChild(link);
             }
         })();
     </script>
+		
 </head>
 <body>
 
-    <div class="terminal-container">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <a href="/" class="nav-link" data-i18n="nav.return">< RETURN_TO_APPRAISER</a>
-            
-            <!-- LANGUAGE SWITCHER FOR TOOLS -->
-            <select id="langSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: #00ffaa; border-color: #00ffaa; margin-top: 0;">
-                <option value="en">English (EN)</option>
-                <option value="jp">日本語 (JP)</option>
-            </select>
-        </div>
-        
-        <h2 class="nerd-header" data-i18n="header.title">> FISH! VALIDATOR TOOLSET</h2>
-        <p class="nerd-subtitle" data-i18n="header.subtitle">Input two separate catches to decode the source Economy integers.</p>
+    <div class="tools-layout">
+        <aside id="sidebar" class="tools-sidebar">
+            <div class="sidebar-header">
+                <button id="toggleSidebar" class="sidebar-toggle" title="Toggle Sidebar">☰</button>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-target="view-validator">
+                    <span class="nav-icon">▤</span> 
+                    <span class="nav-text" data-i18n="nav.validator">Validator</span>
+                </button>
+                <button class="nav-btn" data-target="view-editor">
+                    <span class="nav-icon">⚙</span> 
+                    <span class="nav-text" data-i18n="nav.editor">Data Editor</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/" class="return-link" data-i18n="nav.return">< APPRAISER</a>
+            </div>
+        </aside>
 
-        <div class="nerd-section selector">
-            <strong data-i18n="sec1.title">1. Target & Hardware</strong>
-            <p class="section-desc" data-i18n="sec1.desc">Select species to load DB baselines and input your rod's Big Catch stat.</p>
-            <div class="input-row">
-                <div class="input-group species-select">
-                    <label class="input-label" data-i18n="sec1.species_label">Species (Loads DB Baseline)</label>
-                    <select id="fishSelector" class="matrix-select">
-                        <option value="" data-i18n="sec1.loading_db">[ LOADING DATABASE... ]</option>
+        <main class="tools-main">
+            <div class="terminal-container">
+								<div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 10px;">
+                    <select id="themeSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: #a855f7; border-color: #a855f7; margin-top: 0;">
+												<option value="auto" data-i18n="theme.auto">Auto (Holiday)</option>
+                        <option value="default" data-i18n="theme.default">Default (Midnight)</option>
+                        <option value="theme-newyear.css" data-i18n="theme.newyear">New Year</option>
+                        <option value="theme-mlk.css" data-i18n="theme.mlk">MLK Jr. Day</option>
+                        <option value="theme-valentine.css" data-i18n="theme.valentine">Valentine's</option>
+                        <option value="theme-presidents.css" data-i18n="theme.presidents">Presidents' Day</option>
+                        <option value="theme-stpatricks.css" data-i18n="theme.stpatricks">St. Patrick's</option>
+                        <option value="theme-aprilfools.css" data-i18n="theme.aprilfools">April Fools</option>
+                        <option value="theme-easter.css" data-i18n="theme.easter">Easter</option>
+                        <option value="theme-mothers.css" data-i18n="theme.mothers">Mother's Day</option>
+                        <option value="theme-memorial.css" data-i18n="theme.memorial">Memorial Day</option>
+                        <option value="theme-fathers.css" data-i18n="theme.fathers">Father's Day</option>
+                        <option value="theme-july4.css" data-i18n="theme.july4">Patriotic</option>
+                        <option value="theme-labor.css" data-i18n="theme.labor">Labor Day</option>
+                        <option value="theme-halloween.css" data-i18n="theme.halloween">Halloween</option>
+                        <option value="theme-veterans.css" data-i18n="theme.veterans">Veterans Day</option>
+                        <option value="theme-thanksgiving.css" data-i18n="theme.thanksgiving">Thanksgiving</option>
+                        <option value="theme-christmas.css" data-i18n="theme.christmas">WinterFest</option>
+                    </select>
+                    <select id="langSwitch" class="matrix-select" style="padding: 8px 12px; font-weight: bold; width: auto; color: #00ffaa; border-color: #00ffaa; margin-top: 0;">
+                        <option value="en">English (EN)</option>
+                        <option value="jp">日本語 (JP)</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label class="input-label" data-i18n="sec1.rod_label">Rod Big Catch (+/-)</label>
-                    <input type="number" id="rodBC" class="matrix-input" value="0">
-                </div>
-            </div>
-            <div id="activeFishStats"></div>
-        </div>
+								
+                <div id="view-validator" class="tool-view active">
+                    <h2 class="nerd-header" data-i18n="header.title">> FISH! VALIDATOR TOOLSET</h2>
+                    <p class="nerd-subtitle" data-i18n="header.subtitle">Input two separate catches to decode the source Economy integers.</p>
 
-        <div class="nerd-section inputs">
-            <strong data-i18n="sec2.title">2. Data Stripping Matrix</strong>
-            <p class="section-desc" data-i18n="sec2.desc">Enter raw screen values. The engine will strip multipliers automatically.</p>
-            
-            <div class="catch-block">
-                <strong class="catch-header-a" data-i18n="sec2.catch_a">// CATCH A (Lightest Observed)</strong>
-                <div class="input-row-multi">
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.weight">Weight</label>
-                        <input type="number" id="wA" class="matrix-input" data-i18n-placeholder="global.placeholder_weight" placeholder="0.00" step="any">
+                    <div class="nerd-section selector">
+                        <strong data-i18n="sec1.title">1. Target & Hardware</strong>
+                        <p class="section-desc" data-i18n="sec1.desc">Select species to load DB baselines and input your rod's Big Catch stat.</p>
+                        <div class="input-row">
+                            <div class="input-group species-select">
+                                <label class="input-label" data-i18n="sec1.species_label">Species (Loads DB Baseline)</label>
+                                <select id="fishSelector" class="matrix-select">
+                                    <option value="" data-i18n="sec1.loading_db">[ LOADING DATABASE... ]</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label" data-i18n="sec1.rod_label">Rod Big Catch (+/-)</label>
+                                <input type="number" id="rodBC" class="matrix-input" value="0">
+                            </div>
+                        </div>
+                        <div id="activeFishStats"></div>
                     </div>
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.coins">Coins</label>
-                        <input type="number" id="pA" class="matrix-input" data-i18n-placeholder="global.placeholder_coins" placeholder="0" step="any">
+
+                    <div class="nerd-section inputs">
+                        <strong data-i18n="sec2.title">2. Data Stripping Matrix</strong>
+                        <p class="section-desc" data-i18n="sec2.desc">Enter raw screen values. The engine will strip multipliers automatically.</p>
+                        
+                        <div class="catch-block">
+                            <strong class="catch-header-a" data-i18n="sec2.catch_a">// CATCH A (Lightest Observed)</strong>
+                            <div class="input-row-multi">
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.weight">Weight</label>
+                                    <input type="number" id="wA" class="matrix-input" data-i18n-placeholder="global.placeholder_weight" placeholder="0.00" step="any">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.coins">Coins</label>
+                                    <input type="number" id="pA" class="matrix-input" data-i18n-placeholder="global.placeholder_coins" placeholder="0" step="any">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.mutation">Mutation</label>
+                                    <select id="mutA" class="matrix-select"></select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.variant">Variant</label>
+                                    <select id="sizeA" class="matrix-select"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="catch-block no-border">
+                            <strong class="catch-header-b" data-i18n="sec2.catch_b">// CATCH B (Heaviest Observed)</strong>
+                            <div class="input-row-multi">
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.weight">Weight</label>
+                                    <input type="number" id="wB" class="matrix-input" data-i18n-placeholder="global.placeholder_weight" placeholder="0.00" step="any">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.coins">Coins</label>
+                                    <input type="number" id="pB" class="matrix-input" data-i18n-placeholder="global.placeholder_coins" placeholder="0" step="any">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.mutation">Mutation</label>
+                                    <select id="mutB" class="matrix-select"></select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" data-i18n="global.variant">Variant</label>
+                                    <select id="sizeB" class="matrix-select"></select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.mutation">Mutation</label>
-                        <select id="mutA" class="matrix-select"></select>
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.variant">Variant</label>
-                        <select id="sizeA" class="matrix-select"></select>
+
+                    <div class="nerd-section output">
+                        <strong data-i18n="sec3.title">3. Source Engine Compilation</strong>
+                        <div id="dmOutput" class="output-console">
+                            <span class="math-step" data-i18n="sec3.awaiting">> Awaiting valid target and data variables...</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="catch-block no-border">
-                <strong class="catch-header-b" data-i18n="sec2.catch_b">// CATCH B (Heaviest Observed)</strong>
-                <div class="input-row-multi">
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.weight">Weight</label>
-                        <input type="number" id="wB" class="matrix-input" data-i18n-placeholder="global.placeholder_weight" placeholder="0.00" step="any">
+                <div id="view-editor" class="tool-view" style="display: none;">
+                    <h2 class="nerd-header" style="color: #a855f7;" data-i18n="editor.title">> DATA EDITOR</h2>
+                    <p class="nerd-subtitle" data-i18n="editor.subtitle">Modify core database limits and export the compiled JSON.</p>
+
+                    <div class="nerd-section" style="border-left: 3px solid #00ffaa;">
+                        <strong data-i18n="editor.sec1_title">Active Entity</strong>
+                        <div class="input-row">
+                            <div class="input-group species-select">
+                                <select id="editorFishSelect" class="matrix-select">
+                                    <option value="">[ LOADING DATABASE... ]</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="flex: 0.5;">
+                                <button id="btnNewFish" class="action-btn outline" data-i18n="editor.btn_new">+ New Entry</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.coins">Coins</label>
-                        <input type="number" id="pB" class="matrix-input" data-i18n-placeholder="global.placeholder_coins" placeholder="0" step="any">
+
+                    <div class="nerd-section inputs" id="editorForm" style="opacity: 0.5; pointer-events: none; transition: 0.2s;">
+                        <strong data-i18n="editor.sec2_title">Entity Parameters</strong>
+                        
+                        <div class="input-row-multi" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="input-group">
+                                <label class="input-label">ID (System Key)</label>
+                                <input type="text" id="edId" class="matrix-input">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Display Name</label>
+                                <input type="text" id="edName" class="matrix-input">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Rarity Tier</label>
+                                <select id="edRarity" class="matrix-select">
+                                    <option value="Trash">Trash</option>
+                                    <option value="Abundant">Abundant</option>
+                                    <option value="Common">Common</option>
+                                    <option value="Curious">Curious</option>
+                                    <option value="Elusive">Elusive</option>
+                                    <option value="Relic">Relic</option>
+                                    <option value="Fabled">Fabled</option>
+                                    <option value="Mythic">Mythic</option>
+                                    <option value="Exotic">Exotic</option>
+                                    <option value="Secret">Secret</option>
+                                    <option value="Ultimate Secret">Ultimate Secret</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-row-multi" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-top: 20px;">
+                            <div class="input-group">
+                                <label class="input-label">Base Min Weight (kg)</label>
+                                <input type="number" id="edMinW" class="matrix-input" step="any">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Base Max Weight (kg)</label>
+                                <input type="number" id="edMaxW" class="matrix-input" step="any">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Base Floor ($)</label>
+                                <input type="number" id="edFloor" class="matrix-input">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Base Ceiling ($)</label>
+                                <input type="number" id="edCeil" class="matrix-input">
+                            </div>
+                        </div>
+
+                        <div class="input-row-multi" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                            <div class="input-group">
+                                <label class="input-label">Catch XP</label>
+                                <input type="number" id="edXp" class="matrix-input">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Perfect XP</label>
+                                <input type="number" id="edPerfXp" class="matrix-input">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: flex-end; border-top: 1px dashed #1e2633; padding-top: 20px;">
+                            <span id="saveStatus" style="align-self: center; color: #10b981; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">Session Updated!</span>
+                            <button id="btnSaveSession" class="action-btn" data-i18n="editor.btn_save">Save to Session</button>
+                            <button id="btnExportJSON" class="action-btn outline highlight" data-i18n="editor.btn_export">Export fish_data.json</button>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.mutation">Mutation</label>
-                        <select id="mutB" class="matrix-select"></select>
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label" data-i18n="global.variant">Variant</label>
-                        <select id="sizeB" class="matrix-select"></select>
-                    </div>
+
                 </div>
-            </div>
-        </div>
 
-        <div class="nerd-section output">
-            <strong data-i18n="sec3.title">3. Source Engine Compilation</strong>
-            <div id="dmOutput" class="output-console">
-                <span class="math-step" data-i18n="sec3.awaiting">> Awaiting valid target and data variables...</span>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="/tools.js"></script>

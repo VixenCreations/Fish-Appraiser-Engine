@@ -3,11 +3,22 @@
         "title": "Fish! Appraiser // データマイニングツール"
     },
     "nav": {
+        "validator": "検証ツール",
+        "editor": "データエディター",
         "return": "< 鑑定ツールに戻る"
     },
     "header": {
         "title": "> FISH! 検証ツールセット",
         "subtitle": "2つの異なる釣果を入力して、ソースの経済設定 (整数) をデコードします。"
+    },
+    "editor": {
+        "title": "> ペイロードエディター",
+        "subtitle": "データベースのコア制限を変更し、コンパイル済みのJSONをエクスポートします。",
+        "sec1_title": "アクティブエンティティ",
+        "btn_new": "+ 新規作成",
+        "sec2_title": "エンティティのパラメータ",
+        "btn_save": "セッションに保存",
+        "btn_export": "fish_data.jsonをエクスポート"
     },
     "global": {
         "weight": "重量",
@@ -16,6 +27,26 @@
         "placeholder_coins": "0",
         "mutation": "変異",
         "variant": "バリアント"
+    },
+		"theme": {
+        "auto": "自動 (休日)",
+        "default": "デフォルト (ミッドナイト)",
+        "newyear": "新年",
+        "mlk": "キング牧師記念日",
+        "valentine": "バレンタイン",
+        "presidents": "大統領の日",
+        "stpatricks": "セントパトリックス",
+        "aprilfools": "エイプリルフール",
+        "easter": "イースター",
+        "mothers": "母の日",
+        "memorial": "メモリアルデー",
+        "fathers": "父の日",
+        "july4": "独立記念日",
+        "labor": "レイバーデー",
+        "halloween": "ハロウィン",
+        "veterans": "退役軍人の日",
+        "thanksgiving": "感謝祭",
+        "christmas": "ウィンターフェスト"
     },
     "sec1": {
         "title": "1. ターゲットとハードウェア",

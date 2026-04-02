@@ -1,0 +1,29 @@
+:root {
+    --bg-base: #082f49; --bg-panel: rgba(12, 74, 110, 0.7); --bg-hover: #0369a1;
+    --text-main: #f0f9ff; --text-muted: #bae6fd;
+    --accent: #ef4444; --border: #38bdf8;
+    --success: #10b981; --warning: #fbbf24; --xp-color: #34d399;
+    --panel-shadow: 0 10px 30px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255,255,255,0.2);
+}
+.app-main, .tools-main { background: radial-gradient(circle at 50% 0%, #075985 0%, var(--bg-base) 80%) !important; }
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
+    background-color: var(--bg-panel) !important; backdrop-filter: blur(10px); border-radius: 15px !important; border: 2px solid rgba(255,255,255,0.5) !important; box-shadow: var(--panel-shadow) !important;
+}
+.tools-sidebar { background-color: #0c4a6e !important; }
+input, select, .matrix-input, .matrix-select { background-color: rgba(255,255,255,0.1) !important; color: var(--text-main) !important; border: 1px solid var(--border) !important; border-radius: 20px !important; font-weight: bold !important; backdrop-filter: blur(5px);}
+option { background-color: #082f49; color: var(--text-main); }
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus { border-color: var(--text-main) !important; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important; }
+.action-btn, .secondary-btn, .accent-btn { border-radius: 20px !important; font-weight: bold !important; }
+th { background: repeating-linear-gradient(45deg, #ef4444, #ef4444 10px, #ffffff 10px, #ffffff 20px) !important; color: #000 !important; text-shadow: 1px 1px 0px #fff; border-bottom: 2px solid var(--border) !important; font-weight: 900;}
+.output-console, .calc-output, .diff-container, code, .nerd-code-list { background-color: rgba(255,255,255,0.1) !important; color: var(--text-main) !important; border-color: rgba(255,255,255,0.5) !important; border-radius: 15px !important;}
+.nerd-modal-content { background-color: #0c4a6e !important; border-color: rgba(255,255,255,0.8) !important; border-radius: 15px !important;}
+.nerd-section, .nerd-section p { color: var(--text-main) !important; } .nerd-section strong { color: #fff !important; text-shadow: 0 0 5px #fff;}
+.nerd-subtitle, .math-step, .diff-label, .section-desc { color: var(--text-muted) !important; border-bottom-color: var(--border) !important; }
+h1 { color: #fff; text-shadow: 0 0 15px #fff; } h1::after { content: " 🎄❄️"; } h3.section-title::before { content: "🎁 "; }
+.nerd-header::before { content: "⛄ "; } .secondary-btn::after { content: " 🧣"; }
+.output-price { color: #fff; text-shadow: 0 0 20px #38bdf8; }
+.dev-rainbow, .data-miner, .thanks-rainbow { background: linear-gradient(90deg, #ef4444, #fff, #10b981, #ef4444); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: devRainbowScroll 2s linear infinite; }
+.external-links a { background-color: var(--text-main); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+.external-links a:hover { background-color: var(--accent); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+.external-links img { opacity: 1 !important; filter: brightness(0) invert(1) !important; width: 24px !important; height: auto !important; }
+.external-links img:hover { transform: none !important; }

@@ -22,6 +22,37 @@
         "secret": "シークレット (Secret)",
         "ultimate": "アルティメット (Ultimate)"
     },
+		"nav": {
+        "appraiser": "釣果鑑定",
+        "big_catch": "大物制限 (Big Catch)",
+        "farming": "幸運とファーミング",
+        "database": "データベースマトリックス",
+        "tools": "データマイニングツール",
+        "scrap": "スクラップシミュレーター"
+    },
+		"scrap": {
+        "title": "スクラップ戦利品シミュレーター",
+        "subtitle": "コミュニティのサンプルデータに基づいています（合計103ロール）。",
+        "rolls_label": "開封するスクラップの数",
+        "btn_expected": "期待値を計算",
+        "btn_simulate": "RNGシミュレーション",
+        "col_item": "アイテム",
+        "col_rate": "ドロップ率",
+        "col_expected": "期待値",
+        "col_simulated": "シミュレーション結果"
+    },
+    "scrap_items": {
+        "scrap": "スクラップ",
+        "coin_500": "500 コイン",
+        "coin_1000": "1000 コイン",
+        "coin_10k": "10k コイン",
+        "potion_luck": "幸運のポーション",
+        "potion_speed": "スピードポーション",
+        "relic_frag": "遺物の欠片",
+        "relic_mossy": "苔むした遺物",
+        "relic_powerful": "力強い遺物",
+        "xp_500": "500 XP"
+    },
     "header": {
         "app_name": "Fish 鑑定ツール",
         "dev_by": "開発および執筆:",
@@ -31,6 +62,26 @@
         "nerd_tooltip": "背後にある計算式とエンジンアルゴリズムを表示",
         "credits_btn": "クレジット",
         "credits_tooltip": "エンジンの貢献者とスペシャルサンクスを表示"
+    },
+		"theme": {
+        "auto": "自動 (休日)",
+        "default": "デフォルト (ミッドナイト)",
+        "newyear": "新年",
+        "mlk": "キング牧師記念日",
+        "valentine": "バレンタイン",
+        "presidents": "大統領の日",
+        "stpatricks": "セントパトリックス",
+        "aprilfools": "エイプリルフール",
+        "easter": "イースター",
+        "mothers": "母の日",
+        "memorial": "メモリアルデー",
+        "fathers": "父の日",
+        "july4": "独立記念日",
+        "labor": "レイバーデー",
+        "halloween": "ハロウィン",
+        "veterans": "退役軍人の日",
+        "thanksgiving": "感謝祭",
+        "christmas": "ウィンターフェスト"
     },
     "appraiser": {
         "title": "釣果鑑定 (線形重量同期)",

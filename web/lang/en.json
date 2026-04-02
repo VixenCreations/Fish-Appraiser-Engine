@@ -19,6 +19,57 @@
         "credits_btn": "Credits",
         "credits_tooltip": "View engine contributors and special thanks"
     },
+		"theme": {
+        "auto": "Auto (Holiday)",
+        "default": "Default (Midnight)",
+        "newyear": "New Year",
+        "mlk": "MLK Jr. Day",
+        "valentine": "Valentine's",
+        "presidents": "Presidents' Day",
+        "stpatricks": "St. Patrick's",
+        "aprilfools": "April Fools",
+        "easter": "Easter",
+        "mothers": "Mother's Day",
+        "memorial": "Memorial Day",
+        "fathers": "Father's Day",
+        "july4": "Patriotic",
+        "labor": "Labor Day",
+        "halloween": "Halloween",
+        "veterans": "Veterans Day",
+        "thanksgiving": "Thanksgiving",
+        "christmas": "WinterFest"
+    },
+		"nav": {
+        "appraiser": "Catch Appraiser",
+        "big_catch": "Big Catch Limits",
+        "farming": "Luck & Farming",
+        "database": "Database Matrix",
+        "tools": "Fish! Tools",
+        "scrap": "Scrap Simulator"
+    },
+		"scrap": {
+        "title": "Scrap Loot Simulator",
+        "subtitle": "Based on community sample data (103 Total Rolls).",
+        "rolls_label": "Number of Scrap to Open",
+        "btn_expected": "Calculate Expected",
+        "btn_simulate": "Simulate RNG",
+        "col_item": "Item",
+        "col_rate": "Drop Rate",
+        "col_expected": "Expected Yield",
+        "col_simulated": "Simulated Results"
+    },
+    "scrap_items": {
+        "scrap": "Scrap",
+        "coin_500": "500 Coin",
+        "coin_1000": "1000 Coin",
+        "coin_10k": "10k Coin",
+        "potion_luck": "Luck Potion",
+        "potion_speed": "Speed Potion",
+        "relic_frag": "Relic Fragment",
+        "relic_mossy": "Mossy Relic",
+        "relic_powerful": "Powerful Relic",
+        "xp_500": "500 XP"
+    },
     "appraiser": {
         "title": "Catch Appraiser (Linear Weight Sync)",
         "exact_weight": "Exact Weight (kg)",

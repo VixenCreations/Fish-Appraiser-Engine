@@ -25,8 +25,6 @@ async function loadLanguage(langCode) {
             populateDropdowns(modifierData);
             populateFishSelector();
             renderMatrix();
-            
-            // THE FIX: Force the JS-generated modules to redraw with the new language!
             calculateLuck();
             calculateBigCatch();
         }
@@ -37,26 +35,22 @@ async function loadLanguage(langCode) {
 }
 
 function applyTranslations() {
-    // Helper to resolve dot-notation paths (e.g., "header.dev_by" -> langData.header.dev_by)
     const resolvePath = (path, obj) => {
         return path.split('.').reduce((prev, curr) => prev ? prev[curr] : null, obj);
     };
 
-    // 1. Translate Standard Text (innerHTML)
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const text = resolvePath(key, langData);
-        if (text) el.innerHTML = text; // innerHTML preserves nested HTML like <strong> tags
+        if (text) el.innerHTML = text; 
     });
 
-    // 2. Translate Placeholders (Input boxes)
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         const text = resolvePath(key, langData);
         if (text) el.placeholder = text;
     });
 
-    // 3. Translate Hover Tooltips (Title attributes)
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
         const key = el.getAttribute('data-i18n-title');
         const text = resolvePath(key, langData);
@@ -64,17 +58,32 @@ function applyTranslations() {
     });
 }
 
-// Bind Dropdown Listener & Boot Engine
-document.addEventListener('DOMContentLoaded', () => {
-    const langSwitch = document.getElementById('langSwitch');
-    if (langSwitch) {
-        langSwitch.value = currentLang;
-        langSwitch.addEventListener('change', (e) => loadLanguage(e.target.value));
+// --- VIEW ROUTER (SPA ARCHITECTURE) ---
+function setupViewRouter() {
+    const toggleBtn = document.getElementById('toggleSidebar');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
     }
-    
-    // Boot the language engine immediately
-    loadLanguage(currentLang);
-});
+
+    document.querySelectorAll('.nav-btn[data-target]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.nav-btn[data-target]').forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+
+            const targetId = e.currentTarget.getAttribute('data-target');
+            document.querySelectorAll('.app-view').forEach(view => {
+                view.style.display = view.id === targetId ? 'block' : 'none';
+                if(view.id === targetId) {
+                    view.style.animation = 'none';
+                    view.offsetHeight; 
+                    view.style.animation = null;
+                }
+            });
+        });
+    });
+}
 
 // --- 1. BOOT SEQUENCE ---
 async function initEngine() {
@@ -87,9 +96,9 @@ async function initEngine() {
         if (!fishResponse.ok || !modResponse.ok) throw new Error('Failed to load JSON payloads');
         
         fishDatabase = await fishResponse.json();
-        modifiersData = await modResponse.json();
+        modifierData = await modResponse.json();
         
-        populateDropdowns(modifiersData);
+        populateDropdowns(modifierData);
         populateFishSelector();
 
         document.getElementById('loader').style.display = 'none';
@@ -116,28 +125,29 @@ function populateDropdowns(modData) {
         const mEl = document.getElementById(t.mut);
         const sEl = document.getElementById(t.size);
         
-        // Save current selection to prevent resetting user inputs on language swap
-        const savedMut = mEl.value;
-        const savedSize = sEl.value;
+        const savedMut = mEl ? mEl.value : null;
+        const savedSize = sEl ? sEl.value : null;
         
-        mEl.innerHTML = ''; sEl.innerHTML = '';
+        if(mEl) mEl.innerHTML = ''; 
+        if(sEl) sEl.innerHTML = '';
 
         modData.mutations.forEach(mut => {
             const opt = document.createElement('option');
             opt.value = mut.value; 
             const translatedName = langData?.database?.modifiers?.[mut.id] || mut.label.split(' ')[0];
             opt.textContent = `${translatedName} (${mut.value.toFixed(1)}x)`;
-            mEl.appendChild(opt);
+            if(mEl) mEl.appendChild(opt);
         });
+        
         modData.sizes.forEach(size => {
             const opt = document.createElement('option');
             opt.value = size.id; 
             opt.textContent = langData?.database?.modifiers?.[size.id] || size.label;
-            sEl.appendChild(opt);
+            if(sEl) sEl.appendChild(opt);
         });
         
-        if (savedMut) mEl.value = savedMut;
-        if (savedSize) sEl.value = savedSize;
+        if (mEl && savedMut) mEl.value = savedMut;
+        if (sEl && savedSize) sEl.value = savedSize;
     });
 }
 
@@ -151,7 +161,6 @@ function populateFishSelector() {
     if (calcSelect) calcSelect.innerHTML = '';
     if (bcSelect) bcSelect.innerHTML = '';
 
-    // Sort alphabetically by the TRANSLATED name
     fishDatabase.sort((a,b) => {
         const nameA = langData?.database?.fish?.[a.id] || a.name;
         const nameB = langData?.database?.fish?.[b.id] || b.name;
@@ -160,13 +169,11 @@ function populateFishSelector() {
         const translatedName = langData?.database?.fish?.[fish.id] || fish.name;
         
         const opt1 = document.createElement('option');
-        opt1.value = i; 
-        opt1.textContent = translatedName;
+        opt1.value = i; opt1.textContent = translatedName;
         if (calcSelect) calcSelect.appendChild(opt1);
 
         const opt2 = document.createElement('option');
-        opt2.value = i; 
-        opt2.textContent = translatedName;
+        opt2.value = i; opt2.textContent = translatedName;
         if (bcSelect) bcSelect.appendChild(opt2);
     });
     
@@ -176,7 +183,7 @@ function populateFishSelector() {
     updateWeightBounds();
 }
 
-// --- 2. THE APPRAISAL ENGINE (CLAMPED LINEAR LERP) ---
+// --- 2. THE APPRAISAL ENGINE ---
 function updateWeightBounds() {
     const fishIndex = document.getElementById('calcFishSelect').value;
     const fish = fishDatabase[fishIndex];
@@ -189,24 +196,17 @@ function updateWeightBounds() {
     const min = parseFloat(fish.baseMinW);
     const max = parseFloat(fish.baseMaxW);
 
-    if (sizeState === 'tiny') {
-        // BUG 1 FIX: Lock the weight to the fish's exact baseMinW
+    if (sizeState === 'size_tiny') {
         weightInput.value = min;
         weightInput.disabled = true;
         boundsLabel.innerText = `Locked to ${min}kg (Tiny)`;
-        
-        // Mark the input as locked so we know to clear it later
         weightInput.dataset.wasLocked = "true"; 
     } else {
         weightInput.disabled = false;
-        
-        // BUG 2 FIX: Remove the median auto-fill. Let the user start from 0.
-        // If they just switched off "Tiny" or the box is empty, reset cleanly to 0.
         if (weightInput.dataset.wasLocked === "true" || !weightInput.value) {
             weightInput.value = 0;
             weightInput.dataset.wasLocked = "false";
         }
-        
         boundsLabel.innerText = `Base Range: ${min}kg - ${max}kg (Price Clamped at Max)`;
     }
     runAppraiser();
@@ -230,22 +230,18 @@ function runAppraiser() {
     const floor = fish.baseFloor;
     const ceil = fish.baseCeil;
 
-    if (sizeState === 'tiny') {
+    if (sizeState === 'size_tiny') {
         baseValue = floor;
     } else {
         let weightPercent = 0;
         if (maxW > minW) {
             weightPercent = (weightInput - minW) / (maxW - minW);
         }
-        
-        // THE FIX: Hard-clamp the Lerp to 1.0. 
-        // Visual weight can go to infinity, but the price stops at the ceiling.
         weightPercent = Math.max(0, Math.min(1.0, weightPercent)); 
-        
         baseValue = floor + ((ceil - floor) * weightPercent);
     }
 
-    const sizeMult = (sizeState === 'huge') ? 1.5 : 1.0;
+    const sizeMult = (sizeState === 'size_huge') ? 1.5 : 1.0;
     const finalPrice = Math.round(baseValue * mutMult * sizeMult * playerMultiplier);
 
     const baseXP = fish.baseXP || 0;
@@ -294,8 +290,8 @@ function renderMatrix() {
     const sizeState = document.getElementById('matrixSizeSelect').value;
     const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
     
-    const isTiny = (sizeState === 'tiny');
-    const isHuge = (sizeState === 'huge');
+    const isTiny = (sizeState === 'size_tiny');
+    const isHuge = (sizeState === 'size_huge');
     const sizeFloat = isHuge ? 1.5 : 1.0;
 
     const fragment = document.createDocumentFragment();
@@ -334,12 +330,13 @@ function renderMatrix() {
         else if (rarityKey.includes("ultimate")) rarityClass = "rarity-ultimate";
         else if (rarityKey.includes("secret")) rarityClass = "rarity-secret";
 
-				const translatedName = langData?.database?.fish?.[fish.id] || fish.name;
+        const translatedName = langData?.database?.fish?.[fish.id] || fish.name;
+        const translatedRarity = langData?.rarities?.[rarityKey] || fish.rarity || 'Unknown';
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="fish-name">${translatedName}</td>
-            <td><span class="rarity-tag ${rarityClass}">${fish.rarity || 'Unknown'}</span></td>
+            <td><span class="rarity-tag ${rarityClass}">${translatedRarity}</span></td>
             <td class="weight">${minWFinal}kg - ${maxWFinal}kg</td>
             <td class="money">$${floorFinal.toLocaleString()} - $${ceilFinal.toLocaleString()}</td>
             <td class="xp-val">+${baseXP}</td>
@@ -354,41 +351,35 @@ function renderMatrix() {
 
 // --- 4. EVENT BINDINGS ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Navigation Bindings
+    
+    // Init View Router
+    setupViewRouter();
+
+    // Tools Link
     const dataMinerBtn = document.getElementById('dataMinerBtn');
     if (dataMinerBtn) {
         dataMinerBtn.addEventListener('click', () => {
-            window.location.href = '/tools';
+            window.location.href = '/tools.html';
         });
     }
 
-    // Modal Interaction (Disclaimer, Credits, & Stats for Nerds)
-    const disclaimerModal = document.getElementById('disclaimerModal');
+    // Modal Interaction 
     const creditsModal = document.getElementById('creditsModal');
     const nerdStatsModal = document.getElementById('nerdStatsModal');
     
-    const discBtn = document.getElementById('disclaimerBtn');
     const credBtn = document.getElementById('creditsBtn');
     const nerdBtn = document.getElementById('nerdStatsBtn');
     
-    const discClose = document.getElementById('closeModal');
     const credClose = document.getElementById('closeCreditsModal');
     const nerdClose = document.getElementById('closeNerdStatsModal');
 
-    // Open Modals
-    if (discBtn) discBtn.onclick = () => disclaimerModal.style.display = "block";
     if (credBtn) credBtn.onclick = () => creditsModal.style.display = "block";
-    // Note: Using 'flex' for the Nerd modal keeps the terminal text perfectly centered!
     if (nerdBtn) nerdBtn.onclick = () => nerdStatsModal.style.display = "flex"; 
 
-    // Close Modals (Buttons)
-    if (discClose) discClose.onclick = () => disclaimerModal.style.display = "none";
     if (credClose) credClose.onclick = () => creditsModal.style.display = "none";
     if (nerdClose) nerdClose.onclick = () => nerdStatsModal.style.display = "none";
     
-    // Close Modals (Clicking outside)
     window.onclick = (event) => {
-        if (event.target == disclaimerModal) disclaimerModal.style.display = "none";
         if (event.target == creditsModal) creditsModal.style.display = "none";
         if (event.target == nerdStatsModal) nerdStatsModal.style.display = "none";
     };
@@ -400,44 +391,56 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('calcWeightInput').addEventListener('input', runAppraiser);
     document.getElementById('calcBuffInput').addEventListener('input', runAppraiser);
     
-    // Matrix Filter Bindings
     document.getElementById('matrixMutSelect').addEventListener('change', renderMatrix);
     document.getElementById('matrixSizeSelect').addEventListener('change', renderMatrix);
     document.getElementById('searchInput').addEventListener('input', renderMatrix);
     
-    // Header Sort Bindings
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => sortData(th.dataset.sort));
     });
 
-    // Luck Calculator Bindings
     ['luckRaw', 'luckBuffs', 'luckExternal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calculateLuck);
     });
 
-    // Big Catch Bindings
     ['bigCatchPoints', 'bigCatchRoll', 'bigCatchFishSelect'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calculateBigCatch);
     });
     
-    // XP Forecaster Bindings
     ['xpEnchant', 'xpAttraction', 'xpPerfect'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', calculateXP);
     });
 
+    // --- THEME SWITCHER LOGIC ---
+    const themeSwitch = document.getElementById('themeSwitch');
+    if (themeSwitch) {
+        // Set the dropdown to match saved preference
+        themeSwitch.value = localStorage.getItem('fishAppTheme') || 'auto';
+        
+        themeSwitch.addEventListener('change', (e) => {
+            const selectedTheme = e.target.value;
+            localStorage.setItem('fishAppTheme', selectedTheme);
+            
+            // Reload the page instantly to evaluate the Bootloader <script> 
+            // in the <head> and repaint the CSS :root variables flawlessly.
+            window.location.reload();
+        });
+    }
+
+    // Boot the language engine immediately
+    const langSwitch = document.getElementById('langSwitch');
+    if (langSwitch) {
+        langSwitch.value = currentLang;
+        langSwitch.addEventListener('change', (e) => loadLanguage(e.target.value));
+    }
+    loadLanguage(currentLang);
     initEngine();
-    calculateLuck();
-    calculateBigCatch();
 });
 
 // --- 5. LUCK & RARITY CALCULATOR ---
-
-// --- OMNI-CALIBRATED RARITY WEIGHTS (v1.9.5 Truth) ---
-// Positive Exponents (scaleFactor) triangulated to Dev Constraints at 1,000 Luck.
-// Negative Exponents (negScaleFactor) triangulated to empirical 500-catch data at -150 Luck.
 const rarityWeightPool = [
     { id: "trash", label: "Trash", baseWeight: 900, scaleFactor: -1.0, negScaleFactor: -0.55, color: "#4a4a4a" },
     { id: "abundant", label: "Abundant", baseWeight: 2700, scaleFactor: -1.2, negScaleFactor: -0.26, color: "#6b7280" },
@@ -458,8 +461,6 @@ function calculateLuck() {
     const external = parseFloat(document.getElementById('luckExternal').value) || 1.0;
 
     let luckMultiplier = 1 + ((rawLuck * buffs * external) / 100);
-    
-    // THE FIX: Floor raised to 0.1 to perfectly map the -150 Luck benchmark to the negScaleFactors
     luckMultiplier = Math.max(0.1, luckMultiplier);
 
     const luckOut = document.getElementById('luckOutMult');
@@ -477,7 +478,6 @@ function calculateBigCatch() {
     const fish = fishDatabase[fishIndex];
 
     const shift = points / 300;
-    
     const effectiveRoll = Math.min(1.0, Math.max(0.0, roll + shift));
     const weightPercentile = Math.sin(effectiveRoll * (Math.PI / 2));
     const finalPercent = (weightPercentile * 100).toFixed(2);
@@ -511,21 +511,17 @@ function calculateBigCatch() {
         document.getElementById('bcMinPercentile').innerText = "( " + (minPct * 100).toFixed(2) + "% )";
         document.getElementById('bcMaxPercentile').innerText = "( " + (maxPct * 100).toFixed(2) + "% )";
 
-				// 5. Dynamic Status and Explanation Text (i18n Compatible)
-        // Using optional chaining (?.) to prevent crashes if the language payload is still loading
         let statusText = langData?.bc?.status_0 || "True 0% to 100% Range";
         let explanationText = langData?.bc?.explain_0 || "With 0 points, your catches will naturally span the entire database range. You have no artificial floor or ceiling limits applied.";
 
         if (points > 0) {
             statusText = (langData?.bc?.status_pos || "Floor Shifted to ") + (minPct*100).toFixed(1) + "%";
-            
             explanationText = (langData?.bc?.explain_pos_1 || "With <strong style='color: var(--success);'>") + points + 
                               (langData?.bc?.explain_pos_2 || " points</strong>, your absolute worst-case RNG roll (0.0) is mathematically forced up to the <strong style='color: var(--success);'>") + (minPct*100).toFixed(2) + 
                               (langData?.bc?.explain_pos_3 || "%</strong> percentile. This guarantees you will NEVER catch a fish smaller than <strong style='color: var(--accent);'>") + trueMinW.toFixed(2) + 
                               (langData?.bc?.explain_pos_4 || "kg</strong>.");
         } else if (points < 0) {
             statusText = (langData?.bc?.status_neg || "Ceiling Penalized to ") + (maxPct*100).toFixed(1) + "%";
-            
             explanationText = (langData?.bc?.explain_neg_1 || "With <strong style='color: var(--warning);'>") + points + 
                               (langData?.bc?.explain_neg_2 || " points</strong>, your absolute best-case RNG roll (1.0) is mathematically capped at the <strong style='color: var(--warning);'>") + (maxPct*100).toFixed(2) + 
                               (langData?.bc?.explain_neg_3 || "%</strong> percentile. This means it is physically impossible to catch a fish larger than <strong style='color: var(--accent);'>") + trueMaxW.toFixed(2) + 
@@ -548,12 +544,9 @@ function renderProbabilities(luckMult) {
     const calculatedWeights = [];
 
     rarityWeightPool.forEach(tier => {
-        // DUAL-EXPONENT ENGINE: Flips to negative calibration if Luck < 1.0
         const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
         let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
-        
         dynamicWeight = Math.max(0, dynamicWeight); 
-
         calculatedWeights.push({ ...tier, currentWeight: dynamicWeight });
         totalPoolWeight += dynamicWeight;
     });
@@ -566,11 +559,9 @@ function renderProbabilities(luckMult) {
 
     const simFragment = document.createDocumentFragment();
 
-		calculatedWeights.forEach(tier => {
+    calculatedWeights.forEach(tier => {
         const rawDecimal = totalPoolWeight > 0 ? (tier.currentWeight / totalPoolWeight) : 0;
         const percent = rawDecimal * 100;
-        
-        // DYNAMIC TRANSLATION: Looks for the translated name, falls back to English if missing
         const translatedName = langData?.rarities?.[tier.id] || tier.label;
         
         if (container) {
@@ -599,7 +590,6 @@ function renderProbabilities(luckMult) {
 }
 
 // --- 6. XP EFFICIENCY FORECASTER ---
-
 const rarityXpMap = {
     "trash": { base: 10, perf: 10, reel: 5.5 },
     "abundant": { base: 15, perf: 23, reel: 6.0 },
@@ -648,7 +638,6 @@ function calculateXP() {
     rarityWeightPool.forEach(tier => {
         const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
         let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
-        
         dynamicWeight = Math.max(0, dynamicWeight); 
 
         totalWeight += dynamicWeight;
@@ -656,7 +645,6 @@ function calculateXP() {
         const baseXP = rarityXpMap[tier.id].base;
         const perfXP = rarityXpMap[tier.id].perf;
         const tierAvgXP = (baseXP * (1 - perfRate)) + (perfXP * perfRate);
-
         const tierReelTime = rarityXpMap[tier.id].reel;
 
         expectedXP += dynamicWeight * tierAvgXP;
@@ -694,3 +682,80 @@ function calculateXP() {
     document.getElementById('outXpMin').innerText = finalXpPerMin.toLocaleString(undefined, { maximumFractionDigits: 0 });
     document.getElementById('outXpHour').innerText = finalXpHour.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }
+
+// =========================================================
+// 7. SCRAP LOOT SIMULATOR ENGINE
+// =========================================================
+const scrapData = [
+    { id: 'scrap', weight: 22, color: '#888888' },
+    { id: 'coin_500', weight: 15, color: '#fbbf24' },
+    { id: 'coin_1000', weight: 13, color: '#fbbf24' },
+    { id: 'coin_10k', weight: 1, color: '#f59e0b' },
+    { id: 'potion_luck', weight: 6, color: '#a855f7' },
+    { id: 'potion_speed', weight: 9, color: '#00e6ff' },
+    { id: 'relic_frag', weight: 20, color: '#f59e0b' },
+    { id: 'relic_mossy', weight: 3, color: '#10b981' },
+    { id: 'relic_powerful', weight: 1, color: '#ef4444' }, // Adjusted from 0 to 1
+    { id: 'xp_500', weight: 13, color: '#a855f7' }
+];
+
+const TOTAL_SCRAP_WEIGHT = 103; // Shifted from 102 to account for the Powerful Relic
+
+function renderScrapTable(simulatedResults = null) {
+    const tbody = document.getElementById('scrapTableBody');
+    if (!tbody) return;
+    
+    const rolls = parseInt(document.getElementById('scrapRollsInput').value) || 0;
+    tbody.innerHTML = '';
+    
+    scrapData.forEach(item => {
+        const rate = (item.weight / TOTAL_SCRAP_WEIGHT) * 100;
+        const expected = (item.weight / TOTAL_SCRAP_WEIGHT) * rolls;
+        
+        let simText = "---";
+        if (simulatedResults) {
+            simText = simulatedResults[item.id] || 0;
+        }
+        
+        const translatedName = langData?.scrap_items?.[item.id] || item.id;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="scrap-item-name" style="color: ${item.color};">${translatedName}</td>
+            <td class="scrap-rate">${rate.toFixed(2)}%</td>
+            <td class="scrap-expected">${expected.toFixed(1)}</td>
+            <td class="scrap-simulated">${simText}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function simulateScrapRNG() {
+    const rolls = parseInt(document.getElementById('scrapRollsInput').value) || 0;
+    const results = {};
+    scrapData.forEach(i => results[i.id] = 0);
+    
+    for(let i = 0; i < rolls; i++) {
+        let roll = Math.random() * TOTAL_SCRAP_WEIGHT;
+        let current = 0;
+        for(let item of scrapData) {
+            current += item.weight;
+            if(roll <= current) {
+                results[item.id]++;
+                break;
+            }
+        }
+    }
+    renderScrapTable(results);
+}
+
+// Bind the Scrap buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const btnExpected = document.getElementById('btnScrapExpected');
+    const btnSimulate = document.getElementById('btnScrapSimulate');
+    const scrapInput = document.getElementById('scrapRollsInput');
+
+    if(btnExpected) btnExpected.addEventListener('click', () => renderScrapTable(null));
+    if(btnSimulate) btnSimulate.addEventListener('click', simulateScrapRNG);
+    if(scrapInput) scrapInput.addEventListener('input', () => renderScrapTable(null));
+});

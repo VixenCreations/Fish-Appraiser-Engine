@@ -1,0 +1,157 @@
+/* =========================================================
+   THEME: EASTER (Spring, Pastels & Egg Hunts)
+   ========================================================= */
+
+/* --- 1. GLOBAL VARIABLES OVERRIDE --- */
+:root {
+    --bg-base: #f0fdf4;     /* Minty pastel spring green */
+    --bg-panel: #fdf4ff;    /* Soft pastel pink */
+    --bg-hover: #fce7f3;    /* Slightly darker pink */
+    
+    --text-main: #4c1d95;   /* Deep violet for readability */
+    --text-muted: #0284c7;  /* Deep bright blue for labels */
+    
+    --accent: #d946ef;      /* Bright spring magenta */
+    --border: #6ee7b7;      /* Bright mint border */
+    
+    --success: #10b981;     /* Spring grass green */
+    --warning: #f59e0b;     /* Egg yolk yellow */
+    --xp-color: #8b5cf6;    /* Pastel violet */
+    
+    /* Soft, airy pastel drop shadow */
+    --panel-shadow: 0 10px 25px rgba(217, 70, 239, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+/* --- 2. SPRING VIBES BACKGROUND --- */
+.app-main, .tools-main {
+    background: radial-gradient(circle at 50% 0%, #dcfce7 0%, var(--bg-base) 80%) !important;
+}
+
+/* --- 3. FIXING THE DARK PANELS (Egg-Shaped Overrides) --- */
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
+    background-color: rgba(255, 255, 255, 0.85) !important; /* Frosted white glass */
+    border-radius: 40px 30px 40px 30px !important; /* Asymmetrical egg shape */
+    border: 3px solid var(--border) !important;
+    box-shadow: var(--panel-shadow) !important;
+}
+
+.tools-sidebar { background-color: var(--bg-panel) !important; }
+
+/* Fix the pitch-black inputs and dropdowns */
+input, select, .matrix-input, .matrix-select {
+    background-color: #ffffff !important;
+    color: var(--text-main) !important;
+    border: 2px solid var(--border) !important;
+    border-radius: 20px !important;
+    font-weight: bold !important;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+option {
+    background-color: #ffffff;
+    color: var(--text-main);
+}
+
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.2) !important;
+}
+
+/* Buttons */
+.action-btn, .secondary-btn, .accent-btn {
+    border-radius: 20px !important;
+    font-weight: bold !important;
+}
+
+/* Table Headers and Terminal outputs */
+th {
+    background-color: var(--accent) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--border) !important;
+}
+
+.output-console, .calc-output, .diff-container, code, .nerd-code-list {
+    background-color: #ffffff !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+/* --- 4. FIXING THE NERD STATS MODAL --- */
+.nerd-modal-content {
+    background-color: var(--bg-base) !important;
+    border-color: var(--accent) !important;
+}
+
+.nerd-section { color: var(--text-main) !important; }
+.nerd-section p { color: var(--text-main) !important; }
+.nerd-section strong { color: var(--accent) !important; }
+
+.nerd-subtitle, .math-step, .diff-label, .section-desc {
+    color: var(--text-muted) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+/* --- 5. THEMATIC ICONS & DECORATIONS --- */
+h1 { text-shadow: 2px 2px 0px #fff; }
+h1::after { content: " 🐰🐣"; }
+h3.section-title::before { content: "🌷 "; }
+
+.nerd-header::before { content: "🥚 "; }
+.nerd-header::after { content: " 🐰"; }
+
+.secondary-btn::after { content: " 🐇"; }
+
+/* --- 6. BOUNCY BUNNY ANIMATIONS --- */
+.output-price { 
+    animation: bunnyHop 2s infinite cubic-bezier(0.28, 0.84, 0.42, 1);
+    text-shadow: 2px 2px 0px #fff;
+    color: var(--text-main);
+}
+
+@keyframes bunnyHop {
+    0%, 100% { transform: translateY(0); }
+    10% { transform: translateY(-10px); } 
+    20% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }  
+    40% { transform: translateY(0); }
+}
+
+.data-miner, .thanks-rainbow {
+    background: linear-gradient(90deg, #d946ef, #f59e0b, #10b981, #3b82f6, #d946ef);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: devRainbowScroll 2s linear infinite;
+}
+
+/* --- FIX EXTERNAL ICONS VISIBILITY --- */
+.external-links a {
+    background-color: var(--text-main); /* Uses the darkest text color of the theme */
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.external-links a:hover {
+    background-color: var(--accent); /* Pops to the theme's accent color on hover */
+    transform: translateY(-4px) scale(1.1);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.external-links img {
+    opacity: 1 !important;
+    /* Forces the original image to pure white so it stands out inside the dark circle */
+    filter: brightness(0) invert(1) !important; 
+    width: 24px !important;
+    height: auto !important;
+}
+
+.external-links img:hover {
+    transform: none !important; /* Disables the old image scale, since the circle wrapper scales now */
+}

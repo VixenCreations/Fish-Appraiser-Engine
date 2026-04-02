@@ -1,0 +1,29 @@
+:root {
+    --bg-base: #050505; --bg-panel: #111111; --bg-hover: #222;
+    --text-main: #f8f9fa; --text-muted: #a1a1aa;
+    --accent: #fbbf24; --border: #3f3f46;
+    --success: #34d399; --warning: #f59e0b; --xp-color: #d4af37;
+    --panel-shadow: 0 0 25px rgba(251, 191, 36, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+.app-main, .tools-main { background: radial-gradient(circle at 50% 0%, #18181b 0%, var(--bg-base) 80%) !important; }
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
+    background: rgba(17, 17, 17, 0.85) !important; border-radius: 8px !important; border: 1px solid var(--accent) !important; box-shadow: var(--panel-shadow) !important; backdrop-filter: blur(8px);
+}
+.tools-sidebar { background-color: var(--bg-panel) !important; }
+input, select, .matrix-input, .matrix-select { background: #000 !important; color: var(--accent) !important; border: 1px solid var(--border) !important; border-radius: 4px !important; font-weight: bold !important; }
+option { background-color: #000; color: var(--accent); }
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus { border-color: var(--accent) !important; box-shadow: 0 0 15px rgba(251, 191, 36, 0.3) !important; }
+.action-btn, .secondary-btn, .accent-btn { border-radius: 4px !important; text-transform: uppercase; letter-spacing: 2px; }
+th { background-color: var(--bg-panel) !important; color: var(--accent) !important; border-bottom: 2px solid var(--accent) !important; }
+.output-console, .calc-output, .diff-container, code, .nerd-code-list { background-color: #000 !important; color: var(--text-main) !important; border-color: var(--border) !important; }
+.nerd-modal-content { background-color: var(--bg-base) !important; border-color: var(--accent) !important; }
+.nerd-section, .nerd-section p { color: var(--text-main) !important; } .nerd-section strong { color: var(--accent) !important; }
+.nerd-subtitle, .math-step, .diff-label, .section-desc { color: var(--text-muted) !important; border-bottom-color: var(--border) !important; }
+h1 { color: var(--accent); text-shadow: 0 0 20px rgba(251, 191, 36, 0.5); } h1::after { content: " 🥂🎇"; } h3.section-title::before { content: "⏱️ "; }
+.nerd-header::before { content: "🎉 "; } .secondary-btn::after { content: " 🕛"; }
+.output-price { color: var(--accent); text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+.dev-rainbow, .data-miner, .thanks-rainbow { background: linear-gradient(90deg, #fff, #fbbf24, #d4af37, #fff); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: devRainbowScroll 2s linear infinite; }
+.external-links a { background-color: var(--text-main); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+.external-links a:hover { background-color: var(--accent); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+.external-links img { opacity: 1 !important; filter: brightness(0) invert(1) !important; width: 24px !important; height: auto !important; }
+.external-links img:hover { transform: none !important; }

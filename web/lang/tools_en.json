@@ -3,11 +3,42 @@
         "title": "Fish! Appraiser // Data Miner Tools"
     },
     "nav": {
+        "validator": "Validator",
+        "editor": "Data Editor",
         "return": "< RETURN_TO_APPRAISER"
     },
     "header": {
         "title": "> FISH! VALIDATOR TOOLSET",
         "subtitle": "Input two separate catches to decode the source Economy integers."
+    },
+    "editor": {
+        "title": "> DATA EDITOR",
+        "subtitle": "Modify core database limits and export the compiled JSON.",
+        "sec1_title": "Active Entity",
+        "btn_new": "+ New Entry",
+        "sec2_title": "Entity Parameters",
+        "btn_save": "Save to Session",
+        "btn_export": "Export fish_data.json"
+    },
+		"theme": {
+        "auto": "Auto (Holiday)",
+        "default": "Default (Midnight)",
+        "newyear": "New Year",
+        "mlk": "MLK Jr. Day",
+        "valentine": "Valentine's",
+        "presidents": "Presidents' Day",
+        "stpatricks": "St. Patrick's",
+        "aprilfools": "April Fools",
+        "easter": "Easter",
+        "mothers": "Mother's Day",
+        "memorial": "Memorial Day",
+        "fathers": "Father's Day",
+        "july4": "Patriotic",
+        "labor": "Labor Day",
+        "halloween": "Halloween",
+        "veterans": "Veterans Day",
+        "thanksgiving": "Thanksgiving",
+        "christmas": "WinterFest"
     },
     "global": {
         "weight": "Weight",
@@ -60,7 +91,7 @@
         "true_max_w": "> TRUE MAX W:",
         "base_ceil": "BASE CEIL:"
     },
-		"database": {
+    "database": {
         "modifiers": {
             "mut_none": "None",
             "mut_cursed": "Cursed",

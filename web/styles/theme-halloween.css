@@ -1,0 +1,30 @@
+:root {
+    --bg-base: #0f0a1a; --bg-panel: #1a1025; --bg-hover: #2d1b40;
+    --text-main: #ffedd5; --text-muted: #c4b5fd;
+    --accent: #f97316; --border: #5b21b6;
+    --success: #84cc16; --warning: #fbbf24; --xp-color: #a855f7;
+    --panel-shadow: 0 0 25px rgba(132, 204, 22, 0.15); /* Slime glow */
+}
+.app-main, .tools-main { background: repeating-linear-gradient(45deg, #130c21, #130c21 20px, #0f0a1a 20px, #0f0a1a 40px) !important; }
+.appraiser-panel, .dashboard, .table-container, .cycle-widget, .luck-readout, .terminal-container, .nerd-section {
+    background-color: var(--bg-panel) !important; border-radius: 4px !important; border: 2px dashed var(--accent) !important; box-shadow: var(--panel-shadow) !important;
+}
+.tools-sidebar { background-color: var(--bg-panel) !important; }
+input, select, .matrix-input, .matrix-select { background-color: #000 !important; color: var(--accent) !important; border: 1px solid var(--success) !important; border-radius: 0 !important; font-weight: bold !important; }
+option { background-color: #000; color: var(--accent); }
+input:focus, select:focus, .matrix-input:focus, .matrix-select:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px rgba(249, 115, 22, 0.5) !important; }
+.action-btn, .secondary-btn, .accent-btn { border-radius: 0 !important; border: 2px dashed var(--success) !important; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 2px;}
+th { background-color: var(--border) !important; color: var(--text-main) !important; border-bottom: 2px dashed var(--success) !important; }
+.output-console, .calc-output, .diff-container, code, .nerd-code-list { background-color: #000 !important; color: var(--text-main) !important; border: 1px dashed var(--accent) !important; border-radius: 0 !important;}
+.nerd-modal-content { background-color: var(--bg-base) !important; border: 2px dashed var(--accent) !important; border-radius: 4px !important;}
+.nerd-section, .nerd-section p { color: var(--text-main) !important; } .nerd-section strong { color: var(--accent) !important; }
+.nerd-subtitle, .math-step, .diff-label, .section-desc { color: var(--text-muted) !important; border-bottom: 2px dashed var(--border) !important; }
+h1 { color: var(--accent); text-shadow: 0 0 15px rgba(249, 115, 22, 0.8); } h1::after { content: " 🎃🦇"; } h3.section-title::before { content: "🕸️ "; }
+.nerd-header::before { content: "👻 "; } .secondary-btn::after { content: " 🍬"; }
+.output-price { color: var(--success); text-shadow: 0 0 15px rgba(132, 204, 22, 0.5); animation: floatGhost 3s ease-in-out infinite; }
+@keyframes floatGhost { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.dev-rainbow, .data-miner, .thanks-rainbow { background: linear-gradient(90deg, #f97316, #84cc16, #a855f7, #f97316); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: devRainbowScroll 1.5s linear infinite; }
+.external-links a { background-color: var(--text-main); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+.external-links a:hover { background-color: var(--accent); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+.external-links img { opacity: 1 !important; filter: brightness(0) invert(1) !important; width: 24px !important; height: auto !important; }
+.external-links img:hover { transform: none !important; }
