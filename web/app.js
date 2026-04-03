@@ -447,13 +447,52 @@ const rarityWeightPool = [
     { id: "common", label: "Common", baseWeight: 2500, scaleFactor: -0.2, negScaleFactor: 0.33, color: "#3b82f6" },
     { id: "curious", label: "Curious", baseWeight: 1800, scaleFactor: 0.1, negScaleFactor: 0.81, color: "#10b981" },
     { id: "elusive", label: "Elusive", baseWeight: 1100, scaleFactor: 0.2, negScaleFactor: 0.96, color: "#8b5cf6" },
-    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.4, negScaleFactor: 0.0, color: "#f59e0b" },
+    { id: "relic", label: "Relic", baseWeight: 300, scaleFactor: 0.0, negScaleFactor: 0.0, color: "#f59e0b" }, // scaleFactors ignored now
     { id: "fabled", label: "Fabled", baseWeight: 440, scaleFactor: 0.6, negScaleFactor: 1.6, color: "#ef4444" },
     { id: "mythic", label: "Mythic", baseWeight: 250, scaleFactor: 0.8, negScaleFactor: 1.7, color: "#ec4899" },
     { id: "exotic", label: "Exotic", baseWeight: 8.5, scaleFactor: 1.0, negScaleFactor: 1.8, color: "#14b8a6" },
     { id: "secret", label: "Secret", baseWeight: 1.0, scaleFactor: 1.15, negScaleFactor: 1.9, color: "#fbbf24" },
     { id: "ultimate", label: "Ultimate Secret", baseWeight: 0.5, scaleFactor: 1.26, negScaleFactor: 2.0, color: "#8b5cf6" }
 ];
+
+// --- NEW PIPELINE HELPER ---
+// Single source of truth for generating the current pool state
+function getDynamicPoolState(luckMult) {
+    let otherTotalWeight = 0;
+    const calculatedWeights = [];
+    let relicTier = null;
+    let relicIndex = -1;
+
+    // Pass 1: Calculate standard scaling for everything EXCEPT the locked Relic tier
+    rarityWeightPool.forEach((tier, index) => {
+        if (tier.id === "relic") {
+            relicTier = tier;
+            relicIndex = index;
+            return;
+        }
+
+        const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
+        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
+        dynamicWeight = Math.max(0, dynamicWeight); 
+        
+        calculatedWeights.push({ ...tier, currentWeight: dynamicWeight });
+        otherTotalWeight += dynamicWeight;
+    });
+
+    // Pass 2: Mathematically force Relic to equal exactly 3% of the final pool
+    const relicWeight = (0.03 / 0.97) * otherTotalWeight;
+
+    // Re-insert the Relic tier back into its original position to maintain UI order
+    if (relicTier && relicIndex !== -1) {
+        calculatedWeights.splice(relicIndex, 0, { ...relicTier, currentWeight: relicWeight });
+    }
+
+    return {
+        calculatedWeights,
+        totalPoolWeight: otherTotalWeight + relicWeight
+    };
+}
+
 
 function calculateLuck() {
     const rawLuck = parseFloat(document.getElementById('luckRaw').value) || 0;
@@ -540,16 +579,8 @@ function renderProbabilities(luckMult) {
     if (container) container.innerHTML = '';
     if (simTbody) simTbody.innerHTML = '';
 
-    let totalPoolWeight = 0;
-    const calculatedWeights = [];
-
-    rarityWeightPool.forEach(tier => {
-        const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
-        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
-        dynamicWeight = Math.max(0, dynamicWeight); 
-        calculatedWeights.push({ ...tier, currentWeight: dynamicWeight });
-        totalPoolWeight += dynamicWeight;
-    });
+    // Delegate to the new pipeline
+    const { calculatedWeights, totalPoolWeight } = getDynamicPoolState(luckMult);
 
     const formatSim = (val) => {
         if (val === 0) return "0";
@@ -631,75 +662,83 @@ function calculateXP() {
         }
     }
 
-    let totalWeight = 0;
     let expectedXP = 0;
     let expectedReelTime = 0;
 
-    rarityWeightPool.forEach(tier => {
-        const activeScale = luckMult >= 1.0 ? tier.scaleFactor : tier.negScaleFactor;
-        let dynamicWeight = tier.baseWeight * Math.pow(luckMult, activeScale);
-        dynamicWeight = Math.max(0, dynamicWeight); 
+    // Delegate to the unified pipeline to ensure Relics are mathematically locked to 3%
+    const { calculatedWeights, totalPoolWeight } = getDynamicPoolState(luckMult);
 
-        totalWeight += dynamicWeight;
-
+    calculatedWeights.forEach(tier => {
         const baseXP = rarityXpMap[tier.id].base;
         const perfXP = rarityXpMap[tier.id].perf;
         const tierAvgXP = (baseXP * (1 - perfRate)) + (perfXP * perfRate);
         const tierReelTime = rarityXpMap[tier.id].reel;
 
-        expectedXP += dynamicWeight * tierAvgXP;
-        expectedReelTime += dynamicWeight * tierReelTime;
+        expectedXP += tier.currentWeight * tierAvgXP;
+        expectedReelTime += tier.currentWeight * tierReelTime;
     });
 
-    const avgXpPerCatch = expectedXP / totalWeight;
-    const avgReelTime = expectedReelTime / totalWeight;
+    // Safeguard against division by zero if totalPoolWeight somehow zeroes out
+    const avgXpPerCatch = totalPoolWeight > 0 ? (expectedXP / totalPoolWeight) : 0;
+    const avgReelTime = totalPoolWeight > 0 ? (expectedReelTime / totalPoolWeight) : 0;
 
     const castDelay = 1.5; 
     const cycleTime = attractionTime + avgReelTime + castDelay;
     
-    const catchesPerHour = 3600 / cycleTime;
-    const catchesPerMin = 60 / cycleTime;
+    const catchesPerHour = cycleTime > 0 ? (3600 / cycleTime) : 0;
+    const catchesPerMin = cycleTime > 0 ? (60 / cycleTime) : 0;
 
     const xpMultiplier = 1.0 + (enchantBonus / 100);
     const finalXpPerMin = catchesPerMin * avgXpPerCatch * xpMultiplier;
     const finalXpHour = catchesPerHour * avgXpPerCatch * xpMultiplier;
 
-    const waitPct = (attractionTime / cycleTime) * 100;
-    const reelPct = (avgReelTime / cycleTime) * 100;
-    const castPct = (castDelay / cycleTime) * 100;
+    const waitPct = cycleTime > 0 ? ((attractionTime / cycleTime) * 100) : 0;
+    const reelPct = cycleTime > 0 ? ((avgReelTime / cycleTime) * 100) : 0;
+    const castPct = cycleTime > 0 ? ((castDelay / cycleTime) * 100) : 0;
     
-    document.getElementById('barWait').style.width = waitPct + "%";
-    document.getElementById('barReel').style.width = reelPct + "%";
-    document.getElementById('barCast').style.width = castPct + "%";
+    // UI Update Phase
+    const barWait = document.getElementById('barWait');
+    const barReel = document.getElementById('barReel');
+    const barCast = document.getElementById('barCast');
+    
+    if (barWait) barWait.style.width = waitPct + "%";
+    if (barReel) barReel.style.width = reelPct + "%";
+    if (barCast) barCast.style.width = castPct + "%";
 
-    document.getElementById('outCycleTime').innerText = cycleTime.toFixed(1);
-    document.getElementById('outAttrTime').innerText = attractionTime.toFixed(1) + "s";
-    document.getElementById('outReelTime').innerText = avgReelTime.toFixed(1) + "s";
-    document.getElementById('outCastTime').innerText = castDelay.toFixed(1) + "s";
-    document.getElementById('outAvgXp').innerText = avgXpPerCatch.toFixed(2);
-    document.getElementById('outCatchesHour').innerText = Math.floor(catchesPerHour).toLocaleString();
-    
-    document.getElementById('outXpMin').innerText = finalXpPerMin.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    document.getElementById('outXpHour').innerText = finalXpHour.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    // Helper to safely set innerText without repeating null checks
+    const setInnerText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    };
+
+    setInnerText('outCycleTime', cycleTime.toFixed(1));
+    setInnerText('outAttrTime', attractionTime.toFixed(1) + "s");
+    setInnerText('outReelTime', avgReelTime.toFixed(1) + "s");
+    setInnerText('outCastTime', castDelay.toFixed(1) + "s");
+    setInnerText('outAvgXp', avgXpPerCatch.toFixed(2));
+    setInnerText('outCatchesHour', Math.floor(catchesPerHour).toLocaleString());
+    setInnerText('outXpMin', finalXpPerMin.toLocaleString(undefined, { maximumFractionDigits: 0 }));
+    setInnerText('outXpHour', finalXpHour.toLocaleString(undefined, { maximumFractionDigits: 0 }));
 }
 
 // =========================================================
-// 7. SCRAP LOOT SIMULATOR ENGINE
+// 7. SCRAP LOOT SIMULATOR ENGINE (Calibrated to 762 Rolls)
 // =========================================================
 const scrapData = [
-    { id: 'scrap', weight: 22, color: '#888888' },
-    { id: 'coin_500', weight: 15, color: '#fbbf24' },
-    { id: 'coin_1000', weight: 13, color: '#fbbf24' },
-    { id: 'coin_10k', weight: 1, color: '#f59e0b' },
-    { id: 'potion_luck', weight: 6, color: '#a855f7' },
-    { id: 'potion_speed', weight: 9, color: '#00e6ff' },
-    { id: 'relic_frag', weight: 20, color: '#f59e0b' },
-    { id: 'relic_mossy', weight: 3, color: '#10b981' },
-    { id: 'relic_powerful', weight: 1, color: '#ef4444' }, // Adjusted from 0 to 1
-    { id: 'xp_500', weight: 13, color: '#a855f7' }
+    { id: 'scrap', weight: 128, color: '#888888' },
+    { id: 'coin_500', weight: 128, color: '#fbbf24' },
+    { id: 'coin_1000', weight: 117, color: '#fbbf24' },
+    { id: 'coin_10k', weight: 5, color: '#f59e0b' },
+    { id: 'potion_luck', weight: 67, color: '#a855f7' },
+    { id: 'potion_speed', weight: 63, color: '#00e6ff' },
+    { id: 'relic_frag', weight: 134, color: '#f59e0b' }, 
+    { id: 'relic_mossy', weight: 16, color: '#10b981' },
+    { id: 'relic_powerful', weight: 1, color: '#ef4444' }, 
+    { id: 'xp_500', weight: 103, color: '#a855f7' }
 ];
 
-const TOTAL_SCRAP_WEIGHT = 103; // Shifted from 102 to account for the Powerful Relic
+// Calculate this once at runtime so your data array is the single source of truth
+const TOTAL_SCRAP_WEIGHT = scrapData.reduce((sum, item) => sum + item.weight, 0);
 
 function renderScrapTable(simulatedResults = null) {
     const tbody = document.getElementById('scrapTableBody');
