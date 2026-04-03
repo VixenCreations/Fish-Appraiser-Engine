@@ -7,11 +7,13 @@
 A high-performance, zero-dependency local web engine built to reverse-engineer and calculate the exact dynamic economy of the VRChat world **Fish\!**.
 
 > *I was bored and wanted something to do during my down time at work, so I went a little too far for a fishing game lol.* — **Vixenlicious**
+---
 
-## Consider buying me a coffee on ko-fi or checking out my other socials
+### ☕ Consider buying me a coffee on ko-fi or checking out my other socials
 * [Visit me on X where I post things!](https://x.com/VixenVRC)
 * [Consider buying me a coffee! I do this for free!](https://ko-fi.com/vixenlicous)
 
+---
 ## 📖 Documentation & Setup
 
 **All documentation, installation instructions, server configurations, and deep-dive math breakdowns have been moved to the official Wiki.**
