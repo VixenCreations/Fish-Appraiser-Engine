@@ -22,6 +22,7 @@ A high-performance, zero-dependency local web engine built to reverse-engineer a
 
 ### Quick Links:
 
+* [Credits, Acknowledgments & Data Sources](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Credits,-Acknowledgments-&-Data-Sources)
 * [Installation & Setup](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Installation%E2%80%90and%E2%80%90Setup)
 * [Usage & Navigation](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Usage%E2%80%90and%E2%80%90Navigation)
 * [Server Configuration](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Server%E2%80%90Configuration)
@@ -29,4 +30,7 @@ A high-performance, zero-dependency local web engine built to reverse-engineer a
 * [Core Features](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Core%E2%80%90Features)
 * [Architecture & Topology](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Architecture%E2%80%90and%E2%80%90Topology)
 * [Data Maintenance & Contribution Guide](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Data-Maintenance-&-Contribution-Guide)
+* [Data Validator Tutorial: Establishing True Limits](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Data-Validator-Tutorial:-Establishing-True-Limits)
+* [Localization (i18n) Framework](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Localization-(i18n)-Framework)
+* [Custom Theming & Lunar Bootloader](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Custom-Theming-&-Lunar-Bootloader)
 * [Reverse-Engineered Mechanics](https://github.com/VixenCreations/Fish-Appraiser-Engine/wiki/Reverse%E2%80%90Engineered%E2%80%90Mechanics)
