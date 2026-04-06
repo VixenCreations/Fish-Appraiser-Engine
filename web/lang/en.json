@@ -162,7 +162,7 @@
     },
     "nerds": {
         "header": "> STATS_FOR_NERDS // Math Engine",
-        "subtitle": "For Spreadsheet Maintainers and Data Miners. The underlying physics and math of the Fish! engine.",
+        "subtitle": "For Spreadsheet Maintainers and Validators. The underlying physics and math of the Fish! engine.",
         "s1_title": "1. The Core Equation (Sine Curve)",
         "s1_p1": "The game does not use flat random numbers for weight. It rolls a hidden decimal (0.0 to 1.0), applies your Big Catch points as a shift, and plots it on a Sine wave.",
         "s2_title": "2. The \"Ceiling Effect\" (Negative Penalties)",
