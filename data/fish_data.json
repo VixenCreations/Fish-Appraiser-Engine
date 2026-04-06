@@ -1340,5 +1340,93 @@
     "rarity": "Exotic",
     "baseXP": 100,
     "perfectXP": 150
+  },
+  {
+    "id": "pink_egg_pattern_minnow",
+    "name": "Pink Egg Pattern Minnow",
+    "baseMinW": "0.1",
+    "baseMaxW": "1",
+    "baseFloor": 254,
+    "baseCeil": 350,
+    "rarity": "Curious",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "blue_egg_pattern_minnow",
+    "name": "Blue Egg Pattern Minnow",
+    "baseMinW": "0.1",
+    "baseMaxW": "1",
+    "baseFloor": 428,
+    "baseCeil": 987,
+    "rarity": "Elusive",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "easter_basket",
+    "name": "Easter Basket",
+    "baseMinW": "1",
+    "baseMaxW": "6",
+    "baseFloor": 1,
+    "baseCeil": 1,
+    "rarity": "Elusive",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "daisy_perch",
+    "name": "Daisy Perch",
+    "baseMinW": "1",
+    "baseMaxW": "10",
+    "baseFloor": 1465,
+    "baseCeil": 2613,
+    "rarity": "Fabled",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "eggshell_catfish",
+    "name": "Eggshell Catfish",
+    "baseMinW": "10",
+    "baseMaxW": "50",
+    "baseFloor": 1311,
+    "baseCeil": 2680,
+    "rarity": "Fabled",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "carrot_fish",
+    "name": "Carrot Fish",
+    "baseMinW": "10",
+    "baseMaxW": "100",
+    "baseFloor": 3837,
+    "baseCeil": 8113,
+    "rarity": "Mythic",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "bloomfish",
+    "name": "Bloomfish",
+    "baseMinW": "150",
+    "baseMaxW": "500",
+    "baseFloor": 7483,
+    "baseCeil": 10436,
+    "rarity": "Exotic",
+    "baseXP": 20,
+    "perfectXP": 30
+  },
+  {
+    "id": "easter_bunnyfish",
+    "name": "Easter Bunnyfish",
+    "baseMinW": "10",
+    "baseMaxW": "50",
+    "baseFloor": 7944,
+    "baseCeil": 10943,
+    "rarity": "Exotic",
+    "baseXP": 20,
+    "perfectXP": 30
   }
 ]

@@ -391,7 +391,15 @@
             "luxian_camelshark": "ルクシアン・キャメルシャーク",
             "catfish_emperor": "ナマズ皇帝",
             "crab_of_duality": "二元性のカニ",
-            "shamrock_shark": "シャムロックシャーク"
+            "shamrock_shark": "シャムロックシャーク",
+						"pink_egg_pattern_minnow": "ピンクエッグパターン・ミノー",
+						"blue_egg_pattern_minnow": "ブルーエッグパターン・ミノー",
+						"easter_basket": "イースターバスケット",
+						"daisy_perch": "デイジーパーチ",
+						"eggshell_catfish": "エッグシェル・キャットフィッシュ",
+						"carrot_fish": "キャロットフィッシュ",
+						"bloomfish": "ブルームフィッシュ",
+						"easter_bunnyfish": "イースターバニーフィッシュ"
         }
     }
 }

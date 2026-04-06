@@ -391,7 +391,15 @@
             "luxian_camelshark": "Luxian Camelshark",
             "catfish_emperor": "Catfish Emperor",
             "crab_of_duality": "Crab of Duality",
-            "shamrock_shark": "Shamrock Shark"
+            "shamrock_shark": "Shamrock Shark",
+						"pink_egg_pattern_minnow": "Pink Egg Pattern Minnow",
+						"blue_egg_pattern_minnow": "Blue Egg Pattern Minnow",
+						"easter_basket": "Easter Basket",
+						"daisy_perch": "Daisy Perch",
+						"eggshell_catfish": "Eggshell Catfish",
+						"carrot_fish": "Carrot Fish",
+						"bloomfish": "Bloomfish",
+						"easter_bunnyfish": "Easter Bunnyfish"
         }
     }
 }
